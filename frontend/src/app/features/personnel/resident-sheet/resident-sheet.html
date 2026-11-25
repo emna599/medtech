@@ -46,6 +46,10 @@
     </div>
   }
 
+  @if (item().kind === 'REPAS') {
+    <app-appetite-chart [residentId]="item().resident.id" />
+  }
+
   <section class="task" [class.task-risk]="item().highRisk">
     <div class="task-time">
       {{ slotText() }} · {{ item().scheduledAt | date: 'HH:mm' }}

@@ -19,6 +19,16 @@
       </mat-button-toggle>
     </mat-button-toggle-group>
 
+    <button mat-stroked-button type="button" class="releve residents" (click)="openResidents()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
+      Résidents
+    </button>
+
+    <button mat-stroked-button type="button" class="releve" (click)="openReleve()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
+      Relève
+    </button>
+
     <button mat-stroked-button type="button" class="unknown" (click)="openIdentify()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon>
       Je ne le connais pas
@@ -191,3 +201,8 @@
     </ul>
   }
 </main>
+
+<button type="button" class="assistant-fab" aria-label="Ouvrir l'assistant" (click)="openAssistant()">
+  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">support_agent</mat-icon>
+  Assistant
+</button>

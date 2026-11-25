@@ -21,6 +21,9 @@ import {
   slotLabel,
 } from '../../shared/models/personnel.model';
 import { ResidentAvatar } from './components/resident-avatar';
+import { AssistantDialog, AssistantResult } from './assistant-dialog/assistant-dialog';
+import { ResidentsDialog, ResidentsResult } from './residents-dialog/residents-dialog';
+import { ReleveDialog } from './releve-dialog/releve-dialog';
 import { IdentifyDialog, IdentifyResult } from './identify-dialog/identify-dialog';
 import { ResidentSheet, ResidentSheetData, ResidentSheetResult } from './resident-sheet/resident-sheet';
 
@@ -226,20 +229,64 @@ export class PersonnelDashboard {
       maxWidth: '100vw',
     });
     ref.afterClosed().subscribe((result) => {
+      if (result) {
+        this.openResident(result.residentId);
+      }
+    });
+  }
+
+  protected openResidents(): void {
+    const ref = this.dialog.open<ResidentsDialog, undefined, ResidentsResult>(ResidentsDialog, {
+      maxWidth: '100vw',
+      autoFocus: false,
+    });
+    ref.afterClosed().subscribe((result) => {
+      if (result) {
+        this.openResident(result.residentId);
+      }
+    });
+  }
+
+  protected openReleve(): void {
+    this.dialog.open(ReleveDialog, { maxWidth: '100vw', autoFocus: false });
+  }
+
+  protected openAssistant(): void {
+    const ref = this.dialog.open<AssistantDialog, undefined, AssistantResult>(AssistantDialog, {
+      maxWidth: '100vw',
+      panelClass: 'assistant-panel',
+      autoFocus: false,
+    });
+    ref.afterClosed().subscribe((result) => {
       if (!result) {
         return;
       }
-      const candidates = this.items().filter((item) => item.resident.id === result.residentId);
-      const target =
-        candidates.find((item) => PENDING.includes(item.status) && item.slot === this.currentSlot()) ??
-        candidates.find((item) => PENDING.includes(item.status)) ??
-        candidates[0];
-      if (target) {
-        this.open(target);
+      if (result.changed) {
+        this.load(() => this.openResidentIfAny(result.residentId));
       } else {
-        this.snackBar.open('Rien à faire pour cette personne en ce moment', 'OK', { duration: 5000 });
+        this.openResidentIfAny(result.residentId);
       }
     });
+  }
+
+  private openResidentIfAny(residentId: number | undefined): void {
+    if (residentId !== undefined) {
+      this.openResident(residentId);
+    }
+  }
+
+  /** Ouvre la fiche du résident pour le service en cours (ou la plus pertinente s'il y en a plusieurs). */
+  private openResident(residentId: number): void {
+    const candidates = this.items().filter((item) => item.resident.id === residentId);
+    const target =
+      candidates.find((item) => PENDING.includes(item.status) && item.slot === this.currentSlot()) ??
+      candidates.find((item) => PENDING.includes(item.status)) ??
+      candidates[0];
+    if (target) {
+      this.open(target);
+    } else {
+      this.snackBar.open('Rien à faire pour cette personne en ce moment', 'OK', { duration: 5000 });
+    }
   }
 
   // ------------------------------------------------------------------ affichage

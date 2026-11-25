@@ -20,13 +20,25 @@ mat-button-toggle-group {
   --mat-button-toggle-shape: 28px;
   --mat-button-toggle-height: 52px;
   --mat-button-toggle-selected-state-background-color: var(--app-ok);
-  --mat-button-toggle-selected-state-text-color: #fff;
-  --mat-button-toggle-background-color: #fff;
-  --mat-button-toggle-text-color: #12365c;
-  --mat-button-toggle-divider-color: #c3dedb;
-  border-color: #c3dedb;
+  --mat-button-toggle-selected-state-text-color: var(--app-on-ok);
+  --mat-button-toggle-background-color: var(--app-surface);
+  --mat-button-toggle-text-color: var(--app-ink);
+  --mat-button-toggle-divider-color: var(--app-line);
+  border-color: var(--app-line);
   box-shadow: var(--app-shadow);
   font-weight: 700;
+}
+
+.releve {
+  height: 52px;
+  padding: 0 22px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 26px;
+  background: var(--app-surface);
+  border-color: var(--brand-teal);
+  color: var(--brand-teal);
+  box-shadow: var(--app-shadow);
 }
 
 .unknown {
@@ -35,7 +47,7 @@ mat-button-toggle-group {
   font-size: 16px;
   font-weight: 700;
   border-radius: 26px;
-  background: #fff;
+  background: var(--app-surface);
   border-color: var(--app-warn);
   color: var(--app-warn);
   box-shadow: var(--app-shadow);
@@ -51,9 +63,9 @@ mat-button-toggle-group {
   min-height: 48px;
   padding: 0 24px;
   border-radius: 26px;
-  border: 2px solid #c3dedb;
-  background: #fff;
-  color: #12365c;
+  border: 2px solid var(--app-line);
+  background: var(--app-surface);
+  color: var(--app-ink);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
@@ -78,12 +90,12 @@ mat-button-toggle-group {
   gap: 8px;
   padding: 14px 18px;
   border-radius: var(--app-radius);
-  background: #fff;
+  background: var(--app-surface);
   box-shadow: var(--app-shadow);
   --mat-progress-bar-active-indicator-height: 12px;
   --mat-progress-bar-track-height: 12px;
   --mat-progress-bar-active-indicator-color: var(--app-ok);
-  --mat-progress-bar-track-color: #d5e9e6;
+  --mat-progress-bar-track-color: var(--app-line);
   --mat-progress-bar-track-shape: 8px;
 }
 
@@ -116,7 +128,7 @@ mat-button-toggle-group {
   font-weight: 800;
   border-radius: 32px;
   --mat-button-filled-container-color: var(--app-ok);
-  --mat-button-filled-label-text-color: #fff;
+  --mat-button-filled-label-text-color: var(--app-on-ok);
   box-shadow: 0 6px 18px rgb(15 118 110 / 35%);
 }
 
@@ -166,7 +178,7 @@ ul.rows {
   color: inherit;
   cursor: pointer;
   border: 2px solid transparent;
-  background: #fff;
+  background: var(--app-surface);
   box-shadow: var(--app-shadow);
   touch-action: manipulation;
   transition:
@@ -289,8 +301,8 @@ ul.rows {
   border-radius: 14px;
   font: var(--mat-sys-label-large);
   font-weight: 700;
-  background: #e9eff2;
-  color: #2f4560;
+  background: var(--app-chip-bg);
+  color: var(--app-chip-ink);
 }
 
 .row .status {
@@ -298,7 +310,7 @@ ul.rows {
 }
 
 .is-todo {
-  border-color: #dbe9e7;
+  border-color: var(--app-line-soft);
 }
 
 .is-done {
@@ -308,7 +320,7 @@ ul.rows {
 
 .is-done .status {
   background: var(--app-ok);
-  color: #fff;
+  color: var(--app-on-ok);
 }
 
 .is-refused {
@@ -340,4 +352,34 @@ ul.rows {
   .row {
     transition: none;
   }
+}
+
+.assistant-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 60px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 30px;
+  background: var(--brand-navy);
+  color: #fff;
+  font: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgb(18 54 92 / 40%);
+}
+
+.assistant-fab:focus-visible {
+  outline: 3px solid var(--brand-coral);
+  outline-offset: 3px;
+}
+
+.residents {
+  margin-left: auto;
 }

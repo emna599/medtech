@@ -18,6 +18,9 @@
       <p class="sub">
         {{ resident.room ? 'Chambre ' + resident.room : 'Sans chambre' }} · {{ resident.age }} ans
       </p>
+      @if (labelInfo(); as info) {
+        <p class="sub">{{ info }}</p>
+      }
       @if (resident.distinguishingFeatures) {
         <p class="sub">{{ resident.distinguishingFeatures }}</p>
       }
@@ -52,27 +55,47 @@
         </p>
       }
 
-      <p class="help">
-        Scannez le bracelet ou le badge de la personne (lecteur), ou saisissez son code.
-      </p>
-      <mat-form-field appearance="outline" class="full">
-        <mat-label>Code du bracelet ou du badge</mat-label>
-        <input
-          matInput
-          autocomplete="off"
-          maxlength="50"
-          cdkFocusInitial
-          [ngModel]="code()"
-          (ngModelChange)="code.set($event)"
-          (keydown.enter)="identify()"
-        />
-        <mat-icon matSuffix fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
-      </mat-form-field>
+      @if (scanning()) {
+        @if (cameraError(); as cameraProblem) {
+          <p class="error" role="alert">{{ cameraProblem }}</p>
+        } @else {
+          <app-qr-reader (scanned)="onQr($event)" (failed)="onCameraError($event)" />
+        }
+        <input #qrfile type="file" accept="image/*" capture="environment" hidden (change)="qrPhoto($event)" />
+        <div class="row">
+          <button mat-stroked-button type="button" (click)="qrfile.click()">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">photo_camera</mat-icon>
+            Photo du QR code
+          </button>
+          <button mat-button type="button" (click)="stopScan()">Annuler</button>
+        </div>
+      } @else {
+        <p class="help">
+          Scannez le QR code du bracelet ou du badge, ou saisissez son code.
+        </p>
+        <button mat-flat-button type="button" class="qr" [disabled]="busy()" (click)="startScan()">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
+          Scanner un QR code
+        </button>
+        <mat-form-field appearance="outline" class="full code-field">
+          <mat-label>Ou saisir le code</mat-label>
+          <input
+            matInput
+            autocomplete="off"
+            maxlength="200"
+            [ngModel]="code()"
+            (ngModelChange)="code.set($event)"
+            (keydown.enter)="identify()"
+          />
+          <mat-icon matSuffix fontSet="material-symbols-outlined" aria-hidden="true">keyboard</mat-icon>
+        </mat-form-field>
+      }
 
       @if (error()) {
         <p class="error" role="alert">{{ error() }}</p>
       }
 
+      @if (!scanning()) {
       <button
         mat-flat-button
         type="button"
@@ -82,10 +105,19 @@
       >
         Afficher la fiche
       </button>
+      }
+
+      @if (!scanning()) {
+      <p class="or">ou</p>
+      <input #photo type="file" accept="image/*" capture="environment" hidden (change)="scanPochette($event)" />
+      <button mat-stroked-button type="button" class="pochette" [disabled]="busy()" (click)="photo.click()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">photo_camera</mat-icon>
+        Photographier l'étiquette d'une pochette
+      </button>
+      }
 
       <p class="hint">
-        Pas de bracelet ? La lecture de l'étiquette d'une pochette de médicaments arrive à l'étape suivante.
-        D'ici là, demandez à un collègue.
+        Ni bracelet ni pochette ? Demandez à un collègue. Dans tous les cas, comparez toujours le visage à la photo.
       </p>
     </section>
   }

@@ -19,6 +19,7 @@ import {
   ServiceItem,
   slotLabel,
 } from '../../../shared/models/personnel.model';
+import { AppetiteChart } from '../components/appetite-chart';
 import { ResidentAvatar } from '../components/resident-avatar';
 
 export interface ResidentSheetData {
@@ -35,6 +36,7 @@ export interface ResidentSheetResult {
 @Component({
   selector: 'app-resident-sheet',
   imports: [
+    AppetiteChart,
     DatePipe,
     FormsModule,
     MatButtonModule,

@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { ThemeService } from '../../../core/services/theme.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ROLE_LABEL } from '../../models/auth.model';
 
@@ -15,12 +16,19 @@ import { ROLE_LABEL } from '../../models/auth.model';
 })
 export class Toolbar {
   private readonly auth = inject(AuthService);
+  private readonly theme = inject(ThemeService);
+
+  protected readonly dark = computed(() => this.theme.mode() === 'dark');
 
   protected readonly user = this.auth.currentUser;
   protected readonly roleLabel = computed(() => {
     const role = this.user()?.role;
     return role ? ROLE_LABEL[role] : '';
   });
+
+  protected toggleTheme(): void {
+    this.theme.toggle();
+  }
 
   protected logout(): void {
     this.auth.logout();

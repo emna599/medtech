@@ -1,0 +1,133 @@
+<div class="dialog">
+  <header class="head">
+    @if (selected(); as resident) {
+      <button mat-icon-button type="button" aria-label="Retour à la liste" (click)="back()">
+        <mat-icon fontSet="material-symbols-outlined">arrow_back</mat-icon>
+      </button>
+      <h2 class="title">{{ name(resident) }}</h2>
+    } @else {
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
+      <h2 class="title">Résidents</h2>
+    }
+    <span class="grow"></span>
+    <button mat-icon-button type="button" aria-label="Fermer" (click)="close()">
+      <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
+    </button>
+  </header>
+
+  @if (selected(); as resident) {
+    <section class="detail">
+      <div class="identity">
+        <app-resident-avatar
+          [photoUrl]="resident.photoUrl"
+          [firstName]="resident.firstName"
+          [lastName]="resident.lastName"
+          [size]="128"
+        />
+        <div>
+          <p class="line">{{ resident.age }} ans</p>
+          <p class="line">{{ roomText(resident) }}</p>
+          <p class="line">{{ whereText(resident) }}</p>
+          @if (resident.needsHelp) {
+            <p class="line help">
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">volunteer_activism</mat-icon>
+              A besoin d'aide pour manger
+            </p>
+          }
+        </div>
+      </div>
+
+      @if (resident.distinguishingFeatures) {
+        <p class="features">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">visibility</mat-icon>
+          {{ resident.distinguishingFeatures }}
+        </p>
+      }
+
+      @if (resident.allergies.length > 0) {
+        <div class="allergy" role="alert">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+          <div>
+            <strong>ALLERGIE</strong> :
+            @for (allergy of resident.allergies; track allergy.name; let last = $last) {
+              {{ allergy.name }}@if (allergy.severity) { ({{ allergy.severity }}) }@if (!last) {, }
+            }
+          </div>
+        </div>
+      }
+
+      @if (resident.identityDoubt) {
+        <p class="doubt" role="status">Un doute d'identité est en cours pour ce résident.</p>
+      }
+
+      <h3>Informations alimentaires</h3>
+      <dl class="food">
+        <dt>Régime</dt>
+        <dd>{{ resident.regime || 'Normal' }}</dd>
+        <dt>Texture</dt>
+        <dd>{{ resident.texture || 'Normale' }}</dd>
+        @if (resident.restrictions) {
+          <dt>Restrictions</dt>
+          <dd>{{ resident.restrictions }}</dd>
+        }
+        @if (resident.instructions) {
+          <dt>Consignes</dt>
+          <dd>{{ resident.instructions }}</dd>
+        }
+      </dl>
+
+      <app-appetite-chart [residentId]="resident.id" />
+
+      <button mat-flat-button type="button" class="service" (click)="openService(resident)">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
+        Voir son service du jour
+      </button>
+    </section>
+  } @else {
+    <section class="list-area">
+      <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
+        <mat-label>Rechercher un résident (nom ou chambre)</mat-label>
+        <input matInput type="search" autocomplete="off" [ngModel]="search()" (ngModelChange)="search.set($event)" />
+        <mat-icon matSuffix fontSet="material-symbols-outlined" aria-hidden="true">search</mat-icon>
+      </mat-form-field>
+
+      @if (loading()) {
+        <div class="state"><mat-spinner diameter="40" /></div>
+      } @else if (error()) {
+        <div class="state" role="alert">
+          <p class="error">{{ error() }}</p>
+          <button mat-stroked-button type="button" (click)="load()">Réessayer</button>
+        </div>
+      } @else if (visible().length === 0) {
+        <p class="state">Aucun résident trouvé.</p>
+      } @else {
+        <p class="count">{{ visible().length }} résident(s)</p>
+        <ul class="list">
+          @for (resident of visible(); track resident.id) {
+            <li>
+              <button type="button" class="item" (click)="select(resident)">
+                <app-resident-avatar
+                  [photoUrl]="resident.photoUrl"
+                  [firstName]="resident.firstName"
+                  [lastName]="resident.lastName"
+                  [size]="48"
+                />
+                <span class="item-main">
+                  <span class="item-name">{{ name(resident) }}</span>
+                  <span class="item-sub">{{ roomText(resident) }} · {{ resident.regime || 'Normal' }}</span>
+                </span>
+                @if (resident.allergies.length > 0) {
+                  <span class="badge" title="Allergies">
+                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+                    {{ resident.allergies.length }}
+                  </span>
+                }
+                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">chevron_right</mat-icon>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</div>

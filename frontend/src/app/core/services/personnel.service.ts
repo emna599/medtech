@@ -3,9 +3,12 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  Appetite,
+  AssistantReply,
   CompleteRequest,
   Doubt,
   MealLocation,
+  PochetteScan,
   QuantityEaten,
   ResidentCard,
   ServiceItem,
@@ -27,6 +30,19 @@ export class PersonnelService {
     return this.http.post<ServiceItem>(`${this.base}/${path}/${item.id}/complete`, body);
   }
 
+  completeById(kind: ServiceKind, id: number, body: CompleteRequest): Observable<ServiceItem> {
+    const path = kind === 'REPAS' ? 'meals' : 'doses';
+    return this.http.post<ServiceItem>(`${this.base}/${path}/${id}/complete`, body);
+  }
+
+  appetite(residentId: number, days = 7): Observable<Appetite> {
+    return this.http.get<Appetite>(`${this.base}/residents/${residentId}/appetite`, { params: { days } });
+  }
+
+  ask(message: string): Observable<AssistantReply> {
+    return this.http.post<AssistantReply>(`${this.base}/assistant`, { message });
+  }
+
   setQuantity(mealId: number, quantityEaten: QuantityEaten): Observable<ServiceItem> {
     return this.http.put<ServiceItem>(`${this.base}/meals/${mealId}/quantity`, { quantityEaten });
   }
@@ -39,6 +55,16 @@ export class PersonnelService {
 
   identify(code: string): Observable<ResidentCard> {
     return this.http.post<ResidentCard>(`${this.base}/identify`, { code });
+  }
+
+  listResidents(): Observable<ResidentCard[]> {
+    return this.http.get<ResidentCard[]>(`${this.base}/residents`);
+  }
+
+  scanPochette(photo: File): Observable<PochetteScan> {
+    const body = new FormData();
+    body.append('photo', photo, photo.name);
+    return this.http.post<PochetteScan>(`${this.base}/identify/pochette`, body);
   }
 
   openDoubts(): Observable<Doubt[]> {

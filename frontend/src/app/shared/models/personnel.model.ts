@@ -95,3 +95,49 @@ export function fullName(resident: Pick<ResidentCard, 'firstName' | 'lastName'>)
 export function doneLabel(kind: ServiceKind): string {
   return kind === 'REPAS' ? 'Servi' : 'Donné';
 }
+
+export interface AssistantResidentRef {
+  id: number;
+  name: string;
+  room: string | null;
+}
+
+/** Action proposée par l'assistant : rien n'est enregistré avant la confirmation du soignant. */
+export interface AssistantAction {
+  kind: ServiceKind;
+  itemId: number;
+  summary: string;
+}
+
+export interface AssistantReply {
+  answer: string;
+  intent: string;
+  residents: AssistantResidentRef[];
+  action: AssistantAction | null;
+}
+
+export interface AppetiteDay {
+  date: string;
+  /** 0 (rien mangé ou refus) à 1 (tout mangé) ; null s'il n'y a pas de repas enregistré. */
+  score: number | null;
+  meals: number;
+  refused: number;
+}
+
+export interface Appetite {
+  days: AppetiteDay[];
+  recentAverage: number | null;
+  previousAverage: number | null;
+  declining: boolean;
+}
+
+/** Résultat de la lecture d'une étiquette de pochette : l'OCR propose, le soignant vérifie le visage. */
+export interface PochetteScan {
+  status: 'FOUND' | 'NOT_FOUND' | 'AMBIGUOUS' | 'UNAVAILABLE';
+  message: string;
+  resident: ResidentCard | null;
+  nameRead: string | null;
+  prise: string | null;
+  date: string | null;
+  medications: string | null;
+}
