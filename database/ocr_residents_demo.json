@@ -1,0 +1,76 @@
+{
+  "residents": [
+    {
+      "nom": "MARTIN JEANNE",
+      "chambre": "12",
+      "photo": "",
+      "rfid": ""
+    },
+    {
+      "nom": "DURAND MICHEL",
+      "chambre": "7",
+      "photo": "",
+      "rfid": ""
+    },
+    {
+      "nom": "PETIT ODETTE",
+      "chambre": "3",
+      "photo": "",
+      "rfid": ""
+    },
+    {
+      "nom": "BERNARD PAUL",
+      "chambre": "15",
+      "photo": "",
+      "rfid": ""
+    },
+    {
+      "nom": "LEROY SIMONE",
+      "chambre": "8",
+      "photo": "",
+      "rfid": ""
+    },
+    {
+      "nom": "MOREAU HENRI",
+      "chambre": "14",
+      "photo": "",
+      "rfid": ""
+    },
+    {
+      "nom": "SIMON COLETTE",
+      "chambre": "21",
+      "photo": "",
+      "rfid": ""
+    },
+    {
+      "nom": "LAURENT MARCEL",
+      "chambre": "9",
+      "photo": "",
+      "rfid": ""
+    },
+    {
+      "nom": "GARCIA ROSA",
+      "chambre": "10",
+      "photo": "",
+      "rfid": ""
+    },
+    {
+      "nom": "ROUX LUCIEN",
+      "chambre": "11",
+      "photo": "",
+      "rfid": ""
+    },
+    {
+      "nom": "FOURNIER YVETTE",
+      "chambre": "16",
+      "photo": "",
+      "rfid": ""
+    },
+    {
+      "nom": "GIRARD ANDRÉ",
+      "chambre": "17",
+      "photo": "",
+      "rfid": ""
+    }
+  ]
+}

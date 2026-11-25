@@ -18,6 +18,11 @@ Principe de conception : **« un écran, un geste »**, pensé d'abord pour la t
 | Fiche résident | Photo, **bandeau rouge d'allergies**, régime et texture, actions **Servi / Donné**, **Refusé** (avec motif), **Plus tard**, quantité mangée, changement de lieu (salle ↔ chambre) |
 | Doute d'identité | Le soignant signale un doute : **Servi / Donné est bloqué** tant qu'un **autre** soignant ne l'a pas levé |
 | « Je ne le connais pas » | Saisie du code du bracelet (facultatif) pour afficher la fiche, puis confirmation « C'est bien cette personne » |
+| Assistant | Bouton **Assistant** (en bas à droite) : questions en français, écrites ou **dictées à la voix**, réponses sur le service en cours. Il **propose** une validation, le soignant **confirme** |
+| Appétit | Dans la fiche d'un repas : graphique des 7 derniers jours (une barre par jour) et alerte **« en baisse »** quand les trois derniers jours sont nettement moins bons ou sous la moitié. L'assistant répond aussi à « appétit de Mme Martin ? » |
+| Mode sombre | Bouton lune / soleil dans le bandeau ; suit le réglage du système tant qu'on n'a pas choisi |
+| Relève | Bouton **Relève** : résumé à transmettre à l'équipe suivante (repas et prises faits par créneau, reste à faire, doutes d'identité, refus, repas à peine touchés, traitements à risque non donnés), avec **Copier le résumé** |
+| Pochette (OCR) | Dans « Je ne le connais pas » : **Photographier l'étiquette d'une pochette**. Le service OCR de l'équipe lit le nom, Spring retrouve le résident, et le soignant **compare le visage à la photo** avant de continuer. Facultatif : sans service OCR, un message l'indique |
 | Traçabilité | Chaque action est enregistrée dans `audit_log` avec le soignant, l'heure et le résident |
 
 ### Règles métier (côté serveur)
@@ -50,6 +55,7 @@ Backend, `backend/src/main/java/com/esigelec/ehpad_backend/` :
 | Dossier | Contenu |
 |---|---|
 | `controller/PersonnelController.java` | Toutes les routes `/api/personnel/**` |
+| `service/AssistantService.java` | Assistant par règles (mots-clés), sans modèle externe |
 | `service/` | `CareService` (repas et médicaments), `ResidentService`, `IdentityDoubtService`, `AuditService`, `CurrentUserService`, `ResidentCardAssembler` |
 | `entity/`, `repository/` | Entités JPA et requêtes |
 | `dto/` | Objets échangés avec le frontend (jamais d'historique médical) |
@@ -64,6 +70,8 @@ Frontend, `frontend/src/app/` :
 | `features/personnel/resident-sheet/` | Fiche résident (fenêtre de dialogue) |
 | `features/personnel/identify-dialog/` | Écran « Je ne le connais pas » |
 | `features/personnel/components/resident-avatar.ts` | Photo ou initiales colorées |
+| `features/personnel/releve-dialog/` | Résumé de relève (lecture seule, calculé depuis le service du jour) |
+| `features/personnel/assistant-dialog/` | Fenêtre de l'assistant (discussion, dictée vocale, confirmation) |
 | `core/services/personnel.service.ts` | Appels HTTP |
 | `shared/models/personnel.model.ts` | Types et libellés |
 | `shared/components/toolbar/` | Bandeau avec le logo |
@@ -91,10 +99,13 @@ Toutes les routes demandent l'en-tête `Authorization: Bearer <jwt>`.
 | GET | `/api/personnel/residents/{id}` | Fiche d'un résident |
 | PUT | `/api/personnel/residents/{id}/meal-location` | Salle ↔ chambre |
 | POST | `/api/personnel/identify` | Retrouver un résident par code de bracelet |
+| POST | `/api/personnel/identify/pochette` | Photo d'une étiquette (champ `photo`) : résident proposé par l'OCR |
+| GET | `/api/personnel/residents/{id}/appetite?days=7` | Appétit des derniers jours (3 à 14) |
 | GET | `/api/personnel/service?kind=REPAS\|MEDICAMENT` | Éléments du jour à servir |
 | POST | `/api/personnel/meals/{id}/complete` | Valider un repas (`status`, `comment`) |
 | PUT | `/api/personnel/meals/{id}/quantity` | Quantité mangée |
 | POST | `/api/personnel/doses/{id}/complete` | Valider une prise de médicament |
+| POST | `/api/personnel/assistant` | Question à l'assistant (`message`) : réponse, résidents cités, action à confirmer |
 | GET / POST | `/api/personnel/identity-doubts` | Lister / signaler un doute |
 | POST | `/api/personnel/identity-doubts/{id}/resolve` | Lever un doute (autre soignant) |
 
@@ -186,6 +197,15 @@ Codes de bracelet de démonstration : `DEMO-001` à `DEMO-012`.
 7. **Doute d'identité.** Avec `personnel`, ouvrir un résident, **J'ai un doute sur l'identité** puis **Signaler le doute** : Servi/Donné est bloqué. Dans une fenêtre de navigation privée, se connecter avec `personnel2`, ouvrir le même résident et appuyer sur **Confirmer l'identité**. Le blocage disparaît. Le même soignant ne peut pas lever son propre doute.
 8. **Changement de lieu.** Dans une fiche, passer un résident de la salle à la chambre : il apparaît dans l'autre onglet.
 
+9. **Assistant.** Bouton **Assistant**. Essayer : « Qui n'a pas encore mangé ? », « Quels médicaments restent à donner ? », « Allergies de Mme Simon », « Régime de M. Durand », « Où est Mme Petit ? », « Qui a refusé ? », « Résumé du service ». Pour agir : « Marque le repas de M. Durand comme servi » : l'assistant prépare l'action, rien n'est enregistré avant **Confirmer**. Le micro (Chrome ou Edge) dicte la question en français et l'envoie tout seul à la fin de la phrase. **Lire les réponses** active la voix de l'assistant ; **Mains libres** enchaîne : vous parlez, il répond à voix haute, puis il réécoute.
+
+### Sécurité de l'assistant
+
+- Il ne voit que ce que voit déjà le soignant (fiche personnel et service du jour) : **jamais l'historique médical**.
+- Il **ne modifie rien** : la validation passe par la route normale, avec les mêmes règles (doute d'identité, déjà fait, etc.) et la même traçabilité.
+- Sans doute d'identité levé, il refuse de préparer la validation.
+- Il fonctionne par règles : aucune donnée n'est envoyée à un service extérieur.
+
 ---
 
 ## 6. Thème
@@ -196,7 +216,39 @@ Choix d'accessibilité : zones tactiles d'au moins 48 px, allergies toujours en 
 
 ---
 
-## 7. Dépannage
+## 7. Lecture des pochettes par OCR (facultatif)
+
+Le service est le prototype Flask de l'équipe (`R&D/app.py`, route `/scan`). Spring lui transmet la photo, lit le nom reconnu et le rapproche des résidents de la base (nom et prénom, dans n'importe quel ordre, sans accents).
+
+1. Installer et lancer le prototype : `pip install rapidocr-onnxruntime rapidfuzz opencv-python numpy pillow flask`, puis `python app.py` (port 5000).
+2. Remplacer `R&D/residents.json` par `database/ocr_residents_demo.json` (les 12 résidents de démonstration), puis relancer le prototype.
+3. Si le service tourne ailleurs que sur `localhost:5000`, ajouter `OCR_SERVICE_URL=http://adresse:5000` dans le `.env`.
+4. Dans l'application : **Je ne le connais pas**, puis **Photographier l'étiquette d'une pochette**. Sur tablette, cela ouvre l'appareil photo.
+
+Sécurité : l'OCR ne fait que **proposer**. Le soignant doit comparer le visage à la photo et confirmer, comme avec le code du bracelet. L'identification est tracée (`IDENTIFICATION_POCHETTE`). Les photos ne sont pas enregistrées. Un code-barres sur les étiquettes n'est pas utilisé (à valider avec le client).
+
+## 7bis. Résidents et scan de QR code
+
+- **Bouton « Résidents »** (barre du haut) : liste de tous les résidents, recherche par nom ou chambre (sans tenir compte des accents), fiche en lecture seule (allergies, régime, texture, consignes, tendance d'appétit) et accès à son service du jour.
+- **Scanner un QR code** : dans « Je ne le connais pas », la caméra lit le QR du bracelet. Le jeton est cherché d'abord dans la table `qr_code` (générée par l'espace médecin), puis dans `identity_code`. Si la caméra n'est pas disponible, utiliser « Photo du QR code » ou saisir le code.
+- La caméra en direct exige **HTTPS ou localhost**.
+- Planche de QR de démonstration : `database/qr_demo_residents.png` (jetons `QR-DEMO-001` à `QR-DEMO-012`, créés par `seed_personnel.sql`).
+- Nouvelle dépendance front : `jsqr` → lancer `npm install` dans `frontend/frontend`.
+- Nouveau test Java : `ResidentServiceTokenTest`.
+
+## 8. Tests automatiques
+
+```powershell
+# Frontend : 26 tests (modèles, appels HTTP, assistant, graphique d'appétit)
+cd frontend
+npx ng test --watch=false
+
+# Backend : assistant et tendance d'appétit (JUnit + Mockito, sans base de données)
+cd backend
+.\mvnw.cmd test -Dtest="AssistantServiceTest,AppetiteServiceTest,PochetteScanServiceTest"
+```
+
+## 9. Dépannage
 
 | Symptôme | Cause probable |
 |---|---|
@@ -208,9 +260,10 @@ Choix d'accessibilité : zones tactiles d'au moins 48 px, allergies toujours en 
 
 ---
 
-## 8. Limites et suite prévue
+## 10. Limites et suite prévue
 
 - Le scan par **bracelet / QR code** est facultatif (client réservé) : seule la saisie du code est faite.
-- **Niveau 2** : scan de la pochette par OCR (service Flask de l'équipe, appelé via Spring), assistant « MedTech Assist » (règles d'abord, LLM en option, limité au rôle, confirmation avant action, données fictives uniquement), dictée vocale.
-- **Niveau 3** : tendance d'appétit, résumé de relève, mode sombre.
-- Pas encore de tests automatisés pour le module personnel.
+- L'assistant fonctionne par règles ; un modèle de langage reste possible en option (données fictives uniquement).
+- La dictée vocale n'est pas encore dans les commentaires de refus (uniquement dans l'assistant).
+- La lecture des pochettes dépend du prototype Flask : elle n'est pas fiable sur une photo floue ou mal éclairée.
+- Les tests Java (assistant, appétit, pochette) sont écrits mais n'ont pas été exécutés par l'auteur de ce document : à lancer avec `mvnw.cmd test`.

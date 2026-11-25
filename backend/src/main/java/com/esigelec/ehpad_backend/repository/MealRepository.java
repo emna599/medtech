@@ -18,4 +18,13 @@ public interface MealRepository extends JpaRepository<Meal, Long> {
             order by m.scheduledAt
             """)
     List<Meal> findActiveBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query("""
+            select m from Meal m
+            where m.resident.id = :residentId and m.scheduledAt >= :from and m.scheduledAt < :to
+            order by m.scheduledAt
+            """)
+    List<Meal> findByResidentBetween(@Param("residentId") Long residentId,
+                                     @Param("from") LocalDateTime from,
+                                     @Param("to") LocalDateTime to);
 }

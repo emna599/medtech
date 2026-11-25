@@ -187,6 +187,33 @@ FROM (VALUES
 ) AS m(code, medication, dose, at_time, high_risk)
 JOIN resident r ON r.identity_code = m.code;
 
+-- ---------- QR codes de démonstration (table qr_code de l'équipe) : jeton « QR-DEMO-001 »... ----------
+INSERT INTO qr_code (token, active, resident_id, user_id)
+SELECT 'QR-' || r.identity_code, TRUE, r.id, (SELECT id FROM users WHERE username = 'admin')
+FROM resident r
+WHERE r.identity_code LIKE 'DEMO-%';
+
+-- ---------- Historique des 6 jours précédents (tendance d'appétit) ----------
+-- Martin (DEMO-001) et Petit (DEMO-003) mangent de moins en moins depuis 3 jours.
+INSERT INTO meal (type, description, scheduled_at, status, resident_id)
+SELECT t.type, 'Repas (historique)', (CURRENT_DATE - d.n) + t.at_time, 'FAIT', r.id
+FROM resident r
+CROSS JOIN generate_series(1, 6) AS d(n)
+CROSS JOIN (VALUES ('DEJEUNER', TIME '12:00'), ('DINER', TIME '19:00')) AS t(type, at_time)
+WHERE r.identity_code LIKE 'DEMO-%';
+
+INSERT INTO meal_distribution (served_at, quantity_eaten, meal_id, user_id)
+SELECT m.scheduled_at + INTERVAL '40 minutes',
+       CASE
+         WHEN r.identity_code IN ('DEMO-001', 'DEMO-003') AND m.scheduled_at >= CURRENT_DATE - 3
+              THEN (ARRAY['RIEN', 'QUART', 'QUART', 'MOITIE'])[1 + (m.id % 4)::int]
+         ELSE (ARRAY['TOUT', 'TROIS_QUARTS', 'TOUT', 'MOITIE', 'TOUT'])[1 + (m.id % 5)::int]
+       END,
+       m.id,
+       (SELECT id FROM users WHERE username = 'personnel')
+FROM meal m JOIN resident r ON r.id = m.resident_id
+WHERE r.identity_code LIKE 'DEMO-%' AND m.scheduled_at < CURRENT_DATE;
+
 -- Vérification rapide
 SELECT (SELECT COUNT(*) FROM resident WHERE identity_code LIKE 'DEMO-%') AS residents,
        (SELECT COUNT(*) FROM meal) AS repas,

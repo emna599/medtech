@@ -49,14 +49,53 @@ public class ResidentService {
         return assembler.assemble(List.of(resident)).get(resident.getId());
     }
 
-    /** Retrouve un résident à partir du code anonyme d'un bracelet ou d'un badge (facultatif). */
+    /**
+     * Retrouve un résident à partir du contenu d'un QR code (jeton de la table qr_code, actif) ou du code
+     * anonyme d'un bracelet ou d'un badge (facultatif). Le QR peut contenir le jeton seul ou une adresse qui le contient.
+     */
     @Transactional
     public ResidentCardDto identifyByCode(String code, String username) {
         User user = currentUserService.require(username);
-        Resident resident = residentRepository.findActiveByIdentityCode(code.trim())
-                .orElseThrow(() -> new ResourceNotFoundException("Aucun résident associé à ce code"));
-        auditService.record(user, "IDENTIFICATION_CODE", "Resident", resident.getId());
+        String token = extractToken(code);
+
+        Resident resident = residentRepository.findResidentIdByActiveQrToken(token)
+                .flatMap(residentRepository::findActiveById)
+                .orElse(null);
+        String action = "IDENTIFICATION_QR";
+        if (resident == null) {
+            resident = residentRepository.findActiveByIdentityCode(token)
+                    .orElseThrow(() -> new ResourceNotFoundException("Aucun résident associé à ce code"));
+            action = "IDENTIFICATION_CODE";
+        }
+        auditService.record(user, action, "Resident", resident.getId());
         return assembler.assemble(List.of(resident)).get(resident.getId());
+    }
+
+    /** Extrait le jeton : « abc », « https://site/qr/abc », « https://site/r?token=abc » donnent tous « abc ». */
+    static String extractToken(String raw) {
+        String value = raw == null ? "" : raw.trim();
+        int named = value.toLowerCase(Locale.ROOT).indexOf("token=");
+        if (named >= 0) {
+            value = value.substring(named + "token=".length());
+            int end = value.indexOf('&');
+            return (end >= 0 ? value.substring(0, end) : value).trim();
+        }
+        String lower = value.toLowerCase(Locale.ROOT);
+        if (lower.startsWith("http://") || lower.startsWith("https://")) {
+            int cut = value.length();
+            for (char stop : new char[] {'?', '#'}) {
+                int at = value.indexOf(stop);
+                if (at >= 0 && at < cut) {
+                    cut = at;
+                }
+            }
+            String path = value.substring(0, cut);
+            while (path.endsWith("/")) {
+                path = path.substring(0, path.length() - 1);
+            }
+            return path.substring(path.lastIndexOf('/') + 1).trim();
+        }
+        return value;
     }
 
     /** Change le lieu du repas du jour (salle à manger / chambre). */
