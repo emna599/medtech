@@ -1,0 +1,35 @@
+.toolbar {
+  gap: 12px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.app-name {
+  font: var(--mat-sys-title-medium);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.user {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+
+.user-name {
+  font: var(--mat-sys-label-large);
+}
+
+.user-role {
+  font: var(--mat-sys-label-small);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+@media (max-width: 600px) {
+  .app-name,
+  .user {
+    display: none;
+  }
+}

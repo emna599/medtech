@@ -1,0 +1,14 @@
+package com.esigelec.ehpad_backend.mapper;
+
+import com.esigelec.ehpad_backend.dto.UserInfoDto;
+import com.esigelec.ehpad_backend.entity.User;
+
+public final class UserMapper {
+
+    private UserMapper() {
+    }
+
+    public static UserInfoDto toInfo(User user) {
+        return new UserInfoDto(user.getId(), user.getUsername(), user.getFullName(), user.getRole());
+    }
+}
