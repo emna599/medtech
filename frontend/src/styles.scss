@@ -37,3 +37,109 @@ body {
   height: 100%;
 }
 /* You can add global styles to this file, and also import other style files */
+
+// ---- Styles communs aux pages d'administration ----
+body {
+  background-color: var(--mat-sys-surface-container-low);
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+
+  h1 {
+    font: var(--mat-sys-headline-small);
+    margin: 0;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.panel {
+  background: var(--mat-sys-surface);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 16px;
+  padding: 8px 16px 8px;
+
+  table {
+    width: 100%;
+  }
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding-top: 12px;
+
+  .grow {
+    flex: 1 1 260px;
+  }
+
+  .select {
+    width: 170px;
+  }
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.row-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+tr.clickable {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-low);
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+
+  &.off {
+    background: var(--mat-sys-error-container);
+    color: var(--mat-sys-on-error-container);
+  }
+
+  &.warn {
+    background: var(--mat-sys-tertiary-container);
+    color: var(--mat-sys-on-tertiary-container);
+  }
+}
+
+.error {
+  color: var(--mat-sys-error);
+}
+
+.empty {
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+  padding: 16px 0;
+}
+
+.link {
+  color: var(--mat-sys-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
