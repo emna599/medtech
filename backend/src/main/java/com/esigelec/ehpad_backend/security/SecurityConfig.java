@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/personnel/**").hasAnyRole("PERSONNEL", "ADMIN")
                         // Les règles par rôle seront ajoutées ici au fur et à mesure, par exemple :
                         // .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // .requestMatchers("/api/medical-records/**").hasRole("MEDECIN")
