@@ -1,6 +1,37 @@
 .toolbar {
   gap: 12px;
-  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  background: #fff;
+  color: var(--brand-navy);
+  border-bottom: 3px solid var(--brand-teal);
+  box-shadow: 0 2px 10px rgb(18 54 92 / 10%);
+}
+
+.logo {
+  height: 40px;
+  width: auto;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.app-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--brand-navy);
+}
+
+.app-name b {
+  color: var(--brand-teal);
+}
+
+.app-sub {
+  margin-top: 3px;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--brand-coral);
 }
 
 .app-name {
@@ -28,7 +59,7 @@
 }
 
 @media (max-width: 600px) {
-  .app-name,
+  .brand .app-sub,
   .user {
     display: none;
   }

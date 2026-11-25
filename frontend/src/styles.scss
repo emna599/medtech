@@ -10,10 +10,13 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        primary: mat.$cyan-palette,
+        tertiary: mat.$orange-palette,
       ),
-      typography: Roboto,
+      typography: (
+        plain-family: 'Nunito, Roboto, sans-serif',
+        brand-family: 'Nunito, Roboto, sans-serif',
+      ),
       density: 0,
     )
   );
@@ -28,7 +31,7 @@ body {
   // Set a default background, font and text colors for the application using
   // Angular Material's system-level CSS variables. Learn more about these
   // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
+  background: linear-gradient(180deg, #eff7f6 0%, #f8f6f3 100%) fixed;
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
 
@@ -37,3 +40,38 @@ body {
   height: 100%;
 }
 /* You can add global styles to this file, and also import other style files */
+
+// Thème « santé et repas » : vert apaisant, touches chaudes, grandes zones tactiles.
+:root {
+  // Palette du logo MedTech : vert-bleu, bleu nuit, corail.
+  --brand-teal: #0f766e;
+  --brand-navy: #12365c;
+  --brand-coral: #e8715a;
+  --mat-sys-primary: #0f766e;
+  --mat-sys-on-primary: #fff;
+  --mat-sys-primary-container: #cdeeea;
+  --mat-sys-on-primary-container: #00302c;
+  --mat-sys-secondary: #12365c;
+  --mat-sys-secondary-container: #dbe7f3;
+  --mat-sys-on-secondary-container: #0b2540;
+  --mat-sys-tertiary: #b9472f;
+  --mat-sys-tertiary-container: #ffdcd3;
+  --mat-sys-on-tertiary-container: #3d0e03;
+  --mat-sys-surface-tint: #0f766e;
+  --app-radius: 20px;
+  --app-shadow: 0 1px 2px rgb(18 54 92 / 8%), 0 4px 14px rgb(18 54 92 / 8%);
+  --app-ok: #0f766e;
+  --app-ok-bg: #e3f4f1;
+  --app-warn: #c9563e;
+  --app-warn-bg: #fff0ec;
+  --app-danger: #b3261e;
+  --app-danger-bg: #fdeceb;
+}
+
+.mat-mdc-snack-bar-container {
+  --mat-snack-bar-container-shape: 14px;
+}
+
+.mat-mdc-dialog-container {
+  --mat-dialog-container-shape: 24px;
+}

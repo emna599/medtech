@@ -1,0 +1,92 @@
+<div class="dialog">
+  <header class="head">
+    <h2 class="title">Je ne le connais pas</h2>
+    <button mat-icon-button type="button" aria-label="Fermer" (click)="close()">
+      <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
+    </button>
+  </header>
+
+  @if (found(); as resident) {
+    <section class="found">
+      <app-resident-avatar
+        [photoUrl]="resident.photoUrl"
+        [firstName]="resident.firstName"
+        [lastName]="resident.lastName"
+        [size]="160"
+      />
+      <h3 class="name">{{ foundName() }}</h3>
+      <p class="sub">
+        {{ resident.room ? 'Chambre ' + resident.room : 'Sans chambre' }} · {{ resident.age }} ans
+      </p>
+      @if (resident.distinguishingFeatures) {
+        <p class="sub">{{ resident.distinguishingFeatures }}</p>
+      }
+      @if (resident.allergies.length > 0) {
+        <p class="allergy" role="alert">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+          ALLERGIE :
+          @for (allergy of resident.allergies; track allergy.name; let last = $last) {
+            {{ allergy.name }}@if (!last) {, }
+          }
+        </p>
+      }
+
+      <p class="ask">Comparez le visage de la personne à cette photo.</p>
+      <div class="buttons">
+        <button mat-flat-button type="button" class="yes" (click)="confirm()">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon>
+          C'est bien cette personne
+        </button>
+        <button mat-stroked-button type="button" class="no" (click)="reject()">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">cancel</mat-icon>
+          Ce n'est pas elle
+        </button>
+      </div>
+    </section>
+  } @else {
+    <section class="scan">
+      @if (rejected()) {
+        <p class="stop" role="alert">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">front_hand</mat-icon>
+          Ne donnez rien. Demandez à un collègue ou à l'infirmier référent qui est cette personne.
+        </p>
+      }
+
+      <p class="help">
+        Scannez le bracelet ou le badge de la personne (lecteur), ou saisissez son code.
+      </p>
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Code du bracelet ou du badge</mat-label>
+        <input
+          matInput
+          autocomplete="off"
+          maxlength="50"
+          cdkFocusInitial
+          [ngModel]="code()"
+          (ngModelChange)="code.set($event)"
+          (keydown.enter)="identify()"
+        />
+        <mat-icon matSuffix fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
+      </mat-form-field>
+
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+      }
+
+      <button
+        mat-flat-button
+        type="button"
+        class="search"
+        [disabled]="busy() || !code().trim()"
+        (click)="identify()"
+      >
+        Afficher la fiche
+      </button>
+
+      <p class="hint">
+        Pas de bracelet ? La lecture de l'étiquette d'une pochette de médicaments arrive à l'étape suivante.
+        D'ici là, demandez à un collègue.
+      </p>
+    </section>
+  }
+</div>
