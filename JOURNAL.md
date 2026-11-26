@@ -5,6 +5,17 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — lisibilité des cartes et revue avant intégration
+
+- Mis en avant le nom, la chambre et le statut dans les annuaires résident. La tournée personnel partage la même carte en salle et en chambre, pour les repas et les médicaments. Le statut et les alertes ont un libellé et une icône. Les cartes repas montrent tous les éléments « À éviter », les doutes d’identité, la texture, l’aide et les plateaux à revérifier à partir des données déjà fournies au personnel. Hiérarchie appliquée aussi aux chambres, aux comptes et à la relève.
+- Build Angular et 31 tests frontend réussis. Vérifié dans Chromium à 320, 390 et 1 280 px, en clair et en sombre, avec nom long et alertes multiples simulés. Les parcours d’ouverture des fiches, de l’annuaire personnel et de la relève ont été essayés avec l’API locale. La matrice de lecture API confirme les accès attendus des trois rôles et le refus anonyme. Cette modification porte sur le frontend.
+- Branches récupérées depuis origin et simulations de fusion refaites depuis `1f24419`. Neuf conflits pour `feature/personnel`, onze pour `feature/admin-users` et trois pour `feature/medecin`. Aucune fusion.
+- `feature/personnel` : le SQL d’extension s’applique deux fois sur une base PostgreSQL 17 d’intégration isolée. Son `DROP TABLE dining_seat` doit être repris séparément après inventaire et décision sur les affectations historiques. Les notes sont accessibles via le périmètre générique personnel/admin, la vue des tables retourne des fiches résident et la lecture RFID modifie les présences sans droit spécifique au lecteur ni verrou visible sur la capacité. Valider les droits de lecture et d’écriture par fonction, y compris la lecture des médicaments et les comptes historiques sans profil. Reprendre par lots, garder la relève pour les actions attribuées et définir explicitement le lien avec les notes horodatées.
+- `feature/admin-users` : le script d’origine a créé 16 chambres et 24 résidents sur une base PostgreSQL 17 vide et isolée. Le script réinitialise les tables et crée 23 QR de démo associés au médecin. Reprendre les données par scripts de démo ciblés dans `database/`, en alignant le scénario QR sur la gestion admin actuelle. Valider ensuite le jeu repris avec l’application intégrée.
+- `feature/medecin` : reprendre éventuellement le point d’entrée caméra du téléphone en réutilisant l’identification authentifiée limitée à l’identité, la reprise du scan après connexion et la confirmation avant ouverture de la fiche du rôle. Conserver la gestion du bracelet dans l’administration. La réponse QR proposée contient des informations alimentaires et son URL ne s’insère pas dans le parcours d’authentification actuel. Le scan sur téléphone reste à vérifier.
+
+---
+
 ## Relais Codex du 2026-11-26 — revue des branches distantes
 
 - `feature/admin-users` (`c4e0ed6`) enrichit la démo avec 16 chambres, 24 résidents et des données de soin fictives. Le script complet recrée les tables et les QR de démo sont associés au médecin. Reprendre les données sur une base isolée et aligner le scénario QR avec la gestion admin.

@@ -151,71 +151,80 @@
         }
       </p>
     </div>
-  } @else if (location() === 'SALLE') {
-    <ul class="grid work-card-grid">
+  } @else {
+    <ul class="grid work-card-grid" [class.room-tour]="location() === 'CHAMBRE'">
       @for (item of visible(); track item.id) {
         <li>
-          <button type="button" class="tile" [class]="'tile ' + statusClass(item)" (click)="open(item)">
+          <button type="button" [class]="'tile ' + statusClass(item)" (click)="open(item)">
             <app-resident-avatar
               [photoUrl]="item.resident.photoUrl"
               [firstName]="item.resident.firstName"
               [lastName]="item.resident.lastName"
               [size]="40"
             />
-            <span class="tile-main">
-              <span class="tile-name">{{ name(item) }}</span>
-              <span class="tile-meta">
-                {{ item.kind === 'REPAS' ? (item.resident.texture ?? item.resident.regime ?? '') : item.label }}
-                @if (item.kind === 'MEDICAMENT' && item.detail) { · {{ item.detail }} }
+            <span class="tile-identity">
+              <span class="work-card-name">{{ name(item) }}</span>
+              <span class="work-card-room">
+                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
+                @if (item.resident.room; as room) { Chambre {{ room }} } @else { Sans chambre }
               </span>
-              <span class="tile-alerts">
-                @if (firstAllergy(item); as allergy) {
-                  <span class="badge badge-allergy">
+            </span>
+            <span class="work-status tile-status">
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ statusIcon(item) }}</mat-icon>
+              {{ statusText(item) }}
+            </span>
+            @if (item.kind === 'MEDICAMENT') {
+              <span class="tile-detail">{{ item.label }}@if (item.detail) { · {{ item.detail }} }</span>
+            }
+            <span class="tile-alerts">
+              @if (item.resident.identityDoubt) {
+                <span class="work-status work-alert work-alert-danger">
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">person_alert</mat-icon>
+                  Doute d’identité
+                </span>
+              }
+              @for (allergy of item.resident.allergies; track $index) {
+                <span class="work-status work-alert work-alert-danger">
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+                  À éviter · {{ allergy.name }}
+                </span>
+              }
+              @if (item.kind === 'REPAS') {
+                @if (item.resident.mealTextureConflict) {
+                  <span class="work-status work-alert work-alert-danger">
                     <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
-                    {{ allergy }}
+                    Textures contradictoires
                   </span>
                 }
-                @if (item.resident.identityDoubt) {
-                  <span class="badge badge-doubt">Doute d'identité</span>
+                @if (item.resident.texture; as texture) {
+                  <span class="work-status work-alert">
+                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
+                    Texture · {{ texture }}
+                  </span>
                 }
-                @if (item.highRisk) {
-                  <span class="badge badge-risk">À risque</span>
+                @if (item.resident.mealInstructionsChangedAt && (item.status === 'A_FAIRE' || item.status === 'PLUS_TARD')) {
+                  <span class="work-status work-alert">
+                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">assignment_late</mat-icon>
+                    Plateau à revérifier
+                  </span>
                 }
-              </span>
+                @if (item.resident.needsHelp) {
+                  <span class="work-status">
+                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">volunteer_activism</mat-icon>
+                    Aide au repas
+                  </span>
+                }
+                @if (item.resident.regime; as regime) {
+                  <span class="tile-detail">Régime · {{ regime }}</span>
+                }
+              }
+              @if (item.highRisk) {
+                <span class="work-status work-alert work-alert-danger">
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+                  Prise à risque
+                </span>
+              }
             </span>
-            <span class="status">{{ statusText(item) }}</span>
-          </button>
-        </li>
-      }
-    </ul>
-  } @else {
-    <ul class="rows">
-      @for (item of visible(); track item.id) {
-        <li>
-          <button type="button" [class]="'row ' + statusClass(item)" (click)="open(item)">
-            <span class="room">{{ item.resident.room ?? '—' }}</span>
-            <app-resident-avatar
-              [photoUrl]="item.resident.photoUrl"
-              [firstName]="item.resident.firstName"
-              [lastName]="item.resident.lastName"
-              [size]="56"
-            />
-            <span class="row-main">
-              <span class="row-name">{{ name(item) }}</span>
-              <span class="row-meta">
-                {{ item.kind === 'REPAS' ? item.label : item.label + (item.detail ? ' · ' + item.detail : '') }}
-              </span>
-            </span>
-            @if (firstAllergy(item); as allergy) {
-              <span class="badge badge-allergy">
-                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
-                {{ allergy }}
-              </span>
-            }
-            @if (item.resident.identityDoubt) {
-              <span class="badge badge-doubt">Doute</span>
-            }
-            <span class="status">{{ statusText(item) }}</span>
           </button>
         </li>
       }

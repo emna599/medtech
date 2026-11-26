@@ -54,17 +54,16 @@
             <div class="work-card-heading">
               <h2>{{ resident.firstName }} {{ resident.lastName }}</h2>
               <span class="work-status" [class.inactive]="!resident.active">
-                {{ resident.active ? 'Actif' : 'Inactif' }}
+                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ resident.active ? 'check_circle' : 'person_off' }}</mat-icon> {{ resident.active ? 'Actif' : 'Inactif' }}
               </span>
             </div>
+            <div class="work-card-room">
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
+              @if (resident.roomNumber; as room) {
+                Chambre {{ room }}@if (resident.floor !== null) { · Étage {{ resident.floor }} }
+              } @else { Sans chambre }
+            </div>
             <p><strong>Date de naissance :</strong> {{ resident.birthDate | date: 'dd/MM/yyyy' }}</p>
-            <p>
-              <strong>Chambre :</strong>
-              {{ resident.roomNumber ?? 'Non renseignée' }}
-              @if (resident.floor !== null) {
-                <span> · Étage {{ resident.floor }}</span>
-              }
-            </p>
           </mat-card-content>
           <mat-card-actions align="end">
             <button mat-button type="button" (click)="viewResident(resident.id)">

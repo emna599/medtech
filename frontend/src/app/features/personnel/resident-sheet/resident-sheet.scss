@@ -18,9 +18,8 @@
   min-width: 0;
 }
 
-.name {
-  margin: 0;
-  font: var(--mat-sys-headline-small);
+.work-card-room {
+  margin: 4px 0 0;
 }
 
 .sub,
@@ -45,21 +44,25 @@
   font: var(--mat-sys-title-medium);
 }
 
+.alert mat-icon {
+  flex-shrink: 0;
+}
+
 .alert .grow {
   flex: 1 1 auto;
   font: var(--mat-sys-body-large);
 }
 
 .alert-danger {
-  background: #fde7e7;
-  color: #8a1212;
-  border: 2px solid #d32f2f;
+  background: var(--app-danger-bg);
+  color: var(--app-danger);
+  border: 1px solid var(--app-danger);
 }
 
 .alert-warning {
-  background: #fff4de;
-  color: #6b4200;
-  border: 2px solid #f0a500;
+  background: var(--app-warn-bg);
+  color: var(--app-warn);
+  border: 1px solid var(--app-warn);
 }
 
 .task {

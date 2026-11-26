@@ -87,11 +87,14 @@ import { ResidentFormDialog } from './resident-form-dialog';
             <mat-card-content class="work-card-content">
               <div class="work-card-heading">
                 <h2>{{ r.firstName }} {{ r.lastName }}</h2>
-                <span class="work-status" [class.inactive]="!r.active">{{ r.active ? 'Actif' : 'Inactif' }}</span>
+                <span class="work-status" [class.inactive]="!r.active"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ r.active ? 'check_circle' : 'person_off' }}</mat-icon> {{ r.active ? 'Actif' : 'Inactif' }}</span>
+              </div>
+              <div class="work-card-room" [class.work-status]="noRoom(r)" [class.work-alert]="noRoom(r)">
+                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ noRoom(r) ? 'warning' : 'bed' }}</mat-icon>
+                @if (r.roomNumber) { Chambre {{ roomLabel(r) }} } @else { Sans chambre }
               </div>
               <p><strong>Âge</strong> · {{ age(r) }} ans</p>
               <p><strong>Admission</strong> · {{ r.admissionDate | date:'dd/MM/yyyy' }}</p>
-              <p><strong>Chambre</strong> · {{ noRoom(r) ? 'Sans chambre' : roomLabel(r) }}</p>
             </mat-card-content>
             <mat-card-actions align="end">
               <button mat-button type="button" [attr.aria-label]="'Modifier ' + r.firstName + ' ' + r.lastName" (click)="openForm(r)">Modifier</button>

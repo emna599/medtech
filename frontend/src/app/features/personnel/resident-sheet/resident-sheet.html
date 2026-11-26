@@ -7,8 +7,12 @@
       [size]="112"
     />
     <div class="identity">
-      <h2 class="name">{{ name() }}</h2>
-      <p class="sub">{{ roomText() }} · {{ resident().age }} ans</p>
+      <h2 class="work-card-name">{{ name() }}</h2>
+      <p class="work-card-room">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
+        {{ roomText() }}
+      </p>
+      <p class="sub">{{ resident().age }} ans</p>
       @if (resident().distinguishingFeatures) {
         <p class="features">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">visibility</mat-icon>
@@ -34,10 +38,16 @@
   }
 
   @if (item().kind === 'REPAS' && resident().mealTextureConflict) {
-    <p class="alert alert-danger" role="alert">Textures contradictoires. Demandez une correction au médecin.</p>
+    <p class="alert alert-danger" role="alert">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+      <span>Textures contradictoires. Demandez une correction au médecin.</span>
+    </p>
   }
   @if (item().kind === 'REPAS' && resident().mealInstructionsChangedAt) {
-    <p class="alert alert-warning" role="status">Consignes modifiées aujourd’hui. Revérifiez le plateau.</p>
+    <p class="alert alert-warning" role="status">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">assignment_late</mat-icon>
+      <span>Consignes modifiées aujourd’hui. Revérifiez le plateau.</span>
+    </p>
   }
 
   @if (hasDoubt()) {

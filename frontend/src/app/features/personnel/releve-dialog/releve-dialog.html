@@ -28,7 +28,7 @@
             <mat-card-content>
               <div class="work-card-heading">
                 <h4>{{ entry.residentName ?? 'Équipe' }}</h4>
-                <span class="work-status">{{ entry.assignedTo ? 'En cours' : 'À faire' }}</span>
+                <span class="work-status"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ entry.assignedTo ? 'person' : 'pending_actions' }}</mat-icon> {{ entry.assignedTo ? 'En cours' : 'À faire' }}</span>
               </div>
               <p class="muted">{{ entry.authorName }} · {{ entry.createdAt | date:'dd/MM HH:mm' }}</p>
               @if (entry.assigneeName) {

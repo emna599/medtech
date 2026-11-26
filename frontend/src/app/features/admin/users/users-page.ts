@@ -88,7 +88,7 @@ import { UserFormDialog } from './user-form-dialog';
             <mat-card-content class="work-card-content">
               <div class="work-card-heading">
                 <h2>{{ u.fullName }}</h2>
-                <span class="work-status" [class.inactive]="!u.enabled">{{ u.enabled ? 'Actif' : 'Désactivé' }}</span>
+                <span class="work-status" [class.inactive]="!u.enabled"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ u.enabled ? 'check_circle' : 'person_off' }}</mat-icon> {{ u.enabled ? 'Actif' : 'Désactivé' }}</span>
               </div>
               <p><strong>Identifiant</strong> · {{ u.username }}</p>
               <p><strong>Rôle</strong> · {{ labelOf(u) }}</p>

@@ -97,7 +97,7 @@ type Availability = 'all' | 'free' | 'full';
               <div class="work-card-heading">
                 <h2>Chambre {{ r.number }}</h2>
                 <span class="work-status" [class.inactive]="r.occupied >= r.capacity">
-                  {{ r.occupied >= r.capacity ? 'Complète' : 'Disponible' }}
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon> {{ r.occupied >= r.capacity ? 'Complète' : 'Disponible' }}
                 </span>
               </div>
               <p><strong>Étage</strong> · {{ r.floor }}</p>

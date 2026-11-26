@@ -21,6 +21,8 @@
 }
 
 .title {
+  min-width: 0;
+  overflow-wrap: anywhere;
   margin: 0;
   font: var(--mat-sys-title-large);
   font-weight: 800;
@@ -87,31 +89,15 @@
   flex-direction: column;
 }
 
-.item-name {
-  font-weight: 800;
+.item-alerts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .item-sub {
   font-size: 13px;
   color: var(--mat-sys-on-surface-variant);
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px 8px;
-  border-radius: 12px;
-  background: var(--app-danger-bg, #fdeceb);
-  color: var(--app-danger, #b3261e);
-  border: 1px solid var(--app-danger, #b3261e);
-  font-weight: 700;
-}
-
-.badge mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
 }
 
 .state {

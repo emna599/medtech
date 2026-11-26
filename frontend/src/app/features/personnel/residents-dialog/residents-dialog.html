@@ -118,15 +118,27 @@
                   [size]="48"
                 />
                 <span class="item-main">
-                  <span class="item-name">{{ name(resident) }}</span>
-                  <span class="item-sub">{{ roomText(resident) }} · {{ resident.regime || 'Normal' }}</span>
-                </span>
-                @if (resident.allergies.length > 0) {
-                  <span class="badge" title="Allergies">
-                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
-                    {{ resident.allergies.length }}
+                  <span class="work-card-name">{{ name(resident) }}</span>
+                  <span class="work-card-room">
+                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
+                    {{ roomText(resident) }}
                   </span>
-                }
+                  <span class="item-sub">{{ resident.regime || 'Normal' }}</span>
+                  <span class="item-alerts">
+                    @if (resident.identityDoubt) {
+                      <span class="work-status work-alert work-alert-danger">
+                        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">person_alert</mat-icon>
+                        Doute d’identité
+                      </span>
+                    }
+                    @if (resident.allergies.length > 0) {
+                      <span class="work-status work-alert work-alert-danger">
+                        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+                        {{ resident.allergies.length }} {{ resident.allergies.length === 1 ? 'allergie' : 'allergies' }}
+                      </span>
+                    }
+                  </span>
+                </span>
                 <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">chevron_right</mat-icon>
               </button>
             </li>

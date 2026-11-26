@@ -360,12 +360,19 @@ export class PersonnelDashboard {
     }
   }
 
-  protected firstAllergy(item: ServiceItem): string | null {
-    const allergies = item.resident.allergies;
-    if (allergies.length === 0) {
-      return null;
+  protected statusIcon(item: ServiceItem): string {
+    switch (item.status) {
+      case 'FAIT':
+        return 'check_circle';
+      case 'ABSENT':
+        return 'person_off';
+      case 'REFUSE':
+        return 'cancel';
+      case 'PLUS_TARD':
+        return 'schedule';
+      default:
+        return 'pending_actions';
     }
-    return allergies.length > 1 ? `${allergies[0].name} +${allergies.length - 1}` : allergies[0].name;
   }
 
   private remaining(location: MealLocation): number {
