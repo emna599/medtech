@@ -51,4 +51,12 @@ Points relevés (sécurité du soin, modèle manquant, améliorations). Correcti
 - Restent en *analyse* (features, pas encore faites) : GIR/AGGIR (#4), entité Prescription (#3), rôles IDE/aide-soignant (#5), motif+date de sortie (#6), alerte dénutrition (#7), relève persistée (#9).
 
 ### Push
-- Impossible de pousser : le compte `zizui9` n'a pas les droits d'écriture sur `emna599/medtech` (403). Fork+push stoppé par une barrière de sécurité. **En attente de décision** (forker sur le compte zizui9, ou gérer autrement). Tout est committé en **local** sur `integration`.
+- 1re tentative : 403 (droits d'écriture manquants).
+- **Résolu** : le compte est collaborateur du dépôt → `integration` **poussée sur `emna599/medtech`** (branche séparée, `main` non touchée).
+- PR possible : https://github.com/emna599/medtech/pull/new/integration (non créée pour l'instant).
+
+### Contenu de la branche `integration` (8 commits au-dessus de `main`)
+1. Intégration des 3 modules (admin + medecin + personnel), collisions résolues.
+2. `fix(medecin)` : table `medical_record` (singulier).
+3. `refactor(ui)` : design sobre (neutre, à plat, Inter).
+4. `feat(soin)` : confirmation obligatoire avant de servir un repas/médicament à risque + `JOURNAL.md`.
