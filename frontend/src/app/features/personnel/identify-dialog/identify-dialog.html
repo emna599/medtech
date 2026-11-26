@@ -34,7 +34,7 @@
       <div class="buttons">
         <button mat-flat-button type="button" class="yes" (click)="confirm()">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon>
-          {{ admin ? 'Confirmer et ouvrir la fiche administrative' : 'Confirmer et ouvrir la fiche' }}
+          {{ mode === 'admin' ? 'Confirmer et ouvrir la fiche administrative' : 'Confirmer et ouvrir la fiche' }}
         </button>
         <button mat-stroked-button type="button" class="no" (click)="reject()">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">cancel</mat-icon>
@@ -47,7 +47,7 @@
       @if (rejected()) {
         <p class="stop" role="alert">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">front_hand</mat-icon>
-          {{ admin ? 'Demandez à un soignant de vérifier l’identité du résident.' : 'Suspendez le service et demandez à un collègue de vérifier l’identité du résident.' }}
+          {{ mode !== 'personnel' ? 'Demandez à un soignant de vérifier l’identité du résident.' : 'Suspendez le service et demandez à un collègue de vérifier l’identité du résident.' }}
         </p>
       }
 
@@ -103,7 +103,7 @@
       </button>
       }
 
-      @if (!scanning() && !admin) {
+      @if (!scanning() && mode === 'personnel') {
       <p class="or">ou</p>
       <input #photo type="file" accept="image/*" capture="environment" hidden (change)="scanPochette($event)" />
       <button mat-stroked-button type="button" class="pochette" [disabled]="busy()" (click)="photo.click()">

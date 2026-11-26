@@ -57,7 +57,7 @@ export class AdminShell {
     this.dialog.open<IdentifyDialog, IdentifyDialogData, IdentifyResult>(IdentifyDialog, {
       width: '560px',
       maxWidth: '100vw',
-      data: { admin: true },
+      data: { mode: 'admin' },
     }).afterClosed().subscribe((result) => {
       if (result) void this.router.navigate(['/admin/residents', result.residentId]);
     });

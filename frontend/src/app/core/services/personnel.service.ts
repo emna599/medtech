@@ -77,7 +77,7 @@ export class PersonnelService {
   }
 
   identify(code: string): Observable<ResidentIdentity> {
-    return this.http.post<ResidentIdentity>(`${this.base}/identify`, { code });
+    return this.http.post<ResidentIdentity>(`${environment.apiUrl}/api/identification/bracelet`, { code });
   }
 
   listResidents(): Observable<ResidentCard[]> {

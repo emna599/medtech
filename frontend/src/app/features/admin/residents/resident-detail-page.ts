@@ -12,11 +12,12 @@ import { ResidentOverview } from '../../../shared/components/resident-overview/r
 import { Resident } from '../../../shared/models/resident.model';
 import { apiErrorMessage } from '../../../shared/utils/api-error';
 import { AdminResidentService } from './admin-resident.service';
+import { ResidentBracelet } from './resident-bracelet';
 import { ResidentFormDialog } from './resident-form-dialog';
 
 @Component({
   selector: 'app-resident-detail-page',
-  imports: [ResidentOverview, RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatProgressBarModule],
+  imports: [ResidentOverview, ResidentBracelet, RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatProgressBarModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <a mat-button routerLink="/admin/residents" class="back">
@@ -35,6 +36,35 @@ import { ResidentFormDialog } from './resident-form-dialog';
           Modifier le séjour et l’identité
         </button>
       </app-resident-overview>
+
+      <mat-card appearance="outlined" class="coordination">
+        <mat-card-header><mat-card-title>Coordination du séjour</mat-card-title></mat-card-header>
+        <mat-card-content>
+          @if (!r.active) {
+            <p>Suivi de la coordination suspendu pour ce résident inactif.</p>
+          } @else if (coordination.error()) {
+            <p role="alert">Coordination indisponible.</p>
+            <button mat-button type="button" (click)="coordination.reload()">Réessayer</button>
+          } @else if (coordination.isLoading()) {
+            <p role="status">Chargement de la coordination…</p>
+          } @else if (coordination.hasValue()) {
+            @let info = coordination.value();
+            <dl>
+              <div>
+                <dt>Service du repas en chambre</dt>
+                <dd>{{ info.roomMealService ? 'Prévu' : 'Non prévu' }}</dd>
+              </div>
+              <div>
+                <dt>Aide au repas</dt>
+                <dd>{{ info.assistanceCoordination ? 'À coordonner avec les soignants' : 'Aucun besoin signalé' }}</dd>
+              </div>
+            </dl>
+            @if (info.roomMealService || info.assistanceCoordination) {
+              <p>Prévenir l’équipe en cas de changement de chambre.</p>
+            }
+          }
+        </mat-card-content>
+      </mat-card>
 
       <div class="grid">
         <mat-card appearance="outlined">
@@ -61,33 +91,16 @@ import { ResidentFormDialog } from './resident-form-dialog';
             }
           </mat-card-content>
         </mat-card>
-
-        @if (r.active) {
-          <mat-card appearance="outlined">
-            <mat-card-header><mat-card-title>Coordination du séjour</mat-card-title></mat-card-header>
-            <mat-card-content>
-              @if (coordination.error()) {
-                <p role="alert">Coordination indisponible.</p>
-              } @else if (coordination.isLoading()) {
-                <p role="status">Chargement de la coordination…</p>
-              } @else if (coordination.hasValue()) {
-                @let info = coordination.value();
-                @if (info.roomMealService) { <p>Un service en chambre est prévu.</p> }
-                @if (info.assistanceCoordination) { <p>Coordonner l’aide au repas avec l’équipe de soins.</p> }
-                @if (info.roomMealService || info.assistanceCoordination) {
-                  <p>Prévenir l’équipe si le résident change de chambre.</p>
-                } @else {
-                  <p>Aucun besoin de coordination signalé pour le service des repas.</p>
-                }
-              }
-            </mat-card-content>
-          </mat-card>
-        }
       </div>
+      <app-resident-bracelet [residentId]="r.id" [active]="r.active" />
     }
   `,
   styles: `
     .back { margin-bottom: 8px; }
+    .coordination { margin-top: 16px; }
+    .coordination dl { display: flex; flex-wrap: wrap; gap: 12px 32px; }
+    .coordination dt { font-weight: 600; }
+    .coordination dd { margin: 4px 0 0; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; margin-top: 16px; }
   `,
 })

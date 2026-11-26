@@ -8,7 +8,6 @@ import {
   DietaryRegime,
   DietaryRegimeRequest,
   MedicalRecord,
-  QrCode,
   ResidentDetail,
   ResidentSummary,
 } from '../../shared/models/resident.model';
@@ -86,22 +85,6 @@ export class ResidentService {
     return this.http.delete<void>(
       `${this.residentsUrl}/${residentId}/dietary-regimes/${regimeId}`,
       { params: { version } },
-    );
-  }
-
-  findQrCodesByResidentId(residentId: number): Observable<QrCode[]> {
-    return this.http.get<QrCode[]>(`${this.residentsUrl}/${residentId}/qr-codes`);
-  }
-
-  generateQrCode(residentId: number, activeQrCodeId?: number): Observable<QrCode> {
-    const params: Record<string, number> = activeQrCodeId === undefined ? {} : { activeQrCodeId };
-    return this.http.post<QrCode>(`${this.residentsUrl}/${residentId}/qr-codes`, {}, { params });
-  }
-
-  deactivateQrCode(residentId: number, qrCodeId: number): Observable<QrCode> {
-    return this.http.put<QrCode>(
-      `${this.residentsUrl}/${residentId}/qr-codes/${qrCodeId}/deactivate`,
-      {},
     );
   }
 }

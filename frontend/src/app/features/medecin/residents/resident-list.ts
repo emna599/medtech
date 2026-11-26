@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,6 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { ResidentService } from '../../../core/services/resident.service';
 import { Toolbar } from '../../../shared/components/toolbar/toolbar';
+import { IdentifyDialog, IdentifyDialogData, IdentifyResult } from '../../personnel/identify-dialog/identify-dialog';
 import { ResidentSummary } from '../../../shared/models/resident.model';
 
 @Component({
@@ -38,6 +40,7 @@ import { ResidentSummary } from '../../../shared/models/resident.model';
 export class ResidentList implements OnInit {
   private readonly residentService = inject(ResidentService);
   private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
 
   protected readonly residents = signal<ResidentSummary[]>([]);
   protected readonly loading = signal(true);
@@ -84,6 +87,16 @@ export class ResidentList implements OnInit {
 
   protected clearSearch(): void {
     this.searchQuery.set('');
+  }
+
+  protected identifyResident(): void {
+    this.dialog.open<IdentifyDialog, IdentifyDialogData, IdentifyResult>(IdentifyDialog, {
+      width: '560px',
+      maxWidth: '100vw',
+      data: { mode: 'medecin' },
+    }).afterClosed().subscribe(result => {
+      if (result) this.viewResident(result.residentId);
+    });
   }
 
   protected viewResident(id: number): void {

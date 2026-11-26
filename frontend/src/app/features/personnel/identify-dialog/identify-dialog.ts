@@ -11,7 +11,7 @@ import { decodeQrFromFile, QrReader } from '../components/qr-reader';
 import { ResidentAvatar } from '../components/resident-avatar';
 
 export interface IdentifyDialogData {
-  admin: boolean;
+  mode: 'admin' | 'medecin';
 }
 
 export interface IdentifyResult {
@@ -33,7 +33,7 @@ export class IdentifyDialog {
   private readonly api = inject(PersonnelService);
   private readonly ref = inject<MatDialogRef<IdentifyDialog, IdentifyResult>>(MatDialogRef);
 
-  protected readonly admin = inject<IdentifyDialogData>(MAT_DIALOG_DATA, { optional: true })?.admin ?? false;
+  protected readonly mode = inject<IdentifyDialogData>(MAT_DIALOG_DATA, { optional: true })?.mode ?? 'personnel';
 
   protected readonly code = signal('');
   protected readonly busy = signal(false);

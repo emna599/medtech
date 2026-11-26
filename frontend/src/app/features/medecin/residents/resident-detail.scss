@@ -94,59 +94,6 @@ h2 {
   text-align: center;
 }
 
-.qr-layout {
-  display: flex;
-  align-items: flex-start;
-  gap: 24px;
-}
-
-.qr-image-card {
-  flex: 0 0 auto;
-}
-
-.qr-image {
-  display: block;
-  width: min(256px, 100%);
-  height: auto;
-  image-rendering: pixelated;
-}
-
-.qr-details {
-  min-width: 0;
-}
-
-.qr-details > p {
-  margin: 16px 0;
-}
-
-.qr-token code {
-  overflow-wrap: anywhere;
-}
-
-.qr-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 20px;
-}
-
-.inactive-qr-summary {
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 8px 20px;
-  margin-top: 16px;
-  color: var(--mat-sys-on-surface-variant);
-}
-
-.inactive-qr-summary p {
-  margin: 4px 0;
-}
-
-.qr-print-card {
-  display: none;
-}
-
 .record-section + .record-section {
   margin-top: 24px;
 }
@@ -201,55 +148,6 @@ h2 {
     flex: 0 0 auto;
   }
 
-  .qr-layout {
-    flex-direction: column;
-  }
-
-  .qr-image-card {
-    align-self: center;
-  }
-
-  .qr-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-
-@media print {
-  app-toolbar,
-  .page > :not(.qr-section),
-  .qr-section > :not(.qr-print-card) {
-    display: none !important;
-  }
-
-  .page,
-  .qr-section {
-    max-width: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .qr-print-card {
-    display: flex !important;
-    position: static;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    color: #000;
-    text-align: center;
-  }
-
-  .qr-print-card h1,
-  .qr-print-card h2,
-  .qr-print-card p {
-    margin: 0;
-  }
-
-  .qr-print-image {
-    width: 240px;
-    height: 240px;
-    image-rendering: pixelated;
-  }
 }
 
 .medical-form { display: grid; gap: 8px; }

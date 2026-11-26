@@ -379,3 +379,26 @@ tr.clickable {
 @media (max-width: 600px) {
   .work-page { margin-top: 16px; }
 }
+
+@media print {
+  body.print-resident-bracelet :not(.qr-print-card, .qr-print-card *, :has(.qr-print-card)) {
+    display: none !important;
+  }
+
+  body.print-resident-bracelet .qr-print-card {
+    display: flex !important;
+    position: absolute;
+    inset: 0 0 auto;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #000;
+    text-align: center;
+  }
+
+  body.print-resident-bracelet .qr-print-image {
+    width: 240px;
+    height: 240px;
+    image-rendering: pixelated;
+  }
+}

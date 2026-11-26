@@ -5,6 +5,15 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — gestion admin du bracelet et coordination du séjour
+
+- La fiche admin place « Coordination du séjour » juste sous l’identité. Elle affiche séparément le service des repas en chambre et le besoin de coordonner l’aide au repas, avec l’état de chargement et un bouton de nouvelle tentative. Ces indicateurs sont en lecture seule et l’API de coordination reste réservée à ADMIN.
+- Déplacé la gestion complète du bracelet vers la fiche admin. Seul ADMIN peut consulter les codes, en générer, remplacer ou désactiver. La route médecin précédente est fermée. L’affichage du QR reste volontaire avant impression ou téléchargement.
+- ADMIN, PERSONNEL et MEDECIN peuvent identifier un résident actif via `POST /api/identification/bracelet`. La fiche s’ouvre dans l’espace du compte après confirmation. L’API renvoie seulement les éléments d’identité. L’OCR de pochette reste dans le parcours personnel et les API du dossier médical gardent leurs droits actuels.
+- Vérifié sur une base Docker dédiée : droits des trois rôles, renouvellement et rejet du code précédent, refus d’un renouvellement basé sur un état périmé, révocation, coordination et parcours médecin dans Chromium. Les 31 tests frontend et les 31 tests backend passent. Caméra physique et impression papier à vérifier.
+
+---
+
 ## Relais Codex du 2026-11-26 — bracelet et occupants des chambres
 
 - Ajouté l’identification dans l’espace admin. Les rôles ADMIN et PERSONNEL (aides-soignants dans la démo) utilisent le même service de lecture. La réponse QR est limitée aux éléments d’identité. Le médecin garde les commandes du bracelet et doit afficher le QR avant impression ou téléchargement.
@@ -210,7 +219,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 4. **Créer un résident** (« Nouveau résident ») : nom, dates, chambre. Vérifier les garde-fous :
    - date d'admission **antérieure** à la naissance → refus ;
    - affecter à une chambre **déjà pleine** (capacité atteinte) → refus.
-5. **Modifier / désactiver** un résident.
+5. **Modifier / désactiver** un résident. Sur sa fiche, vérifier **Coordination du séjour** et **Bracelet d’identification**. Afficher, télécharger, imprimer, renouveler ou désactiver le QR. Après renouvellement, vérifier que le nouveau code identifie le résident et que l’ancien est refusé.
 6. **Chambres et étages** : liste, créer/modifier une chambre (numéro, étage, capacité).
 7. **Comptes** : créer un compte (identifiant, rôle, mot de passe), modifier le rôle, réinitialiser le mot de passe, désactiver. Garde-fous à vérifier :
    - **se désactiver soi-même** ou retirer son propre rôle admin → refus ;
@@ -224,7 +233,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 2. Rechercher un nom ou un numéro de chambre, puis ouvrir une fiche.
 3. Vérifier l’identité, la chambre et la section **Dossier médical**. Sur une base de démo initiale, utiliser **Créer le dossier** pour enregistrer des données fictives.
 4. Vérifier l’ajout, la modification et la suppression d’une allergie ou d’un régime avec des données fictives. L’ouverture de la fiche repas du même résident côté personnel doit afficher les consignes actualisées.
-5. Dans **QR Code**, vérifier le téléchargement et l’impression. Après renouvellement, vérifier côté personnel que le nouveau code identifie le résident et que l’ancien est refusé.
+5. Dans **Résidents**, utiliser **Identifier un résident** et vérifier le résultat avant d’ouvrir la fiche médicale. La gestion du bracelet se fait dans l’espace admin.
 6. Vérifier que le retour à la liste et la déconnexion fonctionnent.
 - API : `GET /api/residents` (liste), `GET /api/residents/{id}` (détail), `GET /api/residents/{id}/medical-record` (dossier réservé à MEDECIN). Le dernier endpoint répond **403** avec un jeton personnel ou admin.
 

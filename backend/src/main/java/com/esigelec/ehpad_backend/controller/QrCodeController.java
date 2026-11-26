@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@PreAuthorize("hasRole('MEDECIN')")
-@RequestMapping("/api/residents/{residentId}/qr-codes")
+@PreAuthorize("hasRole('ADMIN')")
+@RequestMapping("/api/admin/residents/{residentId}/qr-codes")
 public class QrCodeController {
 
     private final QrCodeService qrCodeService;

@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { Resident, ResidentPayload } from '../../../shared/models/resident.model';
+import { QrCode, Resident, ResidentPayload } from '../../../shared/models/resident.model';
 
 export interface ResidentCoordination {
   roomMealService: boolean;
@@ -45,5 +45,21 @@ export class AdminResidentService {
 
   update(id: number, payload: ResidentPayload): Observable<Resident> {
     return this.http.put<Resident>(`${this.baseUrl}/${id}`, payload);
+  }
+
+  findQrCodesByResidentId(residentId: number): Observable<QrCode[]> {
+    return this.http.get<QrCode[]>(`${this.baseUrl}/${residentId}/qr-codes`);
+  }
+
+  generateQrCode(residentId: number, activeQrCodeId?: number): Observable<QrCode> {
+    const params: Record<string, number> = activeQrCodeId === undefined ? {} : { activeQrCodeId };
+    return this.http.post<QrCode>(`${this.baseUrl}/${residentId}/qr-codes`, {}, { params });
+  }
+
+  deactivateQrCode(residentId: number, qrCodeId: number): Observable<QrCode> {
+    return this.http.put<QrCode>(
+      `${this.baseUrl}/${residentId}/qr-codes/${qrCodeId}/deactivate`,
+      {},
+    );
   }
 }
