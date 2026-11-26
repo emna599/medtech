@@ -5,6 +5,12 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — saisie libre explicite
+
+- Ajouté « Autre — saisir une valeur » aux suggestions d’allergie, gravité, régime et texture. Le choix libère le champ pour saisir une valeur. Chromium confirme sur le site local que seules les valeurs saisies sont envoyées dans les requêtes des deux formulaires.
+
+---
+
 ## Relais Codex du 2026-11-26 — fiches résident et aide à la saisie
 
 - Aligné l’identité et le séjour sur les fiches admin et médecin. L’admin modifie les informations administratives et conserve la vue des occupants. Le lien d’un occupant recharge la fiche, les occupants et les actions du bon résident.

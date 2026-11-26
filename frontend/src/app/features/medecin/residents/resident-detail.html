@@ -127,10 +127,11 @@
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Allergie</mat-label>
                 <input matInput formControlName="name" maxlength="100" placeholder="Ex. arachides" [matAutocomplete]="allergySuggestions" />
-                <mat-autocomplete #allergySuggestions="matAutocomplete">
+                <mat-autocomplete #allergySuggestions="matAutocomplete" (optionSelected)="useCustomValue($event, allergyForm.controls.name)">
                   @for (option of matchingOptions(allergyOptions, allergyForm.controls.name.value); track option) {
                     <mat-option [value]="option">{{ option }}</mat-option>
                   }
+                  <mat-option [value]="null">Autre — saisir une valeur</mat-option>
                 </mat-autocomplete>
                 <mat-hint>Choisissez une suggestion ou saisissez l’allergie connue.</mat-hint>
                 @if (
@@ -146,10 +147,11 @@
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Gravité (facultatif)</mat-label>
                 <input matInput formControlName="severity" maxlength="50" placeholder="Ex. modérée" [matAutocomplete]="severitySuggestions" />
-                <mat-autocomplete #severitySuggestions="matAutocomplete">
+                <mat-autocomplete #severitySuggestions="matAutocomplete" (optionSelected)="useCustomValue($event, allergyForm.controls.severity)">
                   @for (option of matchingOptions(severityOptions, allergyForm.controls.severity.value); track option) {
                     <mat-option [value]="option">{{ option }}</mat-option>
                   }
+                  <mat-option [value]="null">Autre — saisir une valeur</mat-option>
                 </mat-autocomplete>
                 <mat-hint>Laissez vide si la gravité est inconnue.</mat-hint>
                 @if (allergyForm.controls.severity.hasError('maxlength')) {
@@ -252,10 +254,11 @@
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Type de régime</mat-label>
                 <input matInput formControlName="type" maxlength="100" placeholder="Ex. sans sel" [matAutocomplete]="dietSuggestions" />
-                <mat-autocomplete #dietSuggestions="matAutocomplete">
+                <mat-autocomplete #dietSuggestions="matAutocomplete" (optionSelected)="useCustomValue($event, dietaryRegimeForm.controls.type)">
                   @for (option of matchingOptions(dietOptions, dietaryRegimeForm.controls.type.value); track option) {
                     <mat-option [value]="option">{{ option }}</mat-option>
                   }
+                  <mat-option [value]="null">Autre — saisir une valeur</mat-option>
                 </mat-autocomplete>
                 <mat-hint>Choisissez une suggestion ou renseignez le régime documenté.</mat-hint>
                 @if (
@@ -271,10 +274,11 @@
               <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Texture (facultatif)</mat-label>
                 <input matInput formControlName="texture" maxlength="50" placeholder="Ex. hachée" [matAutocomplete]="textureSuggestions" />
-                <mat-autocomplete #textureSuggestions="matAutocomplete">
+                <mat-autocomplete #textureSuggestions="matAutocomplete" (optionSelected)="useCustomValue($event, dietaryRegimeForm.controls.texture)">
                   @for (option of matchingOptions(textureOptions, dietaryRegimeForm.controls.texture.value); track option) {
                     <mat-option [value]="option">{{ option }}</mat-option>
                   }
+                  <mat-option [value]="null">Autre — saisir une valeur</mat-option>
                 </mat-autocomplete>
                 <mat-hint>Sélectionnez ou saisissez la texture documentée.</mat-hint>
                 @if (dietaryRegimeForm.controls.texture.hasError('maxlength')) {

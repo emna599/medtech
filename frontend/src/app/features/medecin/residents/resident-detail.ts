@@ -11,8 +11,8 @@ import {
   untracked,
 } from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { FormControl, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { normalize } from '../../../shared/utils/text';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -94,6 +94,12 @@ export class ResidentDetailPage {
   protected readonly severityOptions = ['Légère', 'Modérée', 'Grave'];
   protected readonly dietOptions = ['Normal', 'Sans sel', 'Diabétique', 'Végétarien'];
   protected readonly textureOptions = ['Normale', 'Hachée', 'Mixée'];
+
+  protected useCustomValue(event: MatAutocompleteSelectedEvent, control: FormControl<string>): void {
+    if (event.option.value === null) {
+      control.setValue('');
+    }
+  }
 
   protected matchingOptions(options: readonly string[], value: string): string[] {
     const query = normalize(value);
