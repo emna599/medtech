@@ -7,31 +7,31 @@
       [value]="slot()"
       (change)="setSlot($event.value)"
     >
-      <mat-button-toggle value="DEJEUNER">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">lunch_dining</mat-icon>
-        Déjeuner
+      <mat-button-toggle value="DEJEUNER" aria-label="Déjeuner">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">wb_sunny</mat-icon>
+        <span>12h</span>
       </mat-button-toggle>
-      <mat-button-toggle value="DINER">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">dinner_dining</mat-icon>
-        Dîner
+      <mat-button-toggle value="DINER" aria-label="Dîner">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">dark_mode</mat-icon>
+        <span>19h</span>
       </mat-button-toggle>
     </mat-button-toggle-group>
 
-    <button mat-flat-button type="button" (click)="openScan()">
+    <button mat-flat-button type="button" class="tool scan" (click)="openScan()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
-      Scanner
+      <span>Scanner</span>
     </button>
-    <button mat-stroked-button type="button" (click)="openMenu()">
+    <button mat-stroked-button type="button" class="tool" (click)="openMenu()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">menu_book</mat-icon>
-      Menu de la semaine
+      <span>Menu</span>
     </button>
-    <button mat-stroked-button type="button" (click)="openPlanning()">
+    <button mat-stroked-button type="button" class="tool" (click)="openPlanning()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">calendar_clock</mat-icon>
-      Planning
+      <span>Planning</span>
     </button>
-    <button mat-stroked-button type="button" (click)="toggleSimulator()" [attr.aria-expanded]="simOpen()">
+    <button mat-stroked-button type="button" class="tool" (click)="toggleSimulator()" [attr.aria-expanded]="simOpen()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">sensors</mat-icon>
-      Simulateur de bracelet
+      <span>Bracelet</span>
     </button>
     <button mat-icon-button type="button" aria-label="Actualiser" (click)="load()">
       <mat-icon fontSet="material-symbols-outlined">refresh</mat-icon>
@@ -40,10 +40,6 @@
 
   @if (simOpen()) {
     <section class="sim" aria-label="Simulateur de bracelet">
-      <p>
-        Démonstration sans lecteur réel : choisissez un résident et la table où il s'assoit. C'est ce que ferait le lecteur RFID
-        de la table en lisant son bracelet.
-      </p>
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>Résident</mat-label>
         <input matInput list="sim-residents" autocomplete="off" [ngModel]="simQuery()" (ngModelChange)="simQuery.set($event)" />
@@ -66,7 +62,7 @@
       </label>
       <button mat-flat-button type="button" [disabled]="busy()" (click)="simulateArrival()">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">sensors</mat-icon>
-        Bracelet lu
+        <span>OK</span>
       </button>
     </section>
   }
@@ -74,7 +70,7 @@
   @if (dining(); as data) {
     <section class="summary" aria-live="polite">
       <div class="menu-today">
-        <h2>Au menu aujourd'hui</h2>
+        <h2><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant_menu</mat-icon></h2>
         @if (data.menu; as menu) {
           <p>
             @if (menu.starter) { <span>{{ menu.starter }}</span> · }
@@ -82,17 +78,17 @@
             @if (menu.dessert) { · <span>{{ menu.dessert }}</span> }
           </p>
         } @else {
-          <p class="muted">Aucun menu saisi pour ce repas.</p>
+          <p class="muted">—</p>
         }
       </div>
       <div class="count">
-        <strong>{{ data.served }} / {{ data.seated }}</strong> servis
+        <strong><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon> {{ data.served }} / {{ data.seated }}</strong>
         <mat-progress-bar mode="determinate" [value]="progress()" aria-label="Avancement du service" />
       </div>
     </section>
 
     <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
-      <mat-label>Nom, chambre ou chevalet</mat-label>
+      <mat-label>Rechercher</mat-label>
       <input matInput type="search" autocomplete="off" [ngModel]="search()" (ngModelChange)="search.set($event)" />
       <mat-icon matPrefix fontSet="material-symbols-outlined" aria-hidden="true">search</mat-icon>
     </mat-form-field>
@@ -103,7 +99,7 @@
   } @else if (error()) {
     <p class="error" role="alert">{{ error() }}</p>
   } @else if (tables().length === 0) {
-    <p class="muted center">Aucune table à afficher.</p>
+    <p class="muted center"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon></p>
   } @else {
     <div class="layout" [class.with-detail]="selected()">
       <div class="tables">
@@ -112,10 +108,10 @@
             <header>
               <h3>{{ entry.table.label }}</h3>
               <span class="state" [class.occupied]="entry.table.present > 0" [attr.title]="entry.table.readerCode ? 'Lecteur ' + entry.table.readerCode : null">
-                {{ entry.table.present > 0 ? 'Occupée' : 'Libre' }}
+                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ entry.table.present > 0 ? 'groups' : 'event_seat' }}</mat-icon>
               </span>
-              <span class="occupancy">{{ entry.table.present }} / {{ entry.table.capacity }} résidents</span>
-              <span class="done">{{ entry.table.served }} servis</span>
+              <span class="occupancy">{{ entry.table.present }} / {{ entry.table.capacity }}</span>
+              <span class="done"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon> {{ entry.table.served }}</span>
             </header>
             <ol>
               @for (slotEntry of entry.slots; track $index) {
@@ -137,8 +133,8 @@
                       <span class="text">
                         <span class="name">{{ seat.resident.lastName }} {{ seat.resident.firstName }}</span>
                         <span class="meta">
-                          @if (seat.chevalet) { <span class="chip">Chevalet {{ seat.chevalet }}</span> }
-                          @if (seat.resident.mealLocation === 'CHAMBRE') { <span class="chip room">En chambre</span> }
+                          @if (seat.chevalet) { <span class="chip"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">tag</mat-icon>{{ seat.chevalet }}</span> }
+                          @if (seat.resident.mealLocation === 'CHAMBRE') { <span class="chip room"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon></span> }
                           @if (seat.resident.texture && seat.resident.texture !== 'Normale') {
                             <span class="chip">{{ seat.resident.texture }}</span>
                           }
@@ -170,12 +166,12 @@
                         [attr.aria-label]="'Fait pour ' + fullName(seat.resident)"
                         (change)="$event.checked && markServed(seat)"
                       >
-                        {{ seat.meal.status === 'REFUSE' ? 'Refusé' : 'Fait' }}
+                        {{ seat.meal.status === 'REFUSE' ? '✕' : '' }}
                       </mat-checkbox>
                     }
                   </li>
                 } @else {
-                  <li class="seat free"><span class="pos" aria-hidden="true">{{ $index + 1 }}</span> Place libre</li>
+                  <li class="seat free"><span class="pos" aria-hidden="true">{{ $index + 1 }}</span></li>
                 }
               }
             </ol>
@@ -196,60 +192,52 @@
           />
           <h2>{{ current.seat.resident.firstName }} {{ current.seat.resident.lastName }}</h2>
           <dl>
-            <dt>Position</dt>
-            <dd>{{ current.tableLabel }} · place {{ current.seat.position }}</dd>
-            <dt>Âge</dt>
-            <dd>{{ current.seat.resident.age }} ans</dd>
-            <dt>Chambre</dt>
+            <dt><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon><span>Table</span></dt>
+            <dd>{{ current.tableLabel }}</dd>
+            <dt><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon><span>Chambre</span></dt>
             <dd>{{ current.seat.resident.room ?? '—' }}</dd>
+            <dt><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">cake</mat-icon><span>Âge</span></dt>
+            <dd>{{ current.seat.resident.age }} ans</dd>
             @if (current.seat.chevalet) {
-              <dt>Chevalet</dt>
-              <dd>n° {{ current.seat.chevalet }}</dd>
+              <dt><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">tag</mat-icon><span>Chevalet</span></dt>
+              <dd>{{ current.seat.chevalet }}</dd>
             }
-            <dt>Allergies</dt>
+            <dt class="dt-allergy"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true" class="warn-icon">warning</mat-icon><span>Allergies</span></dt>
             <dd>
               @if (current.seat.resident.allergies.length === 0) {
-                Aucune connue
+                <span class="chip none-ok">
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon>
+                  Aucune
+                </span>
               } @else {
                 @for (allergy of current.seat.resident.allergies; track allergy.name) {
-                  <span class="chip allergy">
-                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
-                    {{ allergy.name }}@if (allergy.severity) { ({{ allergy.severity }}) }
-                  </span>
+                  <span class="chip allergy">{{ allergy.name }}</span>
                 }
               }
             </dd>
-            <dt>Régime</dt>
+            <dt><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant_menu</mat-icon><span>Régime</span></dt>
             <dd>{{ current.seat.resident.regime ?? 'Normal' }}@if (current.seat.resident.texture) { · {{ current.seat.resident.texture }} }</dd>
             @if (current.seat.resident.restrictions) {
-              <dt>Restrictions</dt>
+              <dt><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">block</mat-icon><span>À éviter</span></dt>
               <dd>{{ current.seat.resident.restrictions }}</dd>
             }
-            @if (current.seat.resident.instructions) {
-              <dt>Consignes</dt>
-              <dd>{{ current.seat.resident.instructions }}</dd>
-            }
             @if (current.seat.resident.needsHelp) {
-              <dt>Aide</dt>
-              <dd>A besoin d'aide pour manger</dd>
-            }
-            @if (current.seat.resident.distinguishingFeatures) {
-              <dt>Repères</dt>
-              <dd>{{ current.seat.resident.distinguishingFeatures }}</dd>
+              <dt><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">accessibility_new</mat-icon><span>Aide</span></dt>
+              <dd>Besoin d'aide pour manger</dd>
             }
             @if (current.seat.meal?.description) {
-              <dt>Repas</dt>
+              <dt><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">lunch_dining</mat-icon><span>Repas</span></dt>
               <dd>{{ current.seat.meal!.description }}</dd>
             }
           </dl>
 
           @if (current.seat.resident.identityDoubt) {
-            <p class="doubt" role="alert">Doute d'identité en cours : demandez à un soignant de confirmer.</p>
+            <p class="doubt" role="alert"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon> Doute d'identité</p>
           }
 
           @if (current.seat.meal; as meal) {
             @if (isFinished(meal)) {
-              <p class="state">{{ meal.status === 'FAIT' ? 'Repas servi' : 'Repas refusé' }}</p>
+              <p class="state"><mat-icon fontSet="material-symbols-outlined" [attr.aria-label]="meal.status === 'FAIT' ? 'Servi' : 'Refusé'">{{ meal.status === 'FAIT' ? 'check_circle' : 'cancel' }}</mat-icon></p>
             } @else {
               <div class="actions">
                 <button mat-flat-button type="button" [disabled]="busy()" (click)="markServed(current.seat)">
@@ -257,14 +245,14 @@
                   Fait
                 </button>
                 @if (!refusing()) {
-                  <button mat-stroked-button type="button" (click)="refusing.set(true)">Refusé</button>
+                  <button mat-stroked-button type="button" aria-label="Refusé" (click)="refusing.set(true)"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">close</mat-icon></button>
                 } @else {
                   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="reason">
                     <mat-label>Motif du refus</mat-label>
                     <input matInput maxlength="255" [ngModel]="refusal()" (ngModelChange)="refusal.set($event)" />
                   </mat-form-field>
                   <button mat-stroked-button type="button" [disabled]="busy()" (click)="refuse(current.seat)">
-                    Confirmer le refus
+                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">send</mat-icon>
                   </button>
                 }
               </div>

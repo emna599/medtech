@@ -409,3 +409,101 @@ dd {
   color: var(--app-ink);
   font: inherit;
 }
+
+.tool {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 76px;
+  min-width: 84px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 22px;
+}
+
+.tool mat-icon {
+  margin: 0;
+  width: 32px;
+  height: 32px;
+  font-size: 32px;
+}
+
+.slot {
+  --mat-button-toggle-height: 64px;
+  --mat-button-toggle-shape: 32px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.slot mat-icon {
+  width: 28px;
+  height: 28px;
+  font-size: 28px;
+}
+
+.state mat-icon,
+.done mat-icon,
+.count mat-icon,
+.menu-today h2 mat-icon,
+dt mat-icon {
+  vertical-align: middle;
+}
+
+.chip mat-icon {
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+}
+
+dl {
+  grid-template-columns: 40px 1fr;
+}
+
+.fait {
+  --mdc-checkbox-state-layer-size: 52px;
+  transform: scale(1.25);
+}
+
+.chip.none-ok {
+  background: var(--app-ok-bg);
+  color: var(--app-ok);
+  font-size: 0.9rem;
+}
+
+.chip.none-ok mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+
+.warn-icon {
+  color: var(--app-danger);
+}
+
+dd .chip.allergy {
+  font-size: 0.95rem;
+  padding: 3px 12px;
+}
+
+dl {
+  grid-template-columns: 112px 1fr;
+  gap: 10px 8px;
+  align-items: center;
+}
+
+dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--app-chip-ink);
+}
+
+dd {
+  font-size: 1rem;
+  font-weight: 600;
+}

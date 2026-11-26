@@ -98,7 +98,7 @@ export class ResidentSheet {
     return r.room ? `Chambre ${r.room}${r.floor !== null ? ` · étage ${r.floor}` : ''}` : 'Sans chambre';
   });
   protected readonly otherLocationLabel = computed(() =>
-    this.resident().mealLocation === 'SALLE' ? 'Passer en chambre' : 'Passer en salle à manger',
+    this.resident().mealLocation === 'SALLE' ? 'Chambre' : 'Salle',
   );
 
   protected statusText(): string {

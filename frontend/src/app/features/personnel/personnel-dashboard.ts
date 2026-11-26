@@ -84,6 +84,10 @@ export class PersonnelDashboard {
   protected readonly alerts = inject(NotificationService);
 
   protected readonly kind = signal<ServiceKind>('REPAS');
+
+  /** Vue « salle à manger » (tables) : toujours pour le service, et sur demande pour un soignant qui aide à servir. */
+  protected readonly showDining = signal(false);
+  protected readonly diningView = computed(() => this.me()?.job === 'SERVICE' || this.showDining());
   protected readonly location = signal<MealLocation>('SALLE');
   protected readonly statusFilter = signal<StatusFilter>('A_FAIRE');
   protected readonly search = signal('');
@@ -188,7 +192,16 @@ export class PersonnelDashboard {
 
   constructor() {
     this.load();
-    this.api.me().subscribe({ next: (me) => this.me.set(me), error: () => undefined });
+    this.api.me().subscribe({
+      next: (me) => {
+        this.me.set(me);
+        // L'infirmier donne surtout les médicaments : c'est son écran de départ (il peut passer aux repas quand il en distribue).
+        if (me.job === 'INFIRMIER' && this.kind() === 'REPAS') {
+          this.setKind('MEDICAMENT');
+        }
+      },
+      error: () => undefined,
+    });
     this.refreshTeam();
     this.api.bracelets().subscribe({ next: (ids) => this.braceletIds.set(new Set(ids)), error: () => undefined });
     this.api.planning().subscribe({

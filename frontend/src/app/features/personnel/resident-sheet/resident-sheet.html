@@ -25,7 +25,6 @@
     <div class="alert alert-danger" role="alert">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
       <div>
-        <strong>ALLERGIE</strong> :
         @for (allergy of resident().allergies; track allergy.name; let last = $last) {
           {{ allergy.name }}@if (allergy.severity) { ({{ allergy.severity }}) }@if (!last) {, }
         }
@@ -37,11 +36,11 @@
     <div class="alert alert-warning" role="alert">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon>
       <div class="grow">
-        <strong>Doute d'identité en cours.</strong>
-        Un autre soignant doit confirmer qu'il s'agit bien de cette personne avant de valider.
+        <strong>Doute</strong>
       </div>
       <button mat-stroked-button type="button" [disabled]="busy()" (click)="resolveDoubt()">
-        Confirmer l'identité
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">verified_user</mat-icon>
+        Confirmé
       </button>
     </div>
   }
@@ -60,28 +59,28 @@
     @if (item().highRisk) {
       <div class="risk">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">shield</mat-icon>
-        Traitement à risque : vérifiez deux fois, et faites confirmer par un collègue si possible.
+        À risque
       </div>
     }
   </section>
 
   <section class="facts" aria-label="Régime et consignes">
     @if (resident().regime) {
-      <div class="fact"><span class="fact-label">Régime</span><span>{{ resident().regime }}</span></div>
+      <div class="fact" title="Régime"><mat-icon fontSet="material-symbols-outlined" aria-label="Régime">restaurant_menu</mat-icon><span class="fact-label">Régime</span><span>{{ resident().regime }}</span></div>
     }
     @if (resident().texture) {
-      <div class="fact"><span class="fact-label">Texture</span><span>{{ resident().texture }}</span></div>
+      <div class="fact" title="Texture"><mat-icon fontSet="material-symbols-outlined" aria-label="Texture">blender</mat-icon><span class="fact-label">Texture</span><span>{{ resident().texture }}</span></div>
     }
     @if (resident().restrictions) {
-      <div class="fact"><span class="fact-label">À éviter</span><span>{{ resident().restrictions }}</span></div>
+      <div class="fact" title="À éviter"><mat-icon fontSet="material-symbols-outlined" aria-label="À éviter">block</mat-icon><span class="fact-label">À éviter</span><span>{{ resident().restrictions }}</span></div>
     }
     @if (resident().instructions) {
-      <div class="fact"><span class="fact-label">Consignes</span><span>{{ resident().instructions }}</span></div>
+      <div class="fact" title="Consignes"><mat-icon fontSet="material-symbols-outlined" aria-label="Consignes">info</mat-icon><span class="fact-label">Consignes</span><span>{{ resident().instructions }}</span></div>
     }
     @if (resident().needsHelp) {
       <div class="fact fact-help">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">volunteer_activism</mat-icon>
-        Aide nécessaire
+        <mat-icon fontSet="material-symbols-outlined" aria-label="Aide nécessaire">volunteer_activism</mat-icon>
+        Aide
       </div>
     }
   </section>
@@ -128,7 +127,7 @@
 
       @if (refusing()) {
         <div class="refusal">
-          <p class="refusal-title">Motif du refus</p>
+          <p class="refusal-title"><mat-icon fontSet="material-symbols-outlined" aria-label="Motif du refus">help</mat-icon></p>
           <div class="chips" role="radiogroup" aria-label="Motif du refus">
             @for (reason of refusalReasons(); track reason) {
               <button
@@ -149,7 +148,8 @@
             [disabled]="busy() || !refusalReason()"
             (click)="confirmRefusal()"
           >
-            Confirmer le refus
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check</mat-icon>
+            OK
           </button>
         </div>
       }
@@ -157,7 +157,7 @@
   } @else if (pending()) {
     <p class="locked" role="status">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">lock</mat-icon>
-      Les médicaments sont donnés par les infirmiers. Vous pouvez consulter la fiche.
+      Lecture seule
     </p>
   } @else {
     <section class="done-box">
@@ -169,7 +169,7 @@
       </div>
 
       @if (item().kind === 'REPAS' && item().status === 'FAIT') {
-        <p class="refusal-title">Quantité mangée (au débarrassage)</p>
+        <p class="refusal-title"><mat-icon fontSet="material-symbols-outlined" aria-label="Quantité mangée">scale</mat-icon></p>
         <div class="chips" role="radiogroup" aria-label="Quantité mangée">
           @for (q of quantities; track q) {
             <button
@@ -196,23 +196,21 @@
     </button>
     <button mat-button type="button" (click)="openNotes()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">edit_note</mat-icon>
-      Ajouter une note
+      Note
     </button>
     @if (!hasDoubt()) {
       <button mat-button type="button" (click)="showDoubt.set(!showDoubt())">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon>
-        J'ai un doute sur l'identité
+        Doute
       </button>
     }
   </footer>
 
   @if (showDoubt() && !hasDoubt()) {
     <section class="doubt-form">
-      <p class="refusal-title">
-        Comparez le visage à la photo. En cas de doute, ne donnez rien et signalez-le : un collègue sera appelé à confirmer.
-      </p>
+
       <mat-form-field appearance="outline" class="full">
-        <mat-label>Précision (facultatif)</mat-label>
+        <mat-label>Précision</mat-label>
         <input
           matInput
           maxlength="255"
@@ -221,7 +219,8 @@
         />
       </mat-form-field>
       <button mat-flat-button type="button" [disabled]="busy()" (click)="reportDoubt()">
-        Signaler le doute
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">flag</mat-icon>
+        Signaler
       </button>
     </section>
   }

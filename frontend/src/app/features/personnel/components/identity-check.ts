@@ -20,15 +20,14 @@ import { IdentifyDialog, IdentifyResult, ScanDialogData } from '../identify-dial
         <span class="grow"></span>
         <button mat-stroked-button type="button" (click)="scan()">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
-          Scanner le bracelet
+          Scanner
         </button>
       </div>
     } @else {
       <div class="box nobracelet">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">badge</mat-icon>
-        <span class="text">
-          Pas de bracelet : lisez le nom <strong>{{ residentName() }}</strong> et comparez le visage à la photo.
-        </span>
+        <span class="text"><strong>{{ residentName() }}</strong></span>
+        <mat-icon fontSet="material-symbols-outlined" aria-label="Comparer le visage à la photo">face</mat-icon>
       </div>
     }
   `,
@@ -88,11 +87,11 @@ export class IdentityCheck {
   protected readonly text = computed(() => {
     switch (this.verified()) {
       case 'OK':
-        return 'Bracelet scanné : c\'est bien cette personne.';
+        return 'Bon bracelet';
       case 'BAD':
-        return 'Ce bracelet est celui d\'une autre personne. Ne donnez rien : vérifiez qui elle est.';
+        return 'Autre personne !';
       default:
-        return 'Scannez le bracelet pour confirmer la personne.';
+        return 'Bracelet';
     }
   });
 

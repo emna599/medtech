@@ -1,6 +1,14 @@
 <app-toolbar [job]="me()?.job ?? null" />
 
-@if (me()?.job === 'SERVICE') {
+@if (diningView()) {
+  @if (me()?.job !== 'SERVICE') {
+    <div class="back">
+      <button mat-stroked-button type="button" class="releve" (click)="showDining.set(false)">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">arrow_back</mat-icon>
+        <span>Retour</span>
+      </button>
+    </div>
+  }
   <app-dining-service />
 } @else {
 
@@ -23,9 +31,14 @@
       </mat-button-toggle>
     </mat-button-toggle-group>
 
+    <button mat-stroked-button type="button" class="releve" (click)="showDining.set(true)">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon>
+      <span>Tables</span>
+    </button>
+
     <button mat-stroked-button type="button" class="releve residents" (click)="openResidents()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
-      Résidents
+      <span>Résidents</span>
     </button>
 
     <button
@@ -36,22 +49,22 @@
       (click)="openTeam()"
     >
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">diversity_3</mat-icon>
-      {{ teamLabel() }}
+      <span>{{ teamLabel() }}</span>
     </button>
 
     <button mat-stroked-button type="button" class="releve" (click)="openPlanning()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">calendar_clock</mat-icon>
-      Planning
+      <span>Planning</span>
     </button>
 
     <button mat-stroked-button type="button" class="releve" (click)="openNotes()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">edit_note</mat-icon>
-      Notes
+      <span>Notes</span>
     </button>
 
     <button mat-stroked-button type="button" class="releve" (click)="openReleve()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
-      Relève
+      <span>Relève</span>
     </button>
 
     @if (alerts.supported) {
@@ -69,16 +82,16 @@
 
     <button mat-flat-button type="button" class="scan" (click)="openScan()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ kind() === 'REPAS' ? 'qr_code_scanner' : 'nfc' }}</mat-icon>
-      Scanner
+      <span>Scanner</span>
     </button>
   </section>
 
   @if (team(); as t) {
     @if (!t.present) {
-      <p class="locked" role="status">
+      <button type="button" class="locked locked-action" (click)="openTeam()">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">login</mat-icon>
-        Vous n'êtes pas en service : appuyez sur « {{ teamLabel() }} » puis « Je prends mon service » pour voir votre part de résidents.
-      </p>
+        Prendre mon service
+      </button>
     } @else {
       <div class="mine">
         <mat-button-toggle-group
@@ -87,8 +100,14 @@
           [value]="onlyMine() ? 'MINE' : 'ALL'"
           (change)="onlyMine.set($event.value === 'MINE')"
         >
-          <mat-button-toggle value="MINE">Mes résidents · {{ t.myResidentIds.length }}</mat-button-toggle>
-          <mat-button-toggle value="ALL">Tous · {{ t.residentTotal }}</mat-button-toggle>
+          <mat-button-toggle value="MINE" aria-label="Mes résidents">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">person</mat-icon>
+            {{ t.myResidentIds.length }}
+          </mat-button-toggle>
+          <mat-button-toggle value="ALL" aria-label="Tous les résidents">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
+            {{ t.residentTotal }}
+          </mat-button-toggle>
         </mat-button-toggle-group>
       </div>
     }
@@ -103,7 +122,7 @@
   @if (medicationLocked()) {
     <p class="locked" role="status">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">lock</mat-icon>
-      Consultation seule : les médicaments sont donnés par les infirmiers.
+      Lecture seule
     </p>
   }
 
@@ -129,8 +148,8 @@
   @if (total() > 0) {
     <div class="progress">
       <div class="progress-text">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ kind() === 'REPAS' ? 'restaurant' : 'medication' }}</mat-icon>
         <strong>{{ finished() }} / {{ total() }}</strong>
-        {{ kind() === 'REPAS' ? 'repas faits' : 'prises faites' }}
       </div>
       <mat-progress-bar mode="determinate" [value]="progress()" aria-label="Avancement du service" />
     </div>
@@ -145,19 +164,19 @@
       [value]="location()"
       (change)="setLocation($event.value)"
     >
-      <mat-button-toggle value="SALLE">
+      <mat-button-toggle value="SALLE" aria-label="Salle à manger">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">dining</mat-icon>
-        Salle à manger · {{ remainingSalle() }}
+        {{ remainingSalle() }}
       </mat-button-toggle>
-      <mat-button-toggle value="CHAMBRE">
+      <mat-button-toggle value="CHAMBRE" aria-label="Chambres">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
-        Chambres · {{ remainingChambre() }}
+        {{ remainingChambre() }}
       </mat-button-toggle>
     </mat-button-toggle-group>
     } @else {
       <p class="morning">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
-        Le matin : tournée des chambres
+        Chambres
       </p>
     }
 
@@ -168,13 +187,19 @@
       [value]="statusFilter()"
       (change)="setStatusFilter($event.value)"
     >
-      <mat-button-toggle value="A_FAIRE">À faire</mat-button-toggle>
-      <mat-button-toggle value="FAIT">Faits</mat-button-toggle>
-      <mat-button-toggle value="TOUS">Tous</mat-button-toggle>
+      <mat-button-toggle value="A_FAIRE" aria-label="À faire">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">hourglass_top</mat-icon>
+      </mat-button-toggle>
+      <mat-button-toggle value="FAIT" aria-label="Faits">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon>
+      </mat-button-toggle>
+      <mat-button-toggle value="TOUS" aria-label="Tous">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">apps</mat-icon>
+      </mat-button-toggle>
     </mat-button-toggle-group>
 
     <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
-      <mat-label>Nom ou chambre</mat-label>
+      <mat-label>Rechercher</mat-label>
       <input
         matInput
         type="search"
@@ -204,12 +229,10 @@
     <div class="state">
       <mat-icon fontSet="material-symbols-outlined" class="state-icon" aria-hidden="true">task_alt</mat-icon>
       <p>
-        @if (total() === 0) {
-          Rien de prévu pour le moment.
-        } @else if (statusFilter() === 'A_FAIRE' && !search()) {
-          Tout est fait ici. Bravo !
+        @if (statusFilter() === 'A_FAIRE' && !search() && total() > 0) {
+          Tout est fait !
         } @else {
-          Aucun résultat.
+          Rien à afficher
         }
       </p>
     </div>
@@ -236,7 +259,7 @@
               </span>
             }
             @if (item.resident.identityDoubt) {
-              <span class="badge badge-doubt">Doute d'identité</span>
+              <span class="badge badge-doubt">Doute</span>
             }
             @if (item.highRisk) {
               <span class="badge badge-risk">À risque</span>

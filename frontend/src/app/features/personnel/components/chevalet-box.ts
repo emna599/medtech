@@ -17,17 +17,20 @@ import { Chevalet } from '../../../shared/models/personnel.model';
       <div class="line">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon>
         @if (chevalet(); as c) {
-          <span class="text">Chevalet n° <strong>{{ c.code }}</strong></span>
+          <span class="text"><strong>{{ c.code }}</strong></span>
         } @else {
-          <span class="text">Pas de chevalet associé</span>
+          <span class="text">—</span>
         }
         <span class="grow"></span>
         @if (!editing()) {
           <button mat-stroked-button type="button" [disabled]="busy()" (click)="edit()">
-            {{ chevalet() ? 'Changer' : 'Associer un chevalet' }}
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ chevalet() ? 'edit' : 'add_link' }}</mat-icon>
+            {{ chevalet() ? '' : 'Associer' }}
           </button>
           @if (chevalet()) {
-            <button mat-button type="button" [disabled]="busy()" (click)="release()">Retirer</button>
+            <button mat-button type="button" [disabled]="busy()" aria-label="Retirer le chevalet" (click)="release()">
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">link_off</mat-icon>
+            </button>
           }
         }
       </div>
@@ -35,7 +38,7 @@ import { Chevalet } from '../../../shared/models/personnel.model';
       @if (editing()) {
         <div class="form">
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
-            <mat-label>Numéro du chevalet</mat-label>
+            <mat-label>N°</mat-label>
             <input
               matInput
               autocomplete="off"

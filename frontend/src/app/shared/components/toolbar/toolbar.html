@@ -24,8 +24,7 @@
     <mat-icon fontSet="material-symbols-outlined">{{ dark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
   </button>
 
-  <button mat-button type="button" (click)="logout()">
-    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">logout</mat-icon>
-    Déconnexion
+  <button mat-icon-button type="button" aria-label="Déconnexion" title="Déconnexion" (click)="logout()">
+    <mat-icon fontSet="material-symbols-outlined">logout</mat-icon>
   </button>
 </mat-toolbar>
