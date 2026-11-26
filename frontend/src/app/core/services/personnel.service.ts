@@ -6,6 +6,14 @@ import {
   Appetite,
   AssistantReply,
   CompleteRequest,
+  Dining,
+  DiningSlot,
+  Note,
+  NoteCategory,
+  Planning,
+  Reading,
+  Team,
+  WeeklyMenu,
   Doubt,
   HandoverAction,
   HandoverAssignment,
@@ -27,6 +35,42 @@ export class PersonnelService {
   private readonly base = `${environment.apiUrl}/api/personnel`;
 
   private readonly handover = `${environment.apiUrl}/api/releve`;
+
+  dining(slot: DiningSlot): Observable<Dining> {
+    return this.http.get<Dining>(`${this.base}/dining/tables`, { params: { slot } });
+  }
+
+  weeklyMenu(date: string): Observable<WeeklyMenu> {
+    return this.http.get<WeeklyMenu>(`${this.base}/dining/menu`, { params: { date } });
+  }
+
+  recordTablePresence(readerCode: string, identity: { residentId: number } | { token: string }, leaving: boolean): Observable<Reading> {
+    return this.http.post<Reading>(`${this.base}/dining/readings`, { readerCode, ...identity, leaving });
+  }
+
+  planning(): Observable<Planning> {
+    return this.http.get<Planning>(`${this.base}/planning`);
+  }
+
+  notes(): Observable<Note[]> {
+    return this.http.get<Note[]>(`${this.base}/notes`);
+  }
+
+  addNote(content: string, category: NoteCategory): Observable<Note> {
+    return this.http.post<Note>(`${this.base}/notes`, { content, category });
+  }
+
+  team(): Observable<Team> {
+    return this.http.get<Team>(`${this.base}/team`);
+  }
+
+  checkIn(): Observable<Team> {
+    return this.http.post<Team>(`${this.base}/team/check-in`, {});
+  }
+
+  checkOut(): Observable<Team> {
+    return this.http.post<Team>(`${this.base}/team/check-out`, {});
+  }
 
   loadHandover(): Observable<HandoverBoard> {
     return this.http.get<HandoverBoard>(this.handover);

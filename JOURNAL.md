@@ -5,6 +5,17 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — intégration des trois branches
+
+- Fusionné `feature/admin-users` puis `feature/medecin` puis `feature/personnel` dans `integration`. Les cartes, les validations de chambre, les circuits Repas et Médicaments et la relève existante sont conservés. Les résolutions gardent les règles d’accès actuelles et adaptent les apports incompatibles avec ces circuits.
+- Admin : la base neuve de démo charge 16 chambres et 24 résidents par `database/setup.sql`. `seed_care.sql` complète les 12 résidents de la tournée par des dossiers fictifs ciblés par identifiant de démo, avec des créneaux et textures compatibles. Aucun nouveau bracelet n’est attribué par ce script. La configuration de migration Docker ne recharge pas les jeux de démo sur une base existante.
+- Médecin : les QR imprimés par l’admin ouvrent le parcours navigateur lorsque l’adresse tient dans le format QR. Le code reste dans le fragment jusqu’à la reprise après connexion et est ensuite retiré de l’adresse. Le POST existant retourne l’identité, puis l’utilisateur confirme avant d’ouvrir le parcours de son rôle. Les anciens codes bruts restent utilisables. Aucun GET de données médicales par QR ni transfert de la gestion du bracelet.
+- Personnel : intégrés salle, menus datés, planning, équipe et notes texte. L’attribution des actions reste dans la relève, séparée de la répartition indicative de l’équipe. Les tables renvoient seulement l’identité minimale et le statut du repas. Pour servir, la salle ouvre la fiche Repas existante. Les présences sont journalisées et les écritures sérialisées par table et par résident. Les lectures RFID sont opérées depuis un compte personnel authentifié, par saisie ou lecteur qui fournit le code. L’identification confirmée par QR reste disponible pour installer un résident.
+- Nouvelle migration additive `database/personnel_service.sql`, applicable aussi sur une base existante. Elle conserve les éventuelles anciennes affectations de tables. `seed_service.sql` est réservé aux jeux fictifs. Les profils sont utilisés pour le planning et la vue équipe. Les droits existants sur les médicaments sont conservés. La dictée distante, le téléversement de photos, les chevalets et le pilotage matériel autonome ne font pas partie de cette intégration.
+- Vérifié sur PostgreSQL 17 isolé : initialisation complète, migration relancée deux fois sans effacer les résidents ni la relève, 35 tests backend, 33 tests frontend et build. Chromium couvre la reprise du scan après connexion avec les trois rôles, la confirmation et le refus d’identité, l’accès aux fiches et aux écrans du personnel. Les tests API couvrent les droits par rôle, l’absence de session d’authentification par cookie, les refus CORS, la capacité sous écritures concurrentes et le maintien de la confirmation de risque repas. Caméra et lecteur physiques restent à vérifier.
+
+---
+
 ## Relais Codex du 2026-11-26 — lisibilité des cartes et revue avant intégration
 
 - Mis en avant le nom, la chambre et le statut dans les annuaires résident. La tournée personnel partage la même carte en salle et en chambre, pour les repas et les médicaments. Le statut et les alertes ont un libellé et une icône. Les cartes repas montrent tous les éléments « À éviter », les doutes d’identité, la texture, l’aide et les plateaux à revérifier à partir des données déjà fournies au personnel. Hiérarchie appliquée aussi aux chambres, aux comptes et à la relève.

@@ -1,0 +1,83 @@
+<div class="dialog">
+  <header class="head">
+    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">diversity_3</mat-icon>
+    <h2 class="title">Équipe en service</h2>
+    <button mat-icon-button type="button" aria-label="Fermer" (click)="close()">
+      <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
+    </button>
+  </header>
+
+  <section class="body">
+    @if (loading()) {
+      <div class="state"><mat-spinner diameter="40" /></div>
+    } @else if (team(); as t) {
+      <div class="counts">
+        <div class="count" [class.count-bad]="t.nurses === 0">
+          <strong>{{ t.nurses }}</strong>
+          <span>infirmier(s)</span>
+        </div>
+        <div class="count" [class.count-bad]="t.aides === 0">
+          <strong>{{ t.aides }}</strong>
+          <span>aide(s)-soignant(es)</span>
+        </div>
+        <div class="count">
+          <strong>{{ t.residentTotal }}</strong>
+          <span>résidents</span>
+        </div>
+      </div>
+
+      @for (alert of t.alerts; track alert) {
+        <p class="alert" role="alert">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+          {{ alert }}
+        </p>
+      }
+
+      @for (group of groups(); track group.job) {
+        <h3>{{ jobLabel[group.job] }}</h3>
+        <ul class="members">
+          @for (member of group.members; track member.userId) {
+            <li class="member" [class.me]="member.me">
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">
+                {{ group.job === 'INFIRMIER' ? 'medical_services' : 'volunteer_activism' }}
+              </mat-icon>
+              <span class="who">
+                <span class="name">{{ member.name }}@if (member.me) { <em>(vous)</em> }</span>
+                <span class="meta">{{ share(member) }} · depuis {{ member.since | date: 'HH:mm' }}</span>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+
+      @if (groups().length === 0) {
+        <p class="empty">Personne n'est en service pour le moment.</p>
+      }
+
+      <p class="rule">
+        Répartition indicative par chambre, recalculée aux arrivées et aux départs.
+        Les actions et leurs titulaires sont suivis dans la relève.
+      </p>
+
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+      }
+
+      <button
+        mat-flat-button
+        type="button"
+        class="service"
+        [class.service-end]="t.present"
+        [disabled]="busy()"
+        (click)="toggleService()"
+      >
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ t.present ? 'logout' : 'login' }}</mat-icon>
+        {{ t.present ? 'Je termine mon service' : 'Je prends mon service' }}
+      </button>
+    } @else {
+      <div class="state" role="alert">
+        <p class="error">{{ error() }}</p>
+      </div>
+    }
+  </section>
+</div>

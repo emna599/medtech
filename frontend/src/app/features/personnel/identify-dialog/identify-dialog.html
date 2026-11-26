@@ -34,7 +34,7 @@
       <div class="buttons">
         <button mat-flat-button type="button" class="yes" (click)="confirm()">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon>
-          {{ mode === 'admin' ? 'Confirmer et ouvrir la fiche administrative' : 'Confirmer et ouvrir la fiche' }}
+          {{ confirmationLabel }}
         </button>
         <button mat-stroked-button type="button" class="no" (click)="reject()">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">cancel</mat-icon>

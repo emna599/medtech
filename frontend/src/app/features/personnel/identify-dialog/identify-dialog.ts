@@ -14,6 +14,7 @@ import { ResidentAvatar } from '../components/resident-avatar';
 export interface IdentifyDialogData {
   mode: 'admin' | 'medecin' | 'personnel';
   initialCode?: string | null;
+  confirmationLabel?: string;
 }
 
 export interface IdentifyResult {
@@ -37,6 +38,8 @@ export class IdentifyDialog {
 
   private readonly data = inject<IdentifyDialogData>(MAT_DIALOG_DATA, { optional: true });
   protected readonly mode = this.data?.mode ?? 'personnel';
+  protected readonly confirmationLabel = this.data?.confirmationLabel
+    ?? (this.mode === 'admin' ? 'Confirmer et ouvrir la fiche administrative' : 'Confirmer et ouvrir la fiche');
 
   protected readonly code = signal('');
   protected readonly busy = signal(false);

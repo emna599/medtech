@@ -12,4 +12,6 @@ BEGIN;
 \ir medical_record_version.sql
 \ir seed_personnel.sql
 \ir seed_care.sql
+\ir personnel_service.sql
+\ir seed_service.sql
 COMMIT;

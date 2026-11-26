@@ -43,6 +43,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/identification/bracelet").hasAnyRole("ADMIN", "PERSONNEL", "MEDECIN")
                         .requestMatchers("/api/residents/*/qr-codes", "/api/residents/*/qr-codes/**").denyAll()
+                        .requestMatchers("/api/personnel/planning",
+                                "/api/personnel/team", "/api/personnel/team/**",
+                                "/api/personnel/notes", "/api/personnel/dining/**").hasRole("PERSONNEL")
                         .requestMatchers("/api/personnel/**").hasAnyRole("PERSONNEL", "ADMIN")
                         .requestMatchers("/api/suivi-resident/**").hasAnyRole("PERSONNEL", "MEDECIN")
                         .requestMatchers("/api/releve", "/api/releve/**").hasRole("PERSONNEL")

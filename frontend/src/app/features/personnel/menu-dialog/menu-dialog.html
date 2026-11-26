@@ -1,0 +1,47 @@
+<div class="dialog">
+  <header class="head">
+    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">menu_book</mat-icon>
+    <h2 class="title">{{ title() }}</h2>
+    <button mat-icon-button type="button" aria-label="Semaine précédente" [disabled]="loading()" (click)="shift(-1)">
+      <mat-icon fontSet="material-symbols-outlined">chevron_left</mat-icon>
+    </button>
+    <button mat-icon-button type="button" aria-label="Semaine suivante" [disabled]="loading()" (click)="shift(1)">
+      <mat-icon fontSet="material-symbols-outlined">chevron_right</mat-icon>
+    </button>
+    <button mat-icon-button type="button" aria-label="Fermer" (click)="close()">
+      <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
+    </button>
+  </header>
+
+  <div class="body">
+    @if (loading()) {
+      <mat-spinner diameter="32" />
+    } @else if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    } @else if ((menu()?.entries?.length ?? 0) === 0) {
+      <p class="empty">Aucun menu n'est saisi pour cette semaine.</p>
+    } @else {
+      @for (day of days(); track day.day) {
+        <section class="day" [class.today]="day.today">
+          <h3>{{ day.label }}@if (day.today) { <span class="badge">Aujourd'hui</span> }</h3>
+          <div class="meals">
+            @for (meal of day.meals; track meal.slot) {
+              <article class="meal">
+                <h4>{{ meal.title }}</h4>
+                @if (meal.entry; as entry) {
+                  <ul>
+                    @if (entry.starter) { <li><span>Entrée</span>{{ entry.starter }}</li> }
+                    <li><span>Plat</span>{{ entry.mainCourse }}@if (entry.side) { , {{ entry.side }} }</li>
+                    @if (entry.dessert) { <li><span>Dessert</span>{{ entry.dessert }}</li> }
+                  </ul>
+                } @else {
+                  <p class="none">Non renseigné</p>
+                }
+              </article>
+            }
+          </div>
+        </section>
+      }
+    }
+  </div>
+</div>

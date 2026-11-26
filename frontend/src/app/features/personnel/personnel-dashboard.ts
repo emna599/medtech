@@ -1,3 +1,7 @@
+import { DiningDialog } from './dining-dialog/dining-dialog';
+import { NotesDialog } from './notes-dialog/notes-dialog';
+import { PlanningDialog, PlanningResult } from './planning-dialog/planning-dialog';
+import { TeamDialog } from './team-dialog/team-dialog';
 import { Router } from '@angular/router';
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -256,6 +260,42 @@ export class PersonnelDashboard {
     } else if (announceEnd) {
       this.snackBar.open('Tournée terminée', 'OK', { duration: 4000 });
     }
+  }
+
+  protected openDining(): void {
+    this.dialog.open<DiningDialog, void, { residentId: number; mealId: number }>(DiningDialog, {
+      width: '960px',
+      maxWidth: '96vw',
+    }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((selection) => {
+      if (!selection) return;
+      this.kind.set('REPAS');
+      this.chosenSlot.set(null);
+      this.load(() => {
+        const meal = this.items().find(item => item.id === selection.mealId && item.resident.id === selection.residentId);
+        if (meal) {
+          this.setSlot(meal.slot);
+          this.setLocation(meal.resident.mealLocation);
+          this.open(meal);
+        } else {
+          this.snackBar.open('Ce repas n’est plus disponible dans la tournée.', 'OK', { duration: 5000 });
+        }
+      });
+    });
+  }
+
+  protected openPlanning(): void {
+    this.dialog.open<PlanningDialog, void, PlanningResult>(PlanningDialog, { width: '680px', maxWidth: '96vw' })
+      .afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
+        if (result?.focus) this.setKind(result.focus);
+      });
+  }
+
+  protected openTeam(): void {
+    this.dialog.open(TeamDialog, { width: '680px', maxWidth: '96vw' });
+  }
+
+  protected openNotes(): void {
+    this.dialog.open(NotesDialog, { width: '680px', maxWidth: '96vw' });
   }
 
   protected openIdentify(): void {

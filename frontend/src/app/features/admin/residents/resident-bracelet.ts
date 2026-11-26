@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { QrCode } from '../../../shared/models/resident.model';
 import { apiErrorMessage } from '../../../shared/utils/api-error';
 import { BRACELET_PATH, braceletCode } from '../../../shared/utils/bracelet-link';
-import { createQrSvgDataUrl } from '../../../shared/utils/qr-code';
+import { QR_MAX_BYTE_LENGTH, createQrSvgDataUrl } from '../../../shared/utils/qr-code';
 import { AdminResidentService } from './admin-resident.service';
 
 @Component({
@@ -55,7 +55,7 @@ export class ResidentBracelet {
     try {
       const code = braceletCode(qrCode.token);
       const link = code ? window.location.origin + BRACELET_PATH + '#' + code : null;
-      return createQrSvgDataUrl(link && new TextEncoder().encode(link).length <= 78 ? link : qrCode.token);
+      return createQrSvgDataUrl(link && new TextEncoder().encode(link).length <= QR_MAX_BYTE_LENGTH ? link : qrCode.token);
     } catch (error) {
       if (error instanceof RangeError) return null;
       throw error;

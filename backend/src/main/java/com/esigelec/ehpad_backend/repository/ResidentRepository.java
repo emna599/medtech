@@ -41,4 +41,8 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
 
     @Query(value = "select resident_id from qr_code where token = :token and active = true", nativeQuery = true)
     Optional<Long> findResidentIdByActiveQrToken(@Param("token") String token);
+
+    @Query(value = "select resident_id from resident_nfc_tag where token = :token and active = true",
+            nativeQuery = true)
+    Optional<Long> findResidentIdByActiveNfcToken(@Param("token") String token);
 }

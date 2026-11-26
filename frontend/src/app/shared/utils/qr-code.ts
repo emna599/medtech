@@ -1,7 +1,7 @@
 const QR_SIZE = 33;
 const DATA_CODEWORDS = 80;
 const ERROR_CORRECTION_CODEWORDS = 20;
-const MAX_BYTE_LENGTH = 78;
+export const QR_MAX_BYTE_LENGTH = 78;
 const MASK_PATTERN = 0;
 
 const gfExponent = new Uint8Array(512);
@@ -59,8 +59,8 @@ function appendBits(bits: number[], value: number, count: number): void {
 
 function createDataCodewords(text: string): number[] {
   const bytes = Array.from(new TextEncoder().encode(text));
-  if (bytes.length > MAX_BYTE_LENGTH) {
-    throw new RangeError(`QR Code data must not exceed ${MAX_BYTE_LENGTH} bytes.`);
+  if (bytes.length > QR_MAX_BYTE_LENGTH) {
+    throw new RangeError(`QR Code data must not exceed ${QR_MAX_BYTE_LENGTH} bytes.`);
   }
 
   const bits: number[] = [];
