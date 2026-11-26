@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AuthService } from '../../../core/auth/auth.service';
 import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
 import { fullName, ResidentCard } from '../../../shared/models/personnel.model';
 import { AppetiteChart } from '../components/appetite-chart';
@@ -46,11 +47,16 @@ function normalize(text: string): string {
 })
 export class ResidentsDialog {
   private readonly api = inject(PersonnelService);
+  private readonly auth = inject(AuthService);
   private readonly ref = inject<MatDialogRef<ResidentsDialog, ResidentsResult>>(MatDialogRef);
 
   protected readonly residents = signal<ResidentCard[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+  /** Seul l'administrateur peut envoyer ou changer la photo d'un résident. */
+  protected readonly canEditPhotos = computed(() => this.auth.currentUser()?.role === 'ADMIN');
+  protected readonly photoBusy = signal(false);
+  protected readonly photoError = signal<string | null>(null);
   protected readonly search = signal('');
   protected readonly selected = signal<ResidentCard | null>(null);
 
@@ -99,6 +105,30 @@ export class ResidentsDialog {
 
   protected select(resident: ResidentCard): void {
     this.selected.set(resident);
+  }
+
+  protected changePhoto(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    const resident = this.selected();
+    input.value = '';
+    if (!file || !resident || this.photoBusy()) {
+      return;
+    }
+    this.photoBusy.set(true);
+    this.photoError.set(null);
+    this.api.uploadPhoto(resident.id, file).subscribe({
+      next: ({ photoUrl }) => {
+        const updated = { ...resident, photoUrl };
+        this.residents.update((list) => list.map((r) => (r.id === resident.id ? updated : r)));
+        this.selected.set(updated);
+        this.photoBusy.set(false);
+      },
+      error: (err: unknown) => {
+        this.photoError.set(errorMessage(err));
+        this.photoBusy.set(false);
+      },
+    });
   }
 
   protected back(): void {

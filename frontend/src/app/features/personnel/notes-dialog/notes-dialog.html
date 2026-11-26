@@ -1,0 +1,90 @@
+<div class="dialog">
+  <header class="head">
+    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">edit_note</mat-icon>
+    <div class="titles">
+      <h2 class="title">Notes de traçabilité</h2>
+      @if (data.residentName) {
+        <p class="sub">{{ data.residentName }}</p>
+      }
+    </div>
+    <button mat-icon-button type="button" aria-label="Fermer" (click)="close()">
+      <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
+    </button>
+  </header>
+
+  <section class="body">
+    <div class="chips" role="radiogroup" aria-label="Type de note">
+      @for (item of categories; track item) {
+        <button
+          type="button"
+          class="chip"
+          role="radio"
+          [attr.aria-checked]="category() === item"
+          [class.chip-on]="category() === item"
+          (click)="category.set(item)"
+        >
+          {{ categoryLabel[item] }}
+        </button>
+      }
+    </div>
+
+    <mat-form-field appearance="outline" class="full" subscriptSizing="dynamic">
+      <mat-label>Votre note</mat-label>
+      <textarea
+        matInput
+        rows="4"
+        [maxlength]="maxLength"
+        [ngModel]="draft()"
+        (ngModelChange)="draft.set($event)"
+        placeholder="Dictez ou écrivez : ce qui a été fait, observé ou signalé."
+      ></textarea>
+      <mat-hint align="end">{{ draft().length }} / {{ maxLength }}</mat-hint>
+    </mat-form-field>
+
+    <div class="actions">
+      @if (canDictate) {
+        <button
+          mat-stroked-button
+          type="button"
+          class="mic"
+          [class.mic-on]="listening()"
+          [attr.aria-pressed]="listening()"
+          (click)="toggleDictation()"
+        >
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ listening() ? 'mic_off' : 'mic' }}</mat-icon>
+          {{ listening() ? 'Arrêter la dictée' : 'Dicter' }}
+        </button>
+      }
+      <button mat-flat-button type="button" [disabled]="saving() || !draft().trim()" (click)="save()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">save</mat-icon>
+        Enregistrer la note
+      </button>
+    </div>
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+
+    <h3>Dernières notes</h3>
+    @if (loading()) {
+      <p class="empty">Chargement…</p>
+    } @else if (notes().length === 0) {
+      <p class="empty">Aucune note pour le moment.</p>
+    } @else {
+      <ul class="notes">
+        @for (note of notes(); track note.id) {
+          <li class="note" [class]="'note cat-' + note.category.toLowerCase()">
+            <p class="meta">
+              <strong>{{ categoryLabel[note.category] }}</strong>
+              · {{ note.createdAt | date: 'dd/MM HH:mm' }} · {{ note.authorName }} ({{ jobLabel[note.authorJob] }})
+              @if (note.resident && !data.residentId) {
+                · {{ note.resident.name }}@if (note.resident.room) { (ch. {{ note.resident.room }}) }
+              }
+            </p>
+            <p class="text">{{ note.content }}</p>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

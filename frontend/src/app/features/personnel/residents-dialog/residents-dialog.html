@@ -37,6 +37,17 @@
         </div>
       </div>
 
+      @if (canEditPhotos()) {
+        <input #photofile type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="changePhoto($event)" />
+        <button mat-stroked-button type="button" class="photo-btn" [disabled]="photoBusy()" (click)="photofile.click()">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">add_a_photo</mat-icon>
+          Changer la photo
+        </button>
+        @if (photoError()) {
+          <p class="error" role="alert">{{ photoError() }}</p>
+        }
+      }
+
       @if (resident.distinguishingFeatures) {
         <p class="features">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">visibility</mat-icon>

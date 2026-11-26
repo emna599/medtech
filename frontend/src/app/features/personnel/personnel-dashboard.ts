@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -9,22 +9,31 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 import { errorMessage, PersonnelService } from '../../core/services/personnel.service';
 import { Toolbar } from '../../shared/components/toolbar/toolbar';
 import {
+  currentTaskIndices,
   doneLabel,
   fullName,
   MealLocation,
+  Me,
+  Planning,
+  Team,
   ServiceItem,
   ServiceKind,
   ServiceStatus,
   slotLabel,
 } from '../../shared/models/personnel.model';
 import { ResidentAvatar } from './components/resident-avatar';
+import { DiningService } from './dining-service/dining-service';
 import { AssistantDialog, AssistantResult } from './assistant-dialog/assistant-dialog';
 import { ResidentsDialog, ResidentsResult } from './residents-dialog/residents-dialog';
+import { TeamDialog } from './team-dialog/team-dialog';
 import { ReleveDialog } from './releve-dialog/releve-dialog';
-import { IdentifyDialog, IdentifyResult } from './identify-dialog/identify-dialog';
+import { IdentifyDialog, IdentifyResult, ScanDialogData } from './identify-dialog/identify-dialog';
+import { NotesDialog } from './notes-dialog/notes-dialog';
+import { PlanningDialog, PlanningResult } from './planning-dialog/planning-dialog';
 import { ResidentSheet, ResidentSheetData, ResidentSheetResult } from './resident-sheet/resident-sheet';
 
 type StatusFilter = 'A_FAIRE' | 'FAIT' | 'TOUS';
@@ -62,6 +71,7 @@ function rank(status: ServiceStatus): number {
     MatProgressBarModule,
     MatProgressSpinnerModule,
     ResidentAvatar,
+    DiningService,
   ],
   templateUrl: './personnel-dashboard.html',
   styleUrl: './personnel-dashboard.scss',
@@ -71,12 +81,36 @@ export class PersonnelDashboard {
   private readonly api = inject(PersonnelService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  protected readonly alerts = inject(NotificationService);
 
   protected readonly kind = signal<ServiceKind>('REPAS');
   protected readonly location = signal<MealLocation>('SALLE');
   protected readonly statusFilter = signal<StatusFilter>('A_FAIRE');
   protected readonly search = signal('');
   private readonly chosenSlot = signal<string | null>(null);
+
+  /** Fonction du soignant (infirmier / aide-soignant) : les médicaments sont réservés aux infirmiers. */
+  protected readonly me = signal<Me | null>(null);
+  protected readonly medicationLocked = computed(() => this.kind() === 'MEDICAMENT' && this.me()?.canGiveMedication === false);
+
+  /** Équipe en service et part de résidents du soignant connecté. */
+  protected readonly team = signal<Team | null>(null);
+  /** Afficher seulement « mes » résidents (la part calculée à partir des soignants en service). */
+  protected readonly onlyMine = signal(true);
+  private readonly mineIds = computed(() => {
+    const team = this.team();
+    return team?.present && this.onlyMine() ? new Set(team.myResidentIds) : null;
+  });
+  protected readonly teamLabel = computed(() => {
+    const team = this.team();
+    return team ? `${team.nurses} inf. · ${team.aides} AS` : 'Équipe';
+  });
+
+  /** Résidents qui portent un bracelet à scanner ; les autres s'identifient par le nom et la photo. */
+  private readonly braceletIds = signal<Set<number>>(new Set());
+  private planning: Planning | null = null;
+  /** Plages du planning déjà annoncées, pour n'alerter qu'au moment où une nouvelle tâche commence. */
+  private announced: Set<number> | null = null;
 
   protected readonly items = signal<ServiceItem[]>([]);
   protected readonly loading = signal(false);
@@ -104,7 +138,17 @@ export class PersonnelDashboard {
     return firstPending?.slot ?? slots[0] ?? null;
   });
 
-  private readonly slotItems = computed(() => this.items().filter((item) => item.slot === this.currentSlot()));
+  /** Le matin (petit-déjeuner, médicaments du matin), tout se passe en chambre : pas de salle à manger. */
+  protected readonly morning = computed(() => ['PETIT_DEJEUNER', 'MATIN'].includes(this.currentSlot() ?? ''));
+  /** Tournée des chambres : choisie, ou imposée le matin. */
+  protected readonly roomTour = computed(() => this.morning() || this.location() === 'CHAMBRE');
+
+  private readonly slotItems = computed(() => {
+    const mine = this.mineIds();
+    return this.items()
+      .filter((item) => item.slot === this.currentSlot())
+      .filter((item) => !mine || mine.has(item.resident.id));
+  });
 
   protected readonly total = computed(() => this.slotItems().length);
   protected readonly finished = computed(
@@ -119,7 +163,7 @@ export class PersonnelDashboard {
     const needle = normalize(this.search());
     const filter = this.statusFilter();
     return this.slotItems()
-      .filter((item) => item.resident.mealLocation === this.location())
+      .filter((item) => this.morning() || item.resident.mealLocation === this.location())
       .filter((item) => {
         if (filter === 'A_FAIRE') {
           return PENDING.includes(item.status);
@@ -138,12 +182,28 @@ export class PersonnelDashboard {
 
   protected readonly nextPending = computed(() =>
     this.slotItems().find(
-      (item) => item.resident.mealLocation === this.location() && item.status === 'A_FAIRE',
+      (item) => (this.morning() || item.resident.mealLocation === this.location()) && item.status === 'A_FAIRE',
     ),
   );
 
   constructor() {
     this.load();
+    this.api.me().subscribe({ next: (me) => this.me.set(me), error: () => undefined });
+    this.refreshTeam();
+    this.api.bracelets().subscribe({ next: (ids) => this.braceletIds.set(new Set(ids)), error: () => undefined });
+    this.api.planning().subscribe({
+      next: (planning) => {
+        this.planning = planning;
+        this.checkPlanning();
+      },
+      error: () => undefined,
+    });
+    // Alerte quand l'heure d'une tâche du planning arrive : on vérifie toutes les 20 secondes.
+    const alertTimer = setInterval(() => this.checkPlanning(), 20_000);
+    inject(DestroyRef).onDestroy(() => clearInterval(alertTimer));
+    // L'équipe change au fil de la journée : on la relit chaque minute.
+    const timer = setInterval(() => this.refreshTeam(), 60_000);
+    inject(DestroyRef).onDestroy(() => clearInterval(timer));
   }
 
   protected setKind(kind: ServiceKind): void {
@@ -195,7 +255,11 @@ export class PersonnelDashboard {
 
   protected open(item: ServiceItem): void {
     const ref = this.dialog.open<ResidentSheet, ResidentSheetData, ResidentSheetResult>(ResidentSheet, {
-      data: { item },
+      data: {
+        item,
+        canAct: !(item.kind === 'MEDICAMENT' && this.me()?.canGiveMedication === false),
+        hasBracelet: this.braceletIds().has(item.resident.id),
+      },
       width: '680px',
       maxWidth: '100vw',
       autoFocus: false,
@@ -206,7 +270,7 @@ export class PersonnelDashboard {
       }
       this.load(() => {
         // En tournée de chambres : on enchaîne sur le résident suivant.
-        if (result.completed && this.location() === 'CHAMBRE') {
+        if (result.completed && this.roomTour()) {
           this.openNext(true);
         }
       });
@@ -223,8 +287,10 @@ export class PersonnelDashboard {
     }
   }
 
-  protected openIdentify(): void {
-    const ref = this.dialog.open<IdentifyDialog, undefined, IdentifyResult>(IdentifyDialog, {
+  /** Scanner : QR code pendant les repas, puce NFC pour les médicaments. */
+  protected openScan(): void {
+    const ref = this.dialog.open<IdentifyDialog, ScanDialogData, IdentifyResult>(IdentifyDialog, {
+      data: { mode: this.kind() === 'REPAS' ? 'QR' : 'NFC' },
       width: '560px',
       maxWidth: '100vw',
     });
@@ -245,6 +311,72 @@ export class PersonnelDashboard {
         this.openResident(result.residentId);
       }
     });
+  }
+
+  protected toggleAlerts(): void {
+    void this.alerts.toggle().then(() => {
+      this.snackBar.open(
+        this.alerts.enabled() ? 'Alertes du planning activées' : 'Alertes du planning désactivées',
+        'OK',
+        { duration: 3000 },
+      );
+    });
+  }
+
+  /** Annonce les tâches du planning qui viennent de commencer (la première lecture ne fait que mémoriser). */
+  private checkPlanning(): void {
+    const planning = this.planning;
+    if (!planning) {
+      return;
+    }
+    const now = new Date();
+    const current = new Set(currentTaskIndices(planning.tasks, planning.shift, now.getHours() * 60 + now.getMinutes()));
+    const previous = this.announced;
+    this.announced = current;
+    if (previous === null) {
+      return;
+    }
+    for (const index of current) {
+      if (!previous.has(index)) {
+        const task = planning.tasks[index];
+        const text = `${task.start} · ${task.label}`;
+        this.alerts.show('Planning', text);
+        const ref = this.snackBar.open(text, task.focus ? 'Ouvrir' : 'OK', { duration: 12000 });
+        if (task.focus) {
+          const focus = task.focus;
+          ref.onAction().subscribe(() => this.setKind(focus));
+        }
+      }
+    }
+  }
+
+  protected openTeam(): void {
+    const ref = this.dialog.open<TeamDialog, undefined, Team>(TeamDialog, { maxWidth: '100vw', autoFocus: false });
+    ref.afterClosed().subscribe((team) => {
+      if (team) {
+        this.team.set(team);
+      }
+    });
+  }
+
+  private refreshTeam(): void {
+    this.api.team().subscribe({ next: (team) => this.team.set(team), error: () => undefined });
+  }
+
+  protected openPlanning(): void {
+    const ref = this.dialog.open<PlanningDialog, undefined, PlanningResult>(PlanningDialog, {
+      maxWidth: '100vw',
+      autoFocus: false,
+    });
+    ref.afterClosed().subscribe((result) => {
+      if (result) {
+        this.setKind(result.focus);
+      }
+    });
+  }
+
+  protected openNotes(): void {
+    this.dialog.open(NotesDialog, { maxWidth: '100vw', autoFocus: false });
   }
 
   protected openReleve(): void {

@@ -1,4 +1,8 @@
-<app-toolbar />
+<app-toolbar [job]="me()?.job ?? null" />
+
+@if (me()?.job === 'SERVICE') {
+  <app-dining-service />
+} @else {
 
 <main class="page">
   <section class="top">
@@ -24,16 +28,84 @@
       Résidents
     </button>
 
+    <button
+      mat-stroked-button
+      type="button"
+      class="releve team"
+      [class.team-alert]="(team()?.alerts?.length ?? 0) > 0"
+      (click)="openTeam()"
+    >
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">diversity_3</mat-icon>
+      {{ teamLabel() }}
+    </button>
+
+    <button mat-stroked-button type="button" class="releve" (click)="openPlanning()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">calendar_clock</mat-icon>
+      Planning
+    </button>
+
+    <button mat-stroked-button type="button" class="releve" (click)="openNotes()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">edit_note</mat-icon>
+      Notes
+    </button>
+
     <button mat-stroked-button type="button" class="releve" (click)="openReleve()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
       Relève
     </button>
 
-    <button mat-stroked-button type="button" class="unknown" (click)="openIdentify()">
-      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon>
-      Je ne le connais pas
+    @if (alerts.supported) {
+      <button
+        mat-icon-button
+        type="button"
+        class="bell"
+        [attr.aria-pressed]="alerts.enabled()"
+        [attr.aria-label]="alerts.enabled() ? 'Désactiver les alertes du planning' : 'Activer les alertes du planning'"
+        (click)="toggleAlerts()"
+      >
+        <mat-icon fontSet="material-symbols-outlined">{{ alerts.enabled() ? 'notifications_active' : 'notifications_off' }}</mat-icon>
+      </button>
+    }
+
+    <button mat-flat-button type="button" class="scan" (click)="openScan()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ kind() === 'REPAS' ? 'qr_code_scanner' : 'nfc' }}</mat-icon>
+      Scanner
     </button>
   </section>
+
+  @if (team(); as t) {
+    @if (!t.present) {
+      <p class="locked" role="status">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">login</mat-icon>
+        Vous n'êtes pas en service : appuyez sur « {{ teamLabel() }} » puis « Je prends mon service » pour voir votre part de résidents.
+      </p>
+    } @else {
+      <div class="mine">
+        <mat-button-toggle-group
+          aria-label="Résidents affichés"
+          [hideSingleSelectionIndicator]="true"
+          [value]="onlyMine() ? 'MINE' : 'ALL'"
+          (change)="onlyMine.set($event.value === 'MINE')"
+        >
+          <mat-button-toggle value="MINE">Mes résidents · {{ t.myResidentIds.length }}</mat-button-toggle>
+          <mat-button-toggle value="ALL">Tous · {{ t.residentTotal }}</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    }
+    @for (alert of t.alerts; track alert) {
+      <p class="team-warning" role="alert">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+        {{ alert }}
+      </p>
+    }
+  }
+
+  @if (medicationLocked()) {
+    <p class="locked" role="status">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">lock</mat-icon>
+      Consultation seule : les médicaments sont donnés par les infirmiers.
+    </p>
+  }
 
   @if (slots().length > 1) {
     <div class="slots" role="tablist" aria-label="Créneau">
@@ -65,6 +137,7 @@
   }
 
   <section class="controls">
+    @if (!morning()) {
     <mat-button-toggle-group
       class="where"
       aria-label="Lieu"
@@ -81,6 +154,12 @@
         Chambres · {{ remainingChambre() }}
       </mat-button-toggle>
     </mat-button-toggle-group>
+    } @else {
+      <p class="morning">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
+        Le matin : tournée des chambres
+      </p>
+    }
 
     <mat-button-toggle-group
       class="filter"
@@ -107,7 +186,7 @@
     </mat-form-field>
   </section>
 
-  @if (location() === 'CHAMBRE' && nextPending()) {
+  @if (roomTour() && nextPending()) {
     <button mat-flat-button type="button" class="start" (click)="openNext()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">play_arrow</mat-icon>
       Démarrer la tournée
@@ -134,7 +213,7 @@
         }
       </p>
     </div>
-  } @else if (location() === 'SALLE') {
+  } @else if (!roomTour()) {
     <ul class="grid">
       @for (item of visible(); track item.id) {
         <li>
@@ -206,3 +285,4 @@
   <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">support_agent</mat-icon>
   Assistant
 </button>
+}

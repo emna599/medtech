@@ -5,14 +5,24 @@ import { environment } from '../../../environments/environment';
 import {
   Appetite,
   AssistantReply,
+  Chevalet,
   CompleteRequest,
+  Dining,
+  DiningSlot,
+  Reading,
   Doubt,
+  Me,
+  Note,
+  NoteCategory,
+  Planning,
   MealLocation,
   PochetteScan,
   QuantityEaten,
   ResidentCard,
   ServiceItem,
   ServiceKind,
+  Team,
+  WeeklyMenu,
 } from '../../shared/models/personnel.model';
 
 /** Appels vers l'API de l'espace personnel (le jeton est ajouté par l'intercepteur). */
@@ -55,6 +65,76 @@ export class PersonnelService {
 
   identify(code: string): Observable<ResidentCard> {
     return this.http.post<ResidentCard>(`${this.base}/identify`, { code });
+  }
+
+  /** Identifiants des résidents qui ont un bracelet (NFC ou QR code). */
+  bracelets(): Observable<number[]> {
+    return this.http.get<number[]>(`${this.base}/bracelets`);
+  }
+
+  /** Chevalet du résident, ou null s'il n'en a pas (le serveur répond 204). */
+  chevalet(residentId: number): Observable<Chevalet | null> {
+    return this.http.get<Chevalet | null>(`${this.base}/residents/${residentId}/chevalet`);
+  }
+
+  associateChevalet(code: string, residentId: number, replace = false): Observable<Chevalet> {
+    return this.http.post<Chevalet>(`${this.base}/chevalets/associate`, { code, residentId, replace });
+  }
+
+  releaseChevalet(residentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/residents/${residentId}/chevalet`);
+  }
+
+  /** Salle à manger : tables, résidents et repas du jour (DEJEUNER ou DINER). */
+  dining(slot?: DiningSlot): Observable<Dining> {
+    return this.http.get<Dining>(`${this.base}/dining/tables`, { params: slot ? { slot } : {} });
+  }
+
+  /** Lecture d'un bracelet par le lecteur d'une table (ici simulée à partir de l'identifiant du résident). */
+  sendReading(readerCode: string, residentId: number, leaving = false): Observable<Reading> {
+    return this.http.post<Reading>(`${this.base}/dining/readings`, { readerCode, residentId, leaving });
+  }
+
+  /** Menu de la semaine qui contient la date (AAAA-MM-JJ), par défaut cette semaine. */
+  weeklyMenu(date?: string): Observable<WeeklyMenu> {
+    return this.http.get<WeeklyMenu>(`${this.base}/dining/menu`, { params: date ? { date } : {} });
+  }
+
+  me(): Observable<Me> {
+    return this.http.get<Me>(`${this.base}/me`);
+  }
+
+  team(): Observable<Team> {
+    return this.http.get<Team>(`${this.base}/team`);
+  }
+
+  checkIn(): Observable<Team> {
+    return this.http.post<Team>(`${this.base}/team/check-in`, {});
+  }
+
+  checkOut(): Observable<Team> {
+    return this.http.post<Team>(`${this.base}/team/check-out`, {});
+  }
+
+  planning(): Observable<Planning> {
+    return this.http.get<Planning>(`${this.base}/planning`);
+  }
+
+  notes(residentId?: number): Observable<Note[]> {
+    return this.http.get<Note[]>(`${this.base}/notes`, {
+      params: residentId === undefined ? {} : { residentId },
+    });
+  }
+
+  addNote(content: string, category: NoteCategory, residentId?: number): Observable<Note> {
+    return this.http.post<Note>(`${this.base}/notes`, { content, category, residentId: residentId ?? null });
+  }
+
+  /** Envoi d'une photo de résident (réservé à l'administrateur). */
+  uploadPhoto(residentId: number, photo: File): Observable<{ photoUrl: string }> {
+    const body = new FormData();
+    body.append('photo', photo, photo.name);
+    return this.http.post<{ photoUrl: string }>(`${this.base}/residents/${residentId}/photo`, body);
   }
 
   listResidents(): Observable<ResidentCard[]> {

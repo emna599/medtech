@@ -1,0 +1,277 @@
+<main class="page">
+  <section class="top">
+    <mat-button-toggle-group
+      class="slot"
+      aria-label="Repas"
+      [hideSingleSelectionIndicator]="true"
+      [value]="slot()"
+      (change)="setSlot($event.value)"
+    >
+      <mat-button-toggle value="DEJEUNER">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">lunch_dining</mat-icon>
+        Déjeuner
+      </mat-button-toggle>
+      <mat-button-toggle value="DINER">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">dinner_dining</mat-icon>
+        Dîner
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <button mat-flat-button type="button" (click)="openScan()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
+      Scanner
+    </button>
+    <button mat-stroked-button type="button" (click)="openMenu()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">menu_book</mat-icon>
+      Menu de la semaine
+    </button>
+    <button mat-stroked-button type="button" (click)="openPlanning()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">calendar_clock</mat-icon>
+      Planning
+    </button>
+    <button mat-stroked-button type="button" (click)="toggleSimulator()" [attr.aria-expanded]="simOpen()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">sensors</mat-icon>
+      Simulateur de bracelet
+    </button>
+    <button mat-icon-button type="button" aria-label="Actualiser" (click)="load()">
+      <mat-icon fontSet="material-symbols-outlined">refresh</mat-icon>
+    </button>
+  </section>
+
+  @if (simOpen()) {
+    <section class="sim" aria-label="Simulateur de bracelet">
+      <p>
+        Démonstration sans lecteur réel : choisissez un résident et la table où il s'assoit. C'est ce que ferait le lecteur RFID
+        de la table en lisant son bracelet.
+      </p>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Résident</mat-label>
+        <input matInput list="sim-residents" autocomplete="off" [ngModel]="simQuery()" (ngModelChange)="simQuery.set($event)" />
+        <datalist id="sim-residents">
+          @for (resident of simResidents(); track resident.id) {
+            <option [value]="residentLabel(resident)"></option>
+          }
+        </datalist>
+      </mat-form-field>
+      <label class="pick">
+        Table
+        <select [ngModel]="simTable()" (ngModelChange)="simTable.set($event)">
+          <option value="">Choisir…</option>
+          @for (t of dining()?.tables ?? []; track t.id) {
+            @if (t.readerCode) {
+              <option [value]="t.readerCode">{{ t.label }} ({{ t.readerCode }}) · {{ t.present }}/{{ t.capacity }}</option>
+            }
+          }
+        </select>
+      </label>
+      <button mat-flat-button type="button" [disabled]="busy()" (click)="simulateArrival()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">sensors</mat-icon>
+        Bracelet lu
+      </button>
+    </section>
+  }
+
+  @if (dining(); as data) {
+    <section class="summary" aria-live="polite">
+      <div class="menu-today">
+        <h2>Au menu aujourd'hui</h2>
+        @if (data.menu; as menu) {
+          <p>
+            @if (menu.starter) { <span>{{ menu.starter }}</span> · }
+            <strong>{{ menu.mainCourse }}</strong>@if (menu.side) { , {{ menu.side }} }
+            @if (menu.dessert) { · <span>{{ menu.dessert }}</span> }
+          </p>
+        } @else {
+          <p class="muted">Aucun menu saisi pour ce repas.</p>
+        }
+      </div>
+      <div class="count">
+        <strong>{{ data.served }} / {{ data.seated }}</strong> servis
+        <mat-progress-bar mode="determinate" [value]="progress()" aria-label="Avancement du service" />
+      </div>
+    </section>
+
+    <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
+      <mat-label>Nom, chambre ou chevalet</mat-label>
+      <input matInput type="search" autocomplete="off" [ngModel]="search()" (ngModelChange)="search.set($event)" />
+      <mat-icon matPrefix fontSet="material-symbols-outlined" aria-hidden="true">search</mat-icon>
+    </mat-form-field>
+  }
+
+  @if (loading()) {
+    <div class="center"><mat-spinner diameter="40" /></div>
+  } @else if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (tables().length === 0) {
+    <p class="muted center">Aucune table à afficher.</p>
+  } @else {
+    <div class="layout" [class.with-detail]="selected()">
+      <div class="tables">
+        @for (entry of tables(); track entry.table.id) {
+          <section class="table" [class.complete]="entry.table.present > 0 && entry.table.served === entry.table.present">
+            <header>
+              <h3>{{ entry.table.label }}</h3>
+              <span class="state" [class.occupied]="entry.table.present > 0" [attr.title]="entry.table.readerCode ? 'Lecteur ' + entry.table.readerCode : null">
+                {{ entry.table.present > 0 ? 'Occupée' : 'Libre' }}
+              </span>
+              <span class="occupancy">{{ entry.table.present }} / {{ entry.table.capacity }} résidents</span>
+              <span class="done">{{ entry.table.served }} servis</span>
+            </header>
+            <ol>
+              @for (slotEntry of entry.slots; track $index) {
+                @if (slotEntry.seat; as seat) {
+                  <li
+                    class="seat"
+                    [class.dim]="!slotEntry.match"
+                    [class.finished]="isFinished(seat.meal)"
+                    [class.active]="selected()?.seat?.resident?.id === seat.resident.id"
+                  >
+                    <button type="button" class="who" (click)="select(entry.table, seat)">
+                      <span class="pos" aria-hidden="true">{{ seat.position }}</span>
+                      <app-resident-avatar
+                        [photoUrl]="seat.resident.photoUrl"
+                        [firstName]="seat.resident.firstName"
+                        [lastName]="seat.resident.lastName"
+                        [size]="48"
+                      />
+                      <span class="text">
+                        <span class="name">{{ seat.resident.lastName }} {{ seat.resident.firstName }}</span>
+                        <span class="meta">
+                          @if (seat.chevalet) { <span class="chip">Chevalet {{ seat.chevalet }}</span> }
+                          @if (seat.resident.mealLocation === 'CHAMBRE') { <span class="chip room">En chambre</span> }
+                          @if (seat.resident.texture && seat.resident.texture !== 'Normale') {
+                            <span class="chip">{{ seat.resident.texture }}</span>
+                          }
+                          @for (allergy of seat.resident.allergies; track allergy.name) {
+                            <span class="chip allergy">
+                              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+                              {{ allergy.name }}
+                            </span>
+                          }
+                        </span>
+                      </span>
+                    </button>
+                    <button
+                      mat-icon-button
+                      type="button"
+                      class="rfid"
+                      [disabled]="busy()"
+                      [attr.aria-label]="'Simuler le départ de ' + fullName(seat.resident)"
+                      title="Simuler : le résident se lève"
+                      (click)="leave(entry.table, seat)"
+                    >
+                      <mat-icon fontSet="material-symbols-outlined">logout</mat-icon>
+                    </button>
+                    @if (seat.meal) {
+                      <mat-checkbox
+                        class="fait"
+                        [checked]="seat.meal.status === 'FAIT'"
+                        [disabled]="isFinished(seat.meal) || busy()"
+                        [attr.aria-label]="'Fait pour ' + fullName(seat.resident)"
+                        (change)="$event.checked && markServed(seat)"
+                      >
+                        {{ seat.meal.status === 'REFUSE' ? 'Refusé' : 'Fait' }}
+                      </mat-checkbox>
+                    }
+                  </li>
+                } @else {
+                  <li class="seat free"><span class="pos" aria-hidden="true">{{ $index + 1 }}</span> Place libre</li>
+                }
+              }
+            </ol>
+          </section>
+        }
+      </div>
+
+      @if (selected(); as current) {
+        <aside class="detail" aria-label="Détails du résident">
+          <button mat-icon-button type="button" class="close" aria-label="Fermer" (click)="closeDetail()">
+            <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
+          </button>
+          <app-resident-avatar
+            [photoUrl]="current.seat.resident.photoUrl"
+            [firstName]="current.seat.resident.firstName"
+            [lastName]="current.seat.resident.lastName"
+            [size]="140"
+          />
+          <h2>{{ current.seat.resident.firstName }} {{ current.seat.resident.lastName }}</h2>
+          <dl>
+            <dt>Position</dt>
+            <dd>{{ current.tableLabel }} · place {{ current.seat.position }}</dd>
+            <dt>Âge</dt>
+            <dd>{{ current.seat.resident.age }} ans</dd>
+            <dt>Chambre</dt>
+            <dd>{{ current.seat.resident.room ?? '—' }}</dd>
+            @if (current.seat.chevalet) {
+              <dt>Chevalet</dt>
+              <dd>n° {{ current.seat.chevalet }}</dd>
+            }
+            <dt>Allergies</dt>
+            <dd>
+              @if (current.seat.resident.allergies.length === 0) {
+                Aucune connue
+              } @else {
+                @for (allergy of current.seat.resident.allergies; track allergy.name) {
+                  <span class="chip allergy">
+                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+                    {{ allergy.name }}@if (allergy.severity) { ({{ allergy.severity }}) }
+                  </span>
+                }
+              }
+            </dd>
+            <dt>Régime</dt>
+            <dd>{{ current.seat.resident.regime ?? 'Normal' }}@if (current.seat.resident.texture) { · {{ current.seat.resident.texture }} }</dd>
+            @if (current.seat.resident.restrictions) {
+              <dt>Restrictions</dt>
+              <dd>{{ current.seat.resident.restrictions }}</dd>
+            }
+            @if (current.seat.resident.instructions) {
+              <dt>Consignes</dt>
+              <dd>{{ current.seat.resident.instructions }}</dd>
+            }
+            @if (current.seat.resident.needsHelp) {
+              <dt>Aide</dt>
+              <dd>A besoin d'aide pour manger</dd>
+            }
+            @if (current.seat.resident.distinguishingFeatures) {
+              <dt>Repères</dt>
+              <dd>{{ current.seat.resident.distinguishingFeatures }}</dd>
+            }
+            @if (current.seat.meal?.description) {
+              <dt>Repas</dt>
+              <dd>{{ current.seat.meal!.description }}</dd>
+            }
+          </dl>
+
+          @if (current.seat.resident.identityDoubt) {
+            <p class="doubt" role="alert">Doute d'identité en cours : demandez à un soignant de confirmer.</p>
+          }
+
+          @if (current.seat.meal; as meal) {
+            @if (isFinished(meal)) {
+              <p class="state">{{ meal.status === 'FAIT' ? 'Repas servi' : 'Repas refusé' }}</p>
+            } @else {
+              <div class="actions">
+                <button mat-flat-button type="button" [disabled]="busy()" (click)="markServed(current.seat)">
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check</mat-icon>
+                  Fait
+                </button>
+                @if (!refusing()) {
+                  <button mat-stroked-button type="button" (click)="refusing.set(true)">Refusé</button>
+                } @else {
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="reason">
+                    <mat-label>Motif du refus</mat-label>
+                    <input matInput maxlength="255" [ngModel]="refusal()" (ngModelChange)="refusal.set($event)" />
+                  </mat-form-field>
+                  <button mat-stroked-button type="button" [disabled]="busy()" (click)="refuse(current.seat)">
+                    Confirmer le refus
+                  </button>
+                }
+              </div>
+            }
+          }
+        </aside>
+      }
+    </div>
+  }
+</main>

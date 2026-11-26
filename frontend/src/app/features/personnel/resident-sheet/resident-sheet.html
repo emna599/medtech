@@ -86,11 +86,23 @@
     }
   </section>
 
+  <div class="checks">
+    <app-identity-check
+      [residentId]="resident().id"
+      [residentName]="name()"
+      [hasBracelet]="hasBracelet"
+      [kind]="item().kind"
+    />
+    @if (item().kind === 'REPAS') {
+      <app-chevalet-box [residentId]="resident().id" />
+    }
+  </div>
+
   @if (error()) {
     <p class="error" role="alert">{{ error() }}</p>
   }
 
-  @if (pending()) {
+  @if (pending() && canAct) {
     <section class="actions">
       <button
         mat-flat-button
@@ -142,6 +154,11 @@
         </div>
       }
     </section>
+  } @else if (pending()) {
+    <p class="locked" role="status">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">lock</mat-icon>
+      Les médicaments sont donnés par les infirmiers. Vous pouvez consulter la fiche.
+    </p>
   } @else {
     <section class="done-box">
       <div class="done-status" [class.done-refused]="item().status === 'REFUSE'">
@@ -176,6 +193,10 @@
     <button mat-button type="button" [disabled]="busy()" (click)="toggleLocation()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
       {{ otherLocationLabel() }}
+    </button>
+    <button mat-button type="button" (click)="openNotes()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">edit_note</mat-icon>
+      Ajouter une note
     </button>
     @if (!hasDoubt()) {
       <button mat-button type="button" (click)="showDoubt.set(!showDoubt())">

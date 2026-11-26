@@ -383,3 +383,61 @@ ul.rows {
 .residents {
   margin-left: auto;
 }
+
+.scan {
+  height: 52px;
+  padding: 0 26px;
+  font-size: 17px;
+  font-weight: 800;
+  border-radius: 26px;
+}
+
+.locked {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: var(--app-warn-bg, #fff0ec);
+  border: 1px solid var(--app-warn, #b45309);
+  font-weight: 700;
+}
+
+.team-alert {
+  border-color: var(--app-danger, #b3261e);
+  color: var(--app-danger, #b3261e);
+}
+
+.mine {
+  margin: 8px 0 0;
+}
+
+.team-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: var(--app-danger-bg, #fdeceb);
+  border: 1px solid var(--app-danger, #b3261e);
+  color: var(--app-danger, #b3261e);
+  font-weight: 700;
+}
+
+.morning {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0 18px;
+  height: 52px;
+  border-radius: 26px;
+  border: 2px solid var(--app-line-soft);
+  font-weight: 700;
+}
+
+.bell {
+  color: var(--brand-teal);
+}

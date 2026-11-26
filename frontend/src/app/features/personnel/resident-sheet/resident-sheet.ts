@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -20,10 +20,17 @@ import {
   slotLabel,
 } from '../../../shared/models/personnel.model';
 import { AppetiteChart } from '../components/appetite-chart';
+import { ChevaletBox } from '../components/chevalet-box';
+import { IdentityCheck } from '../components/identity-check';
+import { NotesDialog } from '../notes-dialog/notes-dialog';
 import { ResidentAvatar } from '../components/resident-avatar';
 
 export interface ResidentSheetData {
   item: ServiceItem;
+  /** Faux pour une aide-soignante devant un médicament : la fiche reste consultable mais sans boutons d'action. */
+  canAct?: boolean;
+  /** Le résident porte un bracelet (à scanner) ; sinon on lit son nom et on regarde sa photo. */
+  hasBracelet?: boolean;
 }
 
 /** `changed` : quelque chose a été modifié (recharger la liste). `completed` : l'action est faite (passer au suivant). */
@@ -37,7 +44,9 @@ export interface ResidentSheetResult {
   selector: 'app-resident-sheet',
   imports: [
     AppetiteChart,
+    ChevaletBox,
     DatePipe,
+    IdentityCheck,
     FormsModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -54,7 +63,12 @@ export class ResidentSheet {
   private readonly ref = inject<MatDialogRef<ResidentSheet, ResidentSheetResult>>(MatDialogRef);
   private readonly data = inject<ResidentSheetData>(MAT_DIALOG_DATA);
 
+  private readonly dialog = inject(MatDialog);
+
   private changed = false;
+
+  protected readonly canAct = this.data.canAct !== false;
+  protected readonly hasBracelet = this.data.hasBracelet !== false;
 
   protected readonly item = signal<ServiceItem>(this.data.item);
   protected readonly resident = computed(() => this.item().resident);
@@ -126,6 +140,14 @@ export class ResidentSheet {
     this.run(this.api.setQuantity(this.item().id, quantity), (updated) => {
       this.item.set(updated);
       this.changed = true;
+    });
+  }
+
+  protected openNotes(): void {
+    this.dialog.open(NotesDialog, {
+      data: { residentId: this.resident().id, residentName: this.name() },
+      maxWidth: '100vw',
+      autoFocus: false,
     });
   }
 

@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
 import { fullName, ResidentCard } from '../../../shared/models/personnel.model';
+import { NfcReader, nfcSupported } from '../components/nfc-reader';
 import { decodeQrFromFile, QrReader } from '../components/qr-reader';
 import { ResidentAvatar } from '../components/resident-avatar';
 
@@ -14,13 +16,30 @@ export interface IdentifyResult {
   residentId: number;
 }
 
+/** Façon de scanner : puce NFC (médicaments, identification), QR code (repas) ou autre (code saisi, pochette). */
+export type ScanMode = 'NFC' | 'QR' | 'AUTRE';
+
+export interface ScanDialogData {
+  mode: ScanMode;
+}
+
 /**
- * « Je ne le connais pas » : le soignant saisit ou scanne (lecteur de type clavier) le code anonyme
- * d'un bracelet ou d'un badge facultatif. La fiche s'affiche, et c'est à lui de comparer le visage à la photo.
+ * « Scanner » : le soignant lit la puce NFC (médicaments) ou le QR code (repas) du bracelet, ou saisit le code.
+ * La fiche s'affiche, et c'est à lui de comparer le visage à la photo.
  */
 @Component({
   selector: 'app-identify-dialog',
-  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, QrReader, ResidentAvatar],
+  imports: [
+    FormsModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    NfcReader,
+    QrReader,
+    ResidentAvatar,
+  ],
   templateUrl: './identify-dialog.html',
   styleUrl: './identify-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,6 +47,11 @@ export interface IdentifyResult {
 export class IdentifyDialog {
   private readonly api = inject(PersonnelService);
   private readonly ref = inject<MatDialogRef<IdentifyDialog, IdentifyResult>>(MatDialogRef);
+  private readonly data = inject<ScanDialogData | null>(MAT_DIALOG_DATA, { optional: true });
+
+  protected readonly nfcAvailable = nfcSupported();
+  protected readonly mode = signal<ScanMode>(this.data?.mode ?? 'NFC');
+  protected readonly nfcError = signal<string | null>(null);
 
   protected readonly code = signal('');
   protected readonly busy = signal(false);
@@ -35,7 +59,7 @@ export class IdentifyDialog {
   protected readonly found = signal<ResidentCard | null>(null);
   protected readonly rejected = signal(false);
   /** Caméra de lecture du QR code ouverte. */
-  protected readonly scanning = signal(false);
+  protected readonly scanning = signal((this.data?.mode ?? 'NFC') === 'QR');
   protected readonly cameraError = signal<string | null>(null);
   /** Ce qui a été lu sur l'étiquette d'une pochette, affiché à côté de la photo pour vérification. */
   protected readonly labelInfo = signal<string | null>(null);
@@ -62,6 +86,24 @@ export class IdentifyDialog {
         this.error.set(errorMessage(err));
       },
     });
+  }
+
+  protected setMode(mode: ScanMode): void {
+    this.mode.set(mode);
+    this.error.set(null);
+    this.rejected.set(false);
+    this.cameraError.set(null);
+    this.nfcError.set(null);
+    this.scanning.set(mode === 'QR');
+  }
+
+  protected onNfc(text: string): void {
+    this.code.set(text);
+    this.identify();
+  }
+
+  protected onNfcError(message: string): void {
+    this.nfcError.set(message);
   }
 
   protected startScan(): void {

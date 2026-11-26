@@ -1,14 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, Injector, input, signal, untracked } from '@angular/core';
+import { PhotoService } from '../../../core/services/photo.service';
 
 /** Photo du résident, ou initiales sur fond coloré si la photo est absente ou illisible. */
 @Component({
   selector: 'app-resident-avatar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (photoUrl() && !failed()) {
+    @if (src() && !failed()) {
       <img
         class="photo"
-        [src]="photoUrl()"
+        [src]="src()"
         [alt]="'Photo de ' + firstName() + ' ' + lastName()"
         [style.width.px]="size()"
         [style.height.px]="size()"
@@ -55,6 +56,30 @@ export class ResidentAvatar {
   readonly size = input(56);
 
   protected readonly failed = signal(false);
+  /** Adresse réellement affichée : directe, ou locale pour les photos protégées par la connexion (/api/...). */
+  protected readonly src = signal<string | null>(null);
+
+  private readonly injector = inject(Injector);
+
+  constructor() {
+    effect(() => {
+      const url = this.photoUrl();
+      untracked(() => {
+        this.failed.set(false);
+        if (!url) {
+          this.src.set(null);
+        } else if (url.startsWith('/api/')) {
+          this.src.set(null);
+          this.injector.get(PhotoService).objectUrl(url).subscribe({
+            next: (local) => this.src.set(local),
+            error: () => this.failed.set(true),
+          });
+        } else {
+          this.src.set(url);
+        }
+      });
+    });
+  }
 
   protected readonly initials = computed(
     () => `${this.firstName().charAt(0)}${this.lastName().charAt(0)}`.toUpperCase(),

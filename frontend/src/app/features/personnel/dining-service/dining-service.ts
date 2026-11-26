@@ -1,0 +1,312 @@
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { interval } from 'rxjs';
+import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
+import {
+  Dining,
+  DiningSeat,
+  DiningSlot,
+  DiningTable,
+  fullName,
+  isMealFinished,
+  Reading,
+  ResidentCard,
+  seatSlots,
+  ServiceStatus,
+} from '../../../shared/models/personnel.model';
+import { ResidentAvatar } from '../components/resident-avatar';
+import { IdentifyDialog, IdentifyResult, ScanDialogData } from '../identify-dialog/identify-dialog';
+import { MenuDialog } from '../menu-dialog/menu-dialog';
+import { PlanningDialog } from '../planning-dialog/planning-dialog';
+
+interface SelectedSeat {
+  tableId: number;
+  tableLabel: string;
+  seat: DiningSeat;
+}
+
+function normalize(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .trim();
+}
+
+/**
+ * Interface Service : la salle à manger table par table (8 résidents au plus par table).
+ * Chaque place montre le résident (nom, prénom, photo, allergies, position) et une case « Fait » quand le repas est servi.
+ */
+@Component({
+  selector: 'app-dining-service',
+  imports: [
+    FormsModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatCheckboxModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+    ResidentAvatar,
+  ],
+  templateUrl: './dining-service.html',
+  styleUrl: './dining-service.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class DiningService {
+  private readonly api = inject(PersonnelService);
+  private readonly dialog = inject(MatDialog);
+  private readonly snackBar = inject(MatSnackBar);
+
+  protected readonly dining = signal<Dining | null>(null);
+  protected readonly slot = signal<DiningSlot | null>(null);
+  protected readonly loading = signal(true);
+  protected readonly error = signal<string | null>(null);
+  protected readonly search = signal('');
+  protected readonly selected = signal<SelectedSeat | null>(null);
+  protected readonly busy = signal(false);
+  protected readonly refusal = signal('');
+  protected readonly refusing = signal(false);
+
+  protected readonly fullName = fullName;
+  protected readonly isFinished = isMealFinished;
+
+  protected readonly progress = computed(() => {
+    const dining = this.dining();
+    return dining && dining.seated > 0 ? Math.round((dining.served / dining.seated) * 100) : 0;
+  });
+
+  /** Tables avec leurs 8 places ; la recherche ne garde que les tables où quelqu'un correspond. */
+  protected readonly tables = computed(() => {
+    const dining = this.dining();
+    if (!dining) {
+      return [];
+    }
+    const query = normalize(this.search());
+    return dining.tables
+      .map((table) => ({
+        table,
+        slots: seatSlots(table).map((seat) => ({
+          seat,
+          match: !query || (seat !== null && this.matches(seat, query)),
+        })),
+      }))
+      .filter((entry) => !query || entry.slots.some((s) => s.match && s.seat));
+  });
+
+  constructor() {
+    this.load();
+    interval(30_000)
+      .pipe(takeUntilDestroyed(inject(DestroyRef)))
+      .subscribe(() => {
+        if (!this.busy()) {
+          this.load(true);
+        }
+      });
+  }
+
+  private matches(seat: DiningSeat, query: string): boolean {
+    const resident = seat.resident;
+    return [resident.firstName, resident.lastName, resident.room ?? '', seat.chevalet ?? '']
+      .some((value) => normalize(value).includes(query));
+  }
+
+  protected setSlot(slot: DiningSlot): void {
+    this.slot.set(slot);
+    this.selected.set(null);
+    this.load();
+  }
+
+  protected load(silent = false): void {
+    if (!silent) {
+      this.loading.set(true);
+    }
+    this.api.dining(this.slot() ?? undefined).subscribe({
+      next: (dining) => {
+        this.dining.set(dining);
+        this.slot.set(dining.slot);
+        this.error.set(null);
+        this.loading.set(false);
+        this.refreshSelection(dining);
+      },
+      error: (err) => {
+        this.error.set(errorMessage(err));
+        this.loading.set(false);
+      },
+    });
+  }
+
+  private refreshSelection(dining: Dining): void {
+    const current = this.selected();
+    if (!current) {
+      return;
+    }
+    const seat = dining.tables.find((t) => t.id === current.tableId)?.seats.find((s) => s.position === current.seat.position);
+    this.selected.set(seat ? { ...current, seat } : null);
+  }
+
+  protected select(table: DiningTable, seat: DiningSeat): void {
+    this.refusal.set('');
+    this.refusing.set(false);
+    this.selected.set({ tableId: table.id, tableLabel: table.label, seat });
+  }
+
+  protected closeDetail(): void {
+    this.selected.set(null);
+  }
+
+  /** Case « Fait » : le repas est servi (validé tout de suite, comme sur l'écran des soignants). */
+  protected markServed(seat: DiningSeat): void {
+    this.complete(seat, { status: 'FAIT' });
+  }
+
+  protected refuse(seat: DiningSeat): void {
+    const reason = this.refusal().trim();
+    if (!reason) {
+      this.snackBar.open('Indiquez le motif du refus.', 'OK', { duration: 4000 });
+      return;
+    }
+    this.complete(seat, { status: 'REFUSE', comment: reason });
+  }
+
+  private complete(seat: DiningSeat, body: { status: 'FAIT' | 'REFUSE'; comment?: string }): void {
+    if (!seat.meal || this.busy()) {
+      return;
+    }
+    this.busy.set(true);
+    this.api.completeById('REPAS', seat.meal.id, body).subscribe({
+      next: (item) => {
+        this.busy.set(false);
+        this.refusing.set(false);
+        this.refusal.set('');
+        this.patchStatus(seat.meal!.id, item.status);
+      },
+      error: (err) => {
+        this.busy.set(false);
+        this.snackBar.open(errorMessage(err), 'OK', { duration: 6000 });
+        this.load(true);
+      },
+    });
+  }
+
+  /** Simule le départ : le résident se lève, son bracelet n'est plus lu par la table. */
+  protected leave(table: DiningTable, seat: DiningSeat): void {
+    this.sendReading(table.readerCode, seat.resident.id, true);
+  }
+
+  private sendReading(readerCode: string | null, residentId: number, leaving: boolean): void {
+    if (!readerCode || this.busy()) {
+      this.snackBar.open('Choisissez une table avec un lecteur RFID.', 'OK', { duration: 4000 });
+      return;
+    }
+    this.busy.set(true);
+    this.api.sendReading(readerCode, residentId, leaving).subscribe({
+      next: (reading: Reading) => {
+        this.busy.set(false);
+        this.snackBar.open(reading.message, 'OK', { duration: 3000 });
+        this.load(true);
+      },
+      error: (err) => {
+        this.busy.set(false);
+        this.snackBar.open(errorMessage(err), 'OK', { duration: 6000 });
+      },
+    });
+  }
+
+  /** Met à jour l'écran sans recharger toute la salle. */
+  private patchStatus(mealId: number, status: ServiceStatus): void {
+    const dining = this.dining();
+    if (!dining) {
+      return;
+    }
+    let served = 0;
+    const tables = dining.tables.map((table) => {
+      const seats = table.seats.map((seat) =>
+        seat.meal?.id === mealId ? { ...seat, meal: { ...seat.meal, status } } : seat,
+      );
+      const done = seats.filter((seat) => isMealFinished(seat.meal)).length;
+      served += done;
+      return { ...table, seats, served: done };
+    });
+    const next = { ...dining, tables, served };
+    this.dining.set(next);
+    this.refreshSelection(next);
+  }
+
+  /** Scanner un bracelet (NFC ou QR) ou saisir le code : la table et la fiche du résident s'affichent. */
+  protected openScan(): void {
+    const ref = this.dialog.open<IdentifyDialog, ScanDialogData, IdentifyResult>(IdentifyDialog, {
+      data: { mode: 'QR' },
+      width: '560px',
+      maxWidth: '100vw',
+    });
+    ref.afterClosed().subscribe((result) => {
+      if (result) {
+        this.onScanned(result.residentId);
+      }
+    });
+  }
+
+  private onScanned(residentId: number): void {
+    for (const table of this.dining()?.tables ?? []) {
+      const seat = table.seats.find((s) => s.resident.id === residentId);
+      if (seat) {
+        this.search.set('');
+        this.select(table, seat);
+        return;
+      }
+    }
+    this.snackBar.open('Ce résident n\'est pas encore installé à une table.', 'OK', { duration: 5000 });
+  }
+
+  // ---------- Simulateur de bracelet (démonstration sans lecteur réel) ----------
+
+  protected readonly simOpen = signal(false);
+  protected readonly simResidents = signal<ResidentCard[]>([]);
+  protected readonly simQuery = signal('');
+  protected readonly simTable = signal('');
+
+  protected toggleSimulator(): void {
+    this.simOpen.update((open) => !open);
+    if (this.simOpen() && this.simResidents().length === 0) {
+      this.api.listResidents().subscribe({ next: (list) => this.simResidents.set(list), error: () => undefined });
+    }
+  }
+
+  protected residentLabel(resident: ResidentCard): string {
+    return `${resident.lastName} ${resident.firstName}`;
+  }
+
+  /** « Bracelet lu » : le résident choisi s'assoit à la table choisie (n'importe laquelle). */
+  protected simulateArrival(): void {
+    const label = normalize(this.simQuery());
+    const resident = this.simResidents().find((r) => normalize(this.residentLabel(r)) === label);
+    if (!resident) {
+      this.snackBar.open('Choisissez un résident dans la liste.', 'OK', { duration: 4000 });
+      return;
+    }
+    this.sendReading(this.simTable() || null, resident.id, false);
+    this.simQuery.set('');
+  }
+
+  protected openMenu(): void {
+    this.dialog.open(MenuDialog, { maxWidth: '100vw', autoFocus: false });
+  }
+
+  protected openPlanning(): void {
+    this.dialog.open(PlanningDialog, { maxWidth: '100vw', autoFocus: false });
+  }
+}
