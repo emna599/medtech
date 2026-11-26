@@ -5,9 +5,9 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
-import { JOB_LABEL, Job, Team, TeamMember } from '../../../shared/models/personnel.model';
+import { JOB_LABEL, Job, Team } from '../../../shared/models/personnel.model';
 
-/** Équipe en service : combien d'infirmiers et d'aides-soignants sont là, leurs noms et leur part de résidents. */
+/** Présence déclarée des infirmiers et aides-soignants. */
 @Component({
   selector: 'app-team-dialog',
   imports: [DatePipe, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
@@ -53,13 +53,6 @@ export class TeamDialog {
       next: (updated) => this.update(updated),
       error: (err: unknown) => this.fail(err),
     });
-  }
-
-  protected share(member: TeamMember): string {
-    if (member.residents === 0) {
-      return 'Aucun résident';
-    }
-    return `${member.residents} résident(s)${member.rooms ? ' · ch. ' + member.rooms : ''}`;
   }
 
   protected close(): void {

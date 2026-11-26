@@ -5,6 +5,16 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — feuille de préparation et responsabilités métier
+
+- Dans **Repas → Outils → Feuille de préparation**, aperçu et impression des totaux du créneau par texture et régime. Les repas à servir couvrent salle et chambres indépendamment des filtres de tournée. Repérage chiffré des consignes à vérifier, sans identité ni chambre.
+- Refonte de l’en-tête Personnel, séparation des commandes et de la liste de travail, accès direct à Résidents et fiche d’annuaire réorganisée.
+- Vérifié en Chromium sur la démo : feuille agrégée, masquage de la tournée en mode impression, recherche et ouverture d’une fiche résident à 320 px. Compilation et 33 tests frontend réussis.
+- L’écran Équipe affiche les présences déclarées. Les tranches de chambres calculées au pointage ont été retirées de cet écran.
+- Le guide des parcours consigne la répartition proposée entre cuisine, service et soins ainsi que les interfaces avec prescription et dispensation. Le planning nominatif, l’affectation effective, la date de garde et la source de prescription restent à valider avec l’établissement avant de câbler leurs règles.
+
+---
+
 ## Relais Codex du 2026-11-27 — lisibilité de la tournée et cohérence métier
 
 - Tournées avec commandes séparées par des filets, cartes ajustées à leur contenu et statut près du nom sur ordinateur. Annuaire du personnel sous forme de liste avec recherche par nom ou chambre.

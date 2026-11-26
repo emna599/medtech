@@ -127,6 +127,35 @@ export class PersonnelDashboard {
 
   private readonly slotItems = computed(() => this.items().filter((item) => item.slot === this.currentSlot()));
 
+  protected readonly kitchenSheetOpen = signal(false);
+  protected readonly kitchenMeals = computed(() => this.slotItems().filter(
+    item => item.kind === 'REPAS' && PENDING.includes(item.status),
+  ));
+  protected readonly kitchenRows = computed(() => {
+    const rows = new Map<string, { key: string; texture: string; regime: string; count: number; check: number }>();
+    for (const { resident } of this.kitchenMeals()) {
+      const texture = resident.texture?.trim() || 'À vérifier';
+      const regime = resident.regime?.trim() || 'À vérifier';
+      const key = JSON.stringify([texture, regime]);
+      const row = rows.get(key) ?? { key, texture, regime, count: 0, check: 0 };
+      row.count++;
+      if (!resident.texture?.trim() || !resident.regime?.trim() || resident.mealTextureConflict
+        || resident.mealInstructionsChangedAt || resident.allergies.length || resident.restrictions
+        || resident.instructions || resident.identityDoubt) {
+        row.check++;
+      }
+      rows.set(key, row);
+    }
+    return [...rows.values()].sort((a, b) => a.texture.localeCompare(b.texture, 'fr')
+      || a.regime.localeCompare(b.regime, 'fr'));
+  });
+
+  protected printKitchenSheet(): void {
+    if (!this.loading() && !this.error() && !this.refreshUnavailable() && this.kitchenMeals().length) {
+      window.print();
+    }
+  }
+
   protected readonly total = computed(() => this.slotItems().length);
   protected readonly finished = computed(
     () => this.slotItems().filter((item) => FINISHED.includes(item.status)).length,
@@ -194,6 +223,7 @@ export class PersonnelDashboard {
     if (kind === this.kind()) {
       return;
     }
+    this.kitchenSheetOpen.set(false);
     this.kind.set(kind);
     this.chosenSlot.set(null);
     this.items.set([]);

@@ -2,7 +2,9 @@
 
 <main class="work-page service-page">
   <header class="page-head tour-heading">
-    <h1>{{ kind() === 'REPAS' ? 'Tournée des repas' : 'Tournée des médicaments' }}</h1>
+    <div class="tour-title">
+      <h1>{{ kind() === 'REPAS' ? 'Tournée des repas' : 'Tournée des médicaments' }}</h1>
+    </div>
     <div class="heading-actions">
       <button mat-button type="button" (click)="openIdentify()">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
@@ -12,15 +14,22 @@
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon>
         Service en salle
       </button>
+      <button mat-button type="button" (click)="openResidents()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
+        Résidents
+      </button>
       <button mat-stroked-button type="button" [matMenuTriggerFor]="serviceTools">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">apps</mat-icon>
         Outils
       </button>
     </div>
     <mat-menu #serviceTools="matMenu">
-      <button mat-menu-item type="button" (click)="openResidents()">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon> Résidents
-      </button>
+      @if (kind() === 'REPAS') {
+        <button mat-menu-item type="button" (click)="kitchenSheetOpen.set(!kitchenSheetOpen())">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">print</mat-icon>
+          Feuille de préparation
+        </button>
+      }
       <button mat-menu-item type="button" (click)="openReleve()">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon> Relève
       </button>
@@ -149,6 +158,35 @@
     </section>
   </div>
 
+  @if (kitchenSheetOpen() && kind() === 'REPAS') {
+    <section class="kitchen-sheet" aria-labelledby="kitchen-sheet-title">
+      <header class="kitchen-sheet-heading">
+        <h2 id="kitchen-sheet-title">Feuille de préparation</h2>
+        <button mat-button type="button" (click)="kitchenSheetOpen.set(false)">Fermer la feuille</button>
+      </header>
+      @if (loading() || error() || refreshUnavailable()) {
+        <p role="status">Données indisponibles. Attendez l’actualisation avant d’éditer la feuille.</p>
+      } @else if (kitchenMeals()[0]; as first) {
+        <p><strong>{{ slotText(first.slot) }} · {{ first.scheduledAt | date:'dd/MM/yyyy' }}</strong>
+          · Données actualisées à {{ lastRefresh() | date:'HH:mm:ss' }}</p>
+        <p>{{ kitchenMeals().length }} repas à servir, salle et chambres comprises. Vérifiez les consignes individuelles avant de préparer ou d’étiqueter les plateaux.</p>
+        <table>
+          <thead>
+            <tr><th scope="col">Texture</th><th scope="col">Régime</th><th scope="col">Total</th><th scope="col">Consignes à vérifier</th></tr>
+          </thead>
+          <tbody>
+            @for (row of kitchenRows(); track row.key) {
+              <tr><td>{{ row.texture }}</td><td>{{ row.regime }}</td><td>{{ row.count }}</td><td>{{ row.check }}</td></tr>
+            }
+          </tbody>
+        </table>
+        <button mat-stroked-button type="button" (click)="printKitchenSheet()">Imprimer la feuille</button>
+      } @else {
+        <p>Aucun repas à servir pour ce créneau.</p>
+      }
+    </section>
+  }
+
   @if (location() === 'CHAMBRE' && nextPending()) {
     <button mat-flat-button type="button" class="start" (click)="openNext()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">play_arrow</mat-icon>
@@ -177,6 +215,10 @@
       </p>
     </div>
   } @else {
+    <div class="roster-heading">
+      <h2>{{ location() === 'CHAMBRE' ? 'En chambre' : 'En salle à manger' }}</h2>
+      <span>{{ visible().length }} {{ kind() === 'REPAS' ? 'repas' : (visible().length === 1 ? 'prise' : 'prises') }}</span>
+    </div>
     <ul class="grid work-card-grid" [class.room-tour]="location() === 'CHAMBRE'">
       @for (item of visible(); track item.id) {
         <li>

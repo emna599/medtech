@@ -4,7 +4,7 @@
 
 - Connectez-vous avec un compte de démonstration du rôle à présenter, sur une base fictive.
 - Les titres, les cartes et les commandes sont lisibles dès l’ouverture, avec une taille adaptée à la largeur de l’écran. Dans l’en-tête, le logo ramène à l’accueil de votre rôle et le bouton lune ou soleil règle le thème. Le pied de page propose les raccourcis du rôle et **Haut de page**.
-- Côté personnel, **Identifier un résident** et **Service en salle** sont dans l’en-tête de la tournée. Le menu **Outils** regroupe Résidents, Relève, Organisation type, Équipe, Notes de service et Assistant. Les pictogrammes indiquent les sections et les commandes. Les statuts et alertes associent texte et icône.
+- Côté personnel, **Identifier un résident** et **Service en salle** sont dans l’en-tête de la tournée. **Résidents** ouvre directement l’annuaire depuis l’en-tête. **Outils** regroupe la relève, l’organisation type, l’équipe, les notes et l’assistant. Les pictogrammes indiquent les sections et les commandes. Les statuts et alertes associent texte et icône.
 
 Les actions principales sont pleines, les actions secondaires ont un contour fin et les liens conduisent vers un autre écran. Les commandes actives se distinguent par leur fond et le focus clavier par un contour visible. Les mêmes repères s’appliquent en thème clair et sombre.
 
@@ -42,8 +42,26 @@ Les actions principales sont pleines, les actions secondaires ont un contour fin
 - Dans l’Assistant, **Ouvrir la fiche de tournée** ouvre le repas ou la prise proposé. La validation se fait dans cette fiche.
 
 
+### Préparation cuisine
+
+1. Ouvrez **Repas**, sélectionnez le créneau et choisissez **Outils → Feuille de préparation**.
+2. Contrôlez l’heure de dernière actualisation. Le tableau regroupe les repas à servir, salle et chambres comprises, même si la tournée est filtrée. La dernière colonne compte les repas qui demandent une vérification individuelle.
+3. **Imprimer la feuille** imprime uniquement les totaux, sans identité ni chambre. Pour préparer ou étiqueter un plateau individuel, consultez les consignes à jour dans le parcours autorisé.
+
+### Décisions à valider avec l’établissement
+
+| Circuit | Responsable proposé | Règle à valider |
+| --- | --- | --- |
+| Cuisine | Responsable cuisine | Publie le menu et habilite la préparation. Une consigne modifiée après préparation impose une revérification du plateau. |
+| Service des repas | Responsable de secteur | Confirme les affectations datées. L’agent affecté trace le service. La présence déclarée reste un indicateur d’effectif. |
+| Soins et médicaments | Responsable des soins | Confirme le périmètre de l’équipe, les remplacements et les actions délégables selon le protocole. |
+| Prescription et dispensation | Prescripteur et pharmacien, selon le circuit local | Identifier le logiciel de référence et la provenance de la version active. La tournée rattache chaque prise à cette version et exige une relecture si elle change. |
+
+Avant de formaliser les droits, préciser qui attribue les accès par secteur, qui remplace le responsable et comment les droits temporaires expirent. Tester sur données fictives une correction de plateau, une sortie de secteur, une prescription arrêtée avec une fiche ouverte et une garde qui traverse minuit.
+
 ### Organisation de l’équipe
 
+- Dans **Outils → Équipe**, le pointage affiche les présences déclarées. Pour les actions confiées, consultez la relève.
 - Dans **Outils → Organisation type**, consultez un exemple de déroulement par fonction et par équipe. Les gardes et remplacements se vérifient auprès du responsable de service.
 - L’annuaire **Résidents** présente une ligne par personne. Recherchez par nom ou chambre, repérez le régime et les alertes, puis ouvrez la fiche.
 

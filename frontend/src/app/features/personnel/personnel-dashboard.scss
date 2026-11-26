@@ -1,11 +1,47 @@
-.tour-heading { align-items: center; gap: 8px 20px; }
+.tour-heading {
+  align-items: center;
+  gap: 12px 24px;
+  padding: clamp(14px, 2.25vw, 32px);
+  background: #143733;
+  color: #f2faf6;
+  border-radius: 14px;
+}
+
+.tour-title { flex: 1 1 20rem; }
+.tour-heading h1 {
+  margin: 0;
+  color: inherit;
+  font-size: clamp(1.75rem, 1.1rem + 1.8vw, 2.7rem);
+  line-height: 1.12;
+}
+
+.heading-actions .mat-mdc-button-base {
+  --mat-button-text-label-text-color: #f2faf6;
+  --mat-button-outlined-label-text-color: #f2faf6;
+  --mat-button-outlined-outline-color: #9ec4b8;
+  --control-focus: #bfe3d7;
+}
+
+.heading-actions .mat-mdc-outlined-button { --control-hover: #d2ece4; }
+.roster-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .75rem;
+  padding-block: .5rem;
+  border-block-end: 1px solid var(--mat-sys-outline-variant);
+}
+.roster-heading h2 { margin: 0; font-size: 1.25rem; }
+.roster-heading > span { color: var(--mat-sys-on-surface-variant); }
 .heading-actions, .tour-context { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
 .tour-context { gap: 8px 14px; }
 .tour-controls {
   display: grid;
   gap: 10px;
-  padding-block: 8px;
-  border-block: 1px solid var(--mat-sys-outline-variant);
+  padding: 10px 12px;
+  background: var(--app-surface);
+  border-radius: var(--control-radius);
+  border-inline-start: 3px solid var(--site-mark);
 }
 
 // Sélection du type de tournée et des filtres.
@@ -136,7 +172,7 @@ ul.room-tour {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid transparent;
-  border-block-end-color: var(--mat-sys-outline-variant);
+  border-block-end-color: var(--app-line);
   border-radius: var(--control-radius);
   background: var(--app-surface);
   color: var(--app-ink);
@@ -212,8 +248,9 @@ ul.room-tour {
   gap: 10px;
   margin: 0;
   padding: 12px 16px;
+  border: 1px solid var(--mat-sys-outline-variant);
   border-inline-start: 4px solid var(--app-warn);
-  background: var(--app-warn-bg);
+  background: var(--app-surface);
   color: var(--app-warn);
   border-radius: var(--control-radius);
 }

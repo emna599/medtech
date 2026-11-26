@@ -14,6 +14,7 @@ Principe de conception : **« un écran, un geste »**, pensé d'abord pour la t
 |---|---|
 | Accueil | Choix **Repas / Médicaments**, créneau (déjeuner, dîner, matin, midi, soir), progression « X / Y faits », recherche par nom ou chambre, filtre À faire / Faits / Tous |
 | Actualisation | Les listes Repas et Médicaments se rafraîchissent entre écrans après enregistrement. Si le flux est coupé, le navigateur réessaie et garde une actualisation toutes les dix secondes |
+| Feuille de préparation | Dans Repas, **Outils → Feuille de préparation** affiche les totaux des repas à servir du créneau par texture et régime. La version imprimée est agrégée |
 | Salle à manger | Cartes résidents avec nom, chambre, statut et alertes. **Service en salle** permet de gérer les présences et les chevalets |
 | Chambres | **Liste ordonnée par chambre** avec « Démarrer la tournée » : après chaque validation, la fiche du résident suivant s'ouvre |
 | Fiche résident | Photo, **bandeau rouge d'allergies**, régime et texture, actions **Servi / Donné**, **Refusé** (avec motif), **Plus tard**, quantité mangée, changement de lieu (salle ↔ chambre) |

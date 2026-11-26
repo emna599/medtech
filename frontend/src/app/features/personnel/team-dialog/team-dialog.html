@@ -1,7 +1,7 @@
 <div class="dialog">
   <header class="head">
     <span class="material-symbols-outlined visual-cue cue--blue" aria-hidden="true">diversity_3</span>
-    <h2 class="title">Équipe en service</h2>
+    <h2 class="title">Présences déclarées</h2>
     <button mat-icon-button type="button" aria-label="Fermer" (click)="close()">
       <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
     </button>
@@ -43,7 +43,7 @@
               </mat-icon>
               <span class="who">
                 <span class="name">{{ member.name }}@if (member.me) { <em>(vous)</em> }</span>
-                <span class="meta">{{ share(member) }} · depuis {{ member.since | date: 'HH:mm' }}</span>
+                <span class="meta">En service depuis {{ member.since | date: 'HH:mm' }}</span>
               </span>
             </li>
           }
@@ -51,12 +51,11 @@
       }
 
       @if (groups().length === 0) {
-        <p class="empty">Personne n'est en service pour le moment.</p>
+        <p class="empty">Aucune présence déclarée pour le moment.</p>
       }
 
       <p class="rule">
-        Répartition indicative par chambre, recalculée aux arrivées et aux départs.
-        Les actions et leurs titulaires sont suivis dans la relève.
+        Le pointage indique qui a déclaré sa présence. Consultez la relève pour les actions confiées et le responsable de service pour les affectations.
       </p>
 
       @if (error()) {
