@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   max-height: 85vh;
-  min-width: min(100vw, 480px);
+  width: min(700px, 100vw);
   background: var(--app-surface);
 }
 
@@ -11,8 +11,9 @@
   align-items: center;
   gap: 12px;
   padding: 14px 12px 14px 20px;
-  background: var(--brand-teal, #0f766e);
-  color: #fff;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
 }
 
 .head-text {
@@ -33,7 +34,7 @@
 }
 
 .head button {
-  color: #fff;
+  color: var(--mat-sys-on-surface);
 }
 
 .body {
@@ -93,8 +94,19 @@ h3 {
 
 .foot {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
   padding: 12px 16px 16px;
   border-top: 1px solid var(--app-line-soft);
 }
+
+.section-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.handover-grid { grid-template-columns: 1fr; }
+.handover-form { display: grid; gap: 6px; }
+.handover-form button { justify-self: end; }
+.handover-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.handover-history { padding-block: 14px; }
+.handover-history summary { cursor: pointer; font-weight: 600; }
+.history-entry { border-bottom: 1px solid var(--mat-sys-outline-variant); padding-block: 8px; }
+.history-entry h4 { margin: 4px 0; }

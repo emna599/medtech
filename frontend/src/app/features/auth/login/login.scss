@@ -1,201 +1,45 @@
-:host {
-  display: block;
-}
+:host { display: block; }
 
 .auth {
-  min-height: 100vh;
+  box-sizing: border-box;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-// ---------------------------------------------------------------- Brand panel
-.auth__brand {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 32px;
-  padding: 48px 56px;
-  color: #e9edf1;
-  background: var(--brand-navy);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.brand-chrome .logo {
-  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  font-size: 1.15rem;
-
-  mat-icon {
-    color: var(--brand-teal);
-  }
-}
-
-.brand-hero {
-  max-width: 28rem;
-}
-
-.eyebrow {
-  margin: 0 0 14px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(233, 237, 241, 0.55);
-}
-
-.brand-title {
-  margin: 0 0 16px;
-  font-size: clamp(1.8rem, 1.3rem + 1.8vw, 2.4rem);
-  font-weight: 650;
-  line-height: 1.12;
-  letter-spacing: -0.01em;
-  color: #fff;
-}
-
-.brand-lead {
-  margin: 0 0 30px;
-  font-size: 0.98rem;
-  line-height: 1.6;
-  color: rgba(233, 237, 241, 0.72);
-}
-
-.brand-points {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 12px;
-
-  li {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    font-size: 0.92rem;
-    color: rgba(233, 237, 241, 0.9);
-  }
-
-  mat-icon {
-    flex: none;
-    font-size: 19px;
-    width: 19px;
-    height: 19px;
-    color: var(--brand-teal);
-  }
-}
-
-.brand-foot {
-  margin: 0;
-  font-size: 0.78rem;
-  color: rgba(233, 237, 241, 0.4);
-}
-
-// ----------------------------------------------------------------- Form panel
-.auth__form {
-  display: grid;
-  place-items: center;
-  padding: 40px 24px;
-  background: var(--app-surface);
+  justify-items: center;
+  min-height: 100dvh;
+  padding: 24px 16px;
 }
 
 .form-wrap {
-  width: 100%;
-  max-width: 380px;
+  box-sizing: border-box;
+  width: min(100%, 440px);
+  padding: clamp(20px, 5vw, 32px);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--app-radius);
 }
 
-.form-head {
-  margin-bottom: 26px;
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: var(--mat-sys-title-medium);
 }
 
-.form-mark {
-  display: inline-grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  margin-bottom: 16px;
-  border-radius: 9px;
-  color: #fff;
-  background: var(--brand-teal);
-
-  mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
-  }
+h1 {
+  margin: 20px 0;
+  font: var(--mat-sys-headline-medium);
 }
 
-.form-title {
-  margin: 0 0 4px;
-  font-size: 1.5rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-  color: var(--mat-sys-on-surface);
-}
-
-.form-sub {
-  margin: 0;
-  color: var(--mat-sys-on-surface-variant);
-}
+form { display: grid; gap: 8px; }
+.full-width { width: 100%; }
+.submit-button { width: 100%; }
+.submit-button mat-progress-spinner { margin: 0 auto; }
 
 .error-banner {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 0 0 18px;
-  padding: 11px 13px;
-  border-radius: 7px;
-  background: var(--app-danger-bg);
-  color: var(--app-danger);
-  font-weight: 500;
-
-  mat-icon {
-    flex: none;
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
-  }
-}
-
-.full-width {
-  width: 100%;
-}
-
-.submit-button.mat-mdc-unelevated-button.mat-mdc-button-base {
-  width: 100%;
-  height: 46px;
-  margin-top: 6px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  --mdc-filled-button-container-color: var(--brand-teal);
-  --mdc-filled-button-label-text-color: #fff;
-  --mdc-filled-button-container-shape: 7px;
-  background-color: var(--brand-teal);
-  color: #fff;
-}
-
-.form-legal {
-  margin: 20px 0 0;
-  font-size: 0.78rem;
-  color: var(--mat-sys-on-surface-variant);
-}
-
-// ------------------------------------------------------------------ Responsive
-@media (max-width: 920px) {
-  .auth {
-    grid-template-columns: 1fr;
-  }
-
-  .auth__brand {
-    padding: 28px 28px;
-    gap: 16px;
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  }
-
-  .brand-lead,
-  .brand-points,
-  .brand-foot {
-    display: none;
-  }
+  gap: 8px;
+  padding: 12px;
+  border-radius: 6px;
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
 }

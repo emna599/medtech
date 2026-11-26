@@ -1,12 +1,20 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
+import { forkJoin, timeout, timer } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
-import { Doubt, fullName, ServiceItem, slotLabel } from '../../../shared/models/personnel.model';
+import { Doubt, HandoverBoard, HandoverRequest, ResidentCard, fullName, ServiceItem, slotLabel } from '../../../shared/models/personnel.model';
 
 interface SlotLine {
   slot: string;
@@ -21,21 +29,51 @@ interface Alert {
   text: string;
 }
 
-/**
- * Résumé de relève : ce qu'il faut transmettre à l'équipe suivante, calculé à partir du service du jour.
- * Lecture seule : rien n'est enregistré ici.
- */
+function createRequestId(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+  return [hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20)].join('-');
+}
+
 @Component({
   selector: 'app-releve-dialog',
-  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [
+    DatePipe, ReactiveFormsModule, MatButtonModule, MatCardModule, MatFormFieldModule,
+    MatIconModule, MatInputModule, MatProgressSpinnerModule, MatSelectModule,
+  ],
   templateUrl: './releve-dialog.html',
   styleUrl: './releve-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReleveDialog {
   private readonly api = inject(PersonnelService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly snackBar = inject(MatSnackBar);
   protected readonly ref = inject<MatDialogRef<ReleveDialog>>(MatDialogRef);
+
+  private readonly formBuilder = inject(FormBuilder);
+  private draftId: string | null = null;
+  private boardRevision = 0;
+  protected readonly board = signal<HandoverBoard | null>(null);
+  protected readonly boardLoading = signal(false);
+  protected readonly boardError = signal<string | null>(null);
+  protected readonly actionError = signal<string | null>(null);
+  protected readonly formError = signal<string | null>(null);
+  protected readonly saving = signal(false);
+  protected readonly closing = signal<number | null>(null);
+  protected readonly residents = signal<ResidentCard[]>([]);
+  protected readonly residentError = signal(false);
+  protected readonly form = this.formBuilder.group({
+    residentId: this.formBuilder.control<number | null>(null),
+    observation: this.formBuilder.nonNullable.control('', [
+      Validators.required, Validators.maxLength(1200), Validators.pattern(/\S/),
+    ]),
+    expectedAction: this.formBuilder.nonNullable.control('', [
+      Validators.required, Validators.maxLength(400), Validators.pattern(/\S/),
+    ]),
+  });
 
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
@@ -78,11 +116,20 @@ export class ReleveDialog {
   });
 
   constructor() {
+    this.loadBoard();
+    this.api.listResidents().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: residents => this.residents.set(residents),
+      error: () => this.residentError.set(true),
+    });
+    timer(15_000, 15_000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      if (!this.saving() && !this.boardLoading() && this.closing() === null) this.loadBoard();
+    });
+
     forkJoin({
       meals: this.api.listService('REPAS'),
       doses: this.api.listService('MEDICAMENT'),
       doubts: this.api.openDoubts(),
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: ({ meals, doses, doubts }) => {
         this.meals.set(meals);
         this.doses.set(doses);
@@ -95,6 +142,84 @@ export class ReleveDialog {
       },
     });
   }
+
+  protected loadBoard(): void {
+    const revision = ++this.boardRevision;
+    this.boardLoading.set(true);
+    this.api.loadHandover().pipe(timeout(10000), takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: board => {
+        if (revision !== this.boardRevision) return;
+        this.board.set(board);
+        this.boardError.set(null);
+        this.boardLoading.set(false);
+      },
+      error: error => {
+        if (revision !== this.boardRevision) return;
+        this.boardError.set(errorMessage(error));
+        this.boardLoading.set(false);
+      },
+    });
+  }
+
+  protected save(formDirective: FormGroupDirective): void {
+    if (this.saving() || this.closing() !== null || this.form.disabled) return;
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const { residentId, observation, expectedAction } = this.form.getRawValue();
+    const request: HandoverRequest = {
+      requestId: this.draftId ??= createRequestId(),
+      residentId,
+      observation: observation.trim(),
+      expectedAction: expectedAction.trim(),
+    };
+    this.saving.set(true);
+    this.ref.disableClose = true;
+    this.form.disable();
+    this.formError.set(null);
+    this.api.createHandover(request).pipe(timeout(10000), takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.finishSaving();
+        this.draftId = null;
+        formDirective.resetForm({ residentId: null, observation: '', expectedAction: '' });
+        this.snackBar.open('Transmission enregistrée', 'Fermer', { duration: 2500 });
+        this.loadBoard();
+      },
+      error: error => {
+        this.finishSaving();
+        this.formError.set(errorMessage(error));
+        this.loadBoard();
+      },
+    });
+  }
+
+  protected complete(id: number): void {
+    if (this.closing() !== null || this.saving()) return;
+    this.closing.set(id);
+    this.actionError.set(null);
+    this.api.completeHandover(id).pipe(timeout(10000), takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.closing.set(null);
+        this.loadBoard();
+        this.snackBar.open('Action terminée', 'Fermer', { duration: 2500 });
+      },
+      error: error => {
+        this.closing.set(null);
+        this.actionError.set(errorMessage(error));
+        if (error instanceof HttpErrorResponse && error.status === 409) this.loadBoard();
+      },
+    });
+  }
+
+  private finishSaving(): void {
+    this.saving.set(false);
+    this.ref.disableClose = false;
+    this.form.enable();
+  }
+
+  protected readonly residentName = fullName;
 
   protected slotText(slot: string): string {
     return slotLabel(slot);

@@ -6,5 +6,6 @@ BEGIN;
 \ir seed_users.sql
 \ir personnel_additions.sql
 \ir security_and_concurrency.sql
+\ir handover.sql
 \ir seed_personnel.sql
 COMMIT;

@@ -1,15 +1,103 @@
 <header class="head">
   <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
   <div class="head-text">
-    <h2>Résumé de relève</h2>
+    <h2>Relève</h2>
     <p>{{ nowText }}</p>
   </div>
-  <button mat-icon-button type="button" aria-label="Fermer" (click)="ref.close()">
+  <button mat-icon-button type="button" aria-label="Fermer" [disabled]="saving()" (click)="ref.close()">
     <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
   </button>
 </header>
 
 <div class="body">
+  <section aria-labelledby="handover-open-title">
+    <div class="section-heading">
+      <h3 id="handover-open-title">Actions à poursuivre</h3>
+      <button mat-button type="button" [disabled]="boardLoading()" (click)="loadBoard()">Actualiser</button>
+    </div>
+    @if (boardError(); as message) {
+      <p class="error" role="alert">Relève indisponible. {{ message }}</p>
+    }
+    @if (actionError(); as message) {
+      <p class="error" role="alert">{{ message }}</p>
+    }
+    @if (board(); as current) {
+      <div class="work-card-grid handover-grid">
+        @for (entry of current.open; track entry.id) {
+          <mat-card appearance="outlined" class="work-card">
+            <mat-card-content>
+              <div class="work-card-heading">
+                <h4>{{ entry.residentName ?? 'Équipe' }}</h4>
+                <span class="work-status">À faire</span>
+              </div>
+              <p class="muted">{{ entry.authorName }} · {{ entry.createdAt | date:'dd/MM HH:mm' }}</p>
+              <p class="handover-text">{{ entry.observation }}</p>
+              <p class="handover-text"><strong>Action attendue</strong><br />{{ entry.expectedAction }}</p>
+            </mat-card-content>
+            <mat-card-actions align="end">
+              <button mat-button type="button" [disabled]="closing() !== null || saving()" (click)="complete(entry.id)">
+                Marquer comme faite
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        } @empty {
+          <p class="muted">Aucune action en attente.</p>
+        }
+      </div>
+    } @else if (boardLoading()) {
+      <p class="muted" role="status">Chargement des transmissions…</p>
+    }
+  </section>
+
+  <section aria-labelledby="handover-new-title">
+    <h3 id="handover-new-title">Nouvelle transmission</h3>
+    <form class="handover-form" [formGroup]="form" #handoverForm="ngForm" (ngSubmit)="save(handoverForm)">
+      <mat-form-field appearance="outline">
+        <mat-label>Résident</mat-label>
+        <mat-select formControlName="residentId" [canSelectNullableOptions]="true">
+          <mat-option [value]="null">Équipe entière</mat-option>
+          @for (resident of residents(); track resident.id) {
+            <mat-option [value]="resident.id">
+              {{ residentName(resident) }} @if (resident.room) { · Chambre {{ resident.room }} }
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      @if (residentError()) {
+        <p class="error" role="alert">La liste des résidents est indisponible.</p>
+      }
+      <mat-form-field appearance="outline">
+        <mat-label>Observation</mat-label>
+        <textarea matInput formControlName="observation" rows="3" maxlength="1200"></textarea>
+        <mat-error>Saisissez une observation de 1 à 1 200 caractères.</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Action attendue</mat-label>
+        <textarea matInput formControlName="expectedAction" rows="2" maxlength="400"></textarea>
+        <mat-error>Saisissez une action de 1 à 400 caractères.</mat-error>
+      </mat-form-field>
+      @if (formError(); as message) {
+        <p class="error" role="alert">{{ message }}</p>
+      }
+      <button mat-flat-button type="submit" [disabled]="saving() || closing() !== null">Enregistrer la transmission</button>
+    </form>
+  </section>
+
+  @if (board()?.recentlyCompleted?.length) {
+    <details class="handover-history">
+      <summary>Actions terminées récemment</summary>
+      @for (entry of board()?.recentlyCompleted; track entry.id) {
+        <article class="history-entry">
+          <h4>{{ entry.residentName ?? 'Équipe' }}</h4>
+          <p class="handover-text">{{ entry.expectedAction }}</p>
+          <p class="muted">Terminée par {{ entry.completedBy }} · {{ entry.completedAt | date:'dd/MM HH:mm' }}</p>
+        </article>
+      }
+    </details>
+  }
+
+  <details class="handover-history">
+    <summary>Résumé du service</summary>
   @if (loading()) {
     <div class="state"><mat-spinner diameter="40" /></div>
   } @else if (error()) {
@@ -59,6 +147,7 @@
       }
     </section>
   }
+  </details>
 </div>
 
 <footer class="foot">
@@ -66,5 +155,5 @@
     <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">content_copy</mat-icon>
     Copier le résumé
   </button>
-  <button mat-flat-button type="button" (click)="ref.close()">Fermer</button>
+  <button mat-flat-button type="button" [disabled]="saving()" (click)="ref.close()">Fermer</button>
 </footer>

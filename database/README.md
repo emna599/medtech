@@ -12,7 +12,7 @@ Sans Docker, exécuter `./database/setup.ps1` sous PowerShell ou `psql -U postgr
 
 ### Mise à jour d’une base existante
 
-`docker compose up --build` exécute automatiquement `security_and_concurrency.sql` avant de démarrer l’API. Pour une installation manuelle existante, appliquer ce fichier avec `psql -v ON_ERROR_STOP=1 -d medtech -f database/security_and_concurrency.sql` avant de relancer le backend. Ce fichier conserve les données et peut être exécuté plusieurs fois. La commande d’initialisation complète reste réservée à une nouvelle base ou à une réinitialisation voulue.
+`docker compose up --build` exécute automatiquement `security_and_concurrency.sql` et `handover.sql` avant de démarrer l’API. Pour une installation manuelle existante, appliquer ce fichier avec `psql -v ON_ERROR_STOP=1 -d medtech -f database/security_and_concurrency.sql -f database/handover.sql` avant de relancer le backend. Ces scripts conservent les données et peuvent être exécutés plusieurs fois. La commande d’initialisation complète reste réservée à une nouvelle base ou à une réinitialisation voulue.
 
 ## Numérotation des chambres
 

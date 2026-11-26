@@ -1,5 +1,7 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal, viewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,7 +12,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ROLE_LABEL, Role } from '../../../shared/models/auth.model';
 import { ALL_ROLES, AdminUser } from '../../../shared/models/user.model';
@@ -24,7 +26,7 @@ import { UserFormDialog } from './user-form-dialog';
   selector: 'app-users-page',
   imports: [
     DatePipe,
-    MatTableModule,
+    MatCardModule,
     MatSortModule,
     MatPaginatorModule,
     MatButtonModule,
@@ -46,7 +48,7 @@ import { UserFormDialog } from './user-form-dialog';
       </button>
     </header>
 
-    <section class="panel">
+    <section class="work-list">
       <div class="filters">
         <mat-form-field appearance="outline" class="grow" subscriptSizing="dynamic">
           <mat-label>Rechercher</mat-label>
@@ -71,44 +73,35 @@ import { UserFormDialog } from './user-form-dialog';
         <p class="error" role="alert">{{ error() }}</p>
       }
 
-      <div class="table-wrap">
-        <table mat-table matSort [dataSource]="dataSource">
-          <ng-container matColumnDef="fullName">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef>Nom</th>
-            <td mat-cell *matCellDef="let u">{{ u.fullName }}</td>
-          </ng-container>
-          <ng-container matColumnDef="username">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef>Identifiant</th>
-            <td mat-cell *matCellDef="let u">{{ u.username }}</td>
-          </ng-container>
-          <ng-container matColumnDef="role">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef>Rôle</th>
-            <td mat-cell *matCellDef="let u">{{ labelOf(u) }}</td>
-          </ng-container>
-          <ng-container matColumnDef="enabled">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef>État</th>
-            <td mat-cell *matCellDef="let u">
-              <span class="badge" [class.off]="!u.enabled">{{ u.enabled ? 'Actif' : 'Désactivé' }}</span>
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="createdAt">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef>Créé le</th>
-            <td mat-cell *matCellDef="let u">{{ u.createdAt | date: 'dd/MM/yyyy' }}</td>
-          </ng-container>
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let u" class="row-actions">
-              <button mat-icon-button type="button" aria-label="Modifier" title="Modifier" (click)="openForm(u)">
-                <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
+      <div class="work-sort" matSort role="group" aria-label="Trier les résultats">
+        <span>Trier par</span>
+        <div mat-sort-header="fullName">Nom</div>
+        <div mat-sort-header="username">Identifiant</div>
+        <div mat-sort-header="role">Rôle</div>
+        <div mat-sort-header="enabled">État</div>
+        <div mat-sort-header="createdAt">Création</div>
+      </div>
+
+      <div class="work-card-grid">
+        @for (u of displayed(); track u.id) {
+          <mat-card appearance="outlined" class="work-card">
+            <mat-card-content class="work-card-content">
+              <div class="work-card-heading">
+                <h2>{{ u.fullName }}</h2>
+                <span class="work-status" [class.inactive]="!u.enabled">{{ u.enabled ? 'Actif' : 'Désactivé' }}</span>
+              </div>
+              <p><strong>Identifiant</strong> · {{ u.username }}</p>
+              <p><strong>Rôle</strong> · {{ labelOf(u) }}</p>
+              <p><strong>Créé le</strong> · {{ u.createdAt | date:'dd/MM/yyyy' }}</p>
+            </mat-card-content>
+            <mat-card-actions align="end">
+              <button mat-button type="button" (click)="openForm(u)">Modifier</button>
+              <button mat-icon-button type="button" [attr.aria-label]="'Changer le mot de passe de ' + u.fullName" (click)="openPassword(u)">
+                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">key</mat-icon>
               </button>
-              <button mat-icon-button type="button" aria-label="Changer le mot de passe" title="Changer le mot de passe" (click)="openPassword(u)">
-                <mat-icon fontSet="material-symbols-outlined">key</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="columns"></tr>
-          <tr mat-row *matRowDef="let row; columns: columns"></tr>
-        </table>
+            </mat-card-actions>
+          </mat-card>
+        }
       </div>
       @if (!loading() && filtered().length === 0) {
         <p class="empty">Aucun compte ne correspond.</p>
@@ -123,9 +116,9 @@ export class UsersPage {
   private readonly snackBar = inject(MatSnackBar);
   private readonly auth = inject(AuthService);
 
-  protected readonly columns = ['fullName', 'username', 'role', 'enabled', 'createdAt', 'actions'];
   protected readonly roles = ALL_ROLES.map((value) => ({ value, label: ROLE_LABEL[value] }));
   protected readonly dataSource = new MatTableDataSource<AdminUser>([]);
+  protected readonly displayed = toSignal(this.dataSource.connect(), { initialValue: [] });
   protected readonly users = signal<AdminUser[]>([]);
   protected readonly search = signal('');
   protected readonly roleFilter = signal<Role | ''>('');
@@ -146,6 +139,7 @@ export class UsersPage {
   private readonly paginator = viewChild(MatPaginator);
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => this.dataSource.disconnect());
     effect(() => {
       this.dataSource.data = this.filtered();
     });

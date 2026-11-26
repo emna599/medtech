@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal, viewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,7 +11,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { Room } from '../../../shared/models/room.model';
 import { apiErrorMessage } from '../../../shared/utils/api-error';
@@ -22,7 +24,7 @@ type Availability = 'all' | 'free' | 'full';
 @Component({
   selector: 'app-rooms-page',
   imports: [
-    MatTableModule,
+    MatCardModule,
     MatSortModule,
     MatPaginatorModule,
     MatButtonModule,
@@ -44,7 +46,7 @@ type Availability = 'all' | 'free' | 'full';
       </button>
     </header>
 
-    <section class="panel">
+    <section class="work-list">
       <div class="filters">
         <mat-form-field appearance="outline" class="grow" subscriptSizing="dynamic">
           <mat-label>Rechercher une chambre</mat-label>
@@ -77,40 +79,35 @@ type Availability = 'all' | 'free' | 'full';
         <p class="error" role="alert">{{ error() }}</p>
       }
 
-      <div class="table-wrap">
-        <table mat-table matSort [dataSource]="dataSource">
-          <ng-container matColumnDef="floor">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef>Étage</th>
-            <td mat-cell *matCellDef="let r">{{ r.floor }}</td>
-          </ng-container>
-          <ng-container matColumnDef="number">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef>Chambre</th>
-            <td mat-cell *matCellDef="let r">{{ r.number }}</td>
-          </ng-container>
-          <ng-container matColumnDef="capacity">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef>Lits</th>
-            <td mat-cell *matCellDef="let r">{{ r.capacity }}</td>
-          </ng-container>
-          <ng-container matColumnDef="occupied">
-            <th mat-header-cell mat-sort-header *matHeaderCellDef>Occupation</th>
-            <td mat-cell *matCellDef="let r">
-              <span class="badge" [class.warn]="r.occupied >= r.capacity">{{ r.occupied }} / {{ r.capacity }}</span>
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let r" class="row-actions">
-              <button mat-icon-button type="button" aria-label="Modifier" title="Modifier" (click)="openForm(r)">
-                <mat-icon fontSet="material-symbols-outlined">edit</mat-icon>
+      <div class="work-sort" matSort role="group" aria-label="Trier les résultats">
+        <span>Trier par</span>
+        <div mat-sort-header="floor">Étage</div>
+        <div mat-sort-header="number">Numéro</div>
+        <div mat-sort-header="capacity">Capacité</div>
+        <div mat-sort-header="occupied">Occupation</div>
+      </div>
+
+      <div class="work-card-grid">
+        @for (r of displayed(); track r.id) {
+          <mat-card appearance="outlined" class="work-card">
+            <mat-card-content class="work-card-content">
+              <div class="work-card-heading">
+                <h2>Chambre {{ r.number }}</h2>
+                <span class="work-status" [class.inactive]="r.occupied >= r.capacity">
+                  {{ r.occupied >= r.capacity ? 'Complète' : 'Disponible' }}
+                </span>
+              </div>
+              <p><strong>Étage</strong> · {{ r.floor }}</p>
+              <p><strong>Lits occupés</strong> · {{ r.occupied }} / {{ r.capacity }}</p>
+            </mat-card-content>
+            <mat-card-actions align="end">
+              <button mat-button type="button" [attr.aria-label]="'Modifier la chambre ' + r.number" (click)="openForm(r)">Modifier</button>
+              <button mat-icon-button type="button" [attr.aria-label]="'Supprimer la chambre ' + r.number" (click)="remove(r)">
+                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">delete</mat-icon>
               </button>
-              <button mat-icon-button type="button" aria-label="Supprimer" title="Supprimer" (click)="remove(r)">
-                <mat-icon fontSet="material-symbols-outlined">delete</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-          <tr mat-header-row *matHeaderRowDef="columns"></tr>
-          <tr mat-row *matRowDef="let row; columns: columns"></tr>
-        </table>
+            </mat-card-actions>
+          </mat-card>
+        }
       </div>
       @if (!loading() && filtered().length === 0) {
         <p class="empty">Aucune chambre ne correspond.</p>
@@ -124,8 +121,8 @@ export class RoomsPage {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  protected readonly columns = ['floor', 'number', 'capacity', 'occupied', 'actions'];
   protected readonly dataSource = new MatTableDataSource<Room>([]);
+  protected readonly displayed = toSignal(this.dataSource.connect(), { initialValue: [] });
   protected readonly rooms = signal<Room[]>([]);
   protected readonly search = signal('');
   protected readonly floorFilter = signal<number | null>(null);
@@ -153,6 +150,7 @@ export class RoomsPage {
   private readonly paginator = viewChild(MatPaginator);
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => this.dataSource.disconnect());
     effect(() => {
       this.dataSource.data = this.filtered();
     });

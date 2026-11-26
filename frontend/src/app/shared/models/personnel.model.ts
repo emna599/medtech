@@ -147,3 +147,27 @@ export interface PochetteScan {
   date: string | null;
   medications: string | null;
 }
+
+export interface HandoverAction {
+  id: number;
+  residentId: number | null;
+  residentName: string | null;
+  observation: string;
+  expectedAction: string;
+  authorName: string;
+  createdAt: string;
+  completedBy: string | null;
+  completedAt: string | null;
+}
+
+export interface HandoverBoard {
+  open: HandoverAction[];
+  recentlyCompleted: HandoverAction[];
+}
+
+export interface HandoverRequest {
+  requestId: string;
+  residentId: number | null;
+  observation: string;
+  expectedAction: string;
+}

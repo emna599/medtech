@@ -1,6 +1,7 @@
 <app-toolbar />
 
-<main class="page">
+<main class="work-page">
+  <header class="page-head"><h1>{{ kind() === 'REPAS' ? 'Repas' : 'Médicaments' }}</h1></header>
   <section class="top">
     <mat-button-toggle-group
       class="kind"
@@ -145,7 +146,7 @@
       </p>
     </div>
   } @else if (location() === 'SALLE') {
-    <ul class="grid">
+    <ul class="grid work-card-grid">
       @for (item of visible(); track item.id) {
         <li>
           <button type="button" class="tile" [class]="'tile ' + statusClass(item)" (click)="open(item)">

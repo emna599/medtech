@@ -28,7 +28,7 @@ services:
       PGPASSWORD: change_me
     volumes:
       - ./database:/sql:ro
-    command: ["psql", "-h", "db", "-U", "postgres", "-d", "medtech", "-v", "ON_ERROR_STOP=1", "-f", "/sql/security_and_concurrency.sql"]
+    command: ["psql", "-h", "db", "-U", "postgres", "-d", "medtech", "-v", "ON_ERROR_STOP=1", "-f", "/sql/security_and_concurrency.sql", "-f", "/sql/handover.sql"]
     depends_on:
       db:
         condition: service_healthy

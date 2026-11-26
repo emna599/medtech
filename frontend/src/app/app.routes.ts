@@ -53,10 +53,8 @@ export const routes: Routes = [
   },
   {
     path: 'medecin',
-    title: 'Espace médecin',
-    canActivate: [roleGuard(['MEDECIN'])],
-    loadComponent: () =>
-      import('./features/medecin/medecin-dashboard').then((m) => m.MedecinDashboard),
+    pathMatch: 'full',
+    redirectTo: 'medecin/residents',
   },
   {
     path: 'medecin/residents',

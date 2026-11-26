@@ -11,8 +11,9 @@
   align-items: center;
   gap: 12px;
   padding: 14px 12px 14px 20px;
-  background: var(--brand-navy, #12365c);
-  color: #fff;
+  background: var(--mat-sys-surface);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  color: var(--mat-sys-on-surface);
 }
 
 .head-text {
@@ -32,7 +33,7 @@
 }
 
 .head button {
-  color: #fff;
+  color: var(--mat-sys-on-surface);
 }
 
 .chat {

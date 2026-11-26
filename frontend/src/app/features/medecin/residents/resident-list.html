@@ -1,6 +1,6 @@
 <app-toolbar />
 
-<main class="page">
+<main class="work-page">
   <header class="page-header">
     <div>
       <h1>Résidents</h1>
@@ -43,13 +43,13 @@
   } @else if (residents().length === 0) {
     <p class="state">Aucun résident à afficher.</p>
   } @else {
-    <div class="resident-grid">
+    <div class="work-card-grid">
       @for (resident of filteredResidents(); track resident.id) {
-        <mat-card appearance="outlined" class="resident-card">
-          <mat-card-content>
-            <div class="resident-heading">
+        <mat-card appearance="outlined" class="work-card">
+          <mat-card-content class="work-card-content">
+            <div class="work-card-heading">
               <h2>{{ resident.firstName }} {{ resident.lastName }}</h2>
-              <span class="status" [class.inactive]="!resident.active">
+              <span class="work-status" [class.inactive]="!resident.active">
                 {{ resident.active ? 'Actif' : 'Inactif' }}
               </span>
             </div>

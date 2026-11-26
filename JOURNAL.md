@@ -5,6 +5,16 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — relève persistée et interface commune
+
+- Première priorité fonctionnelle : la relève conserve les observations et actions à poursuivre avec leur auteur et leur heure. Les actions ouvertes restent affichées aux relèves suivantes. La clôture enregistre le compte et l’heure et déplace l’action dans les 30 dernières clôtures visibles. Le résumé du service reste disponible séparément et les transmissions enregistrées ne font pas partie du contenu copié.
+- L’API de relève est réservée à PERSONNEL. Les règles des autres API restent en vigueur. Les entrées sont validées côté serveur, transmises via des requêtes paramétrées et affichées en texte. Un identifiant de demande par auteur empêche les doublons lors d’une nouvelle tentative. La clôture est atomique et une seconde clôture reçoit 409. Cette version offre un suivi partagé sans attribution individuelle préalable.
+- La liste médecin sert de référence visuelle. Connexion simplifiée, barre commune aux trois rôles, cartes pour les listes d’administration et surfaces harmonisées côté personnel. Filtres, tri, pagination et actions admin sont conservés. `/medecin` ouvre directement l’annuaire protégé du médecin.
+- Migration versionnée `handover.sql`, intégrée à l’initialisation et aux mises à jour Docker sans réinitialiser les données. Vérifications : 26 tests backend et 31 tests frontend, accès par rôle, entrées invalides, création répétée, clôture simultanée et parcours Chromium entre deux comptes. Navigation et cartes vérifiées sur ordinateur et mobile.
+- Suites fonctionnelles : définir qui prend en charge une action à la relève et comment elle change de titulaire, puis cadrer la vue cuisine et la revérification des plateaux. Préférences, absence et suivi nutritionnel restent à développer. Le circuit de la prescription et les droits IDE/aide-soignant/cuisine restent à valider avec l’équipe métier.
+
+---
+
 ## Relais Codex du 2026-11-26 — sécurité et opérations concurrentes
 
 - L’API `/api/residents/**` est réservée au médecin. L’administration et le personnel conservent leurs API dédiées et les autorisations existantes. Les routes non déclarées sont refusées par défaut. Les ports Docker de démonstration sont publiés sur la boucle locale. Le frontend sert une CSP qui bloque les scripts intégrés et les sources de script externes.
@@ -158,8 +168,8 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 - À surveiller : liste/tri/pagination se font côté client (volume EHPAD faible, assumé).
 
 ### 🩺 MÉDECIN (`medecin` / Demo1234!)
-1. **Connexion** → *Espace médecin*.
-2. Ouvrir **Consulter les résidents**, rechercher un nom ou un numéro de chambre, puis ouvrir une fiche.
+1. **Connexion** → annuaire **Résidents** de l’espace médecin.
+2. Rechercher un nom ou un numéro de chambre, puis ouvrir une fiche.
 3. Vérifier l’identité, la chambre et la section **Dossier médical**. Le jeu de démo actuel ne contient aucun dossier médical. L’interface affiche un message d’absence de dossier.
 4. Vérifier l’ajout, la modification et la suppression d’une allergie ou d’un régime avec des données fictives. L’ouverture de la fiche repas du même résident côté personnel doit afficher les consignes actualisées.
 5. Dans **QR Code**, vérifier le téléchargement et l’impression. Après renouvellement, vérifier côté personnel que le nouveau code identifie le résident et que l’ancien est refusé.
@@ -180,7 +190,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 5. **Doute d'identité** : « J'ai un doute sur l'identité » → signaler. Essayer de servir → **bloqué** tant que le doute n'est pas levé. Lever le doute (⚠️ un **autre** soignant doit le faire : le backend refuse la même personne).
 6. **« Je ne le connais pas »** : identification par code bracelet / scan QR / photo de pochette (OCR).
 7. Onglet **Médicaments** : tournée **Matin / Midi / Soir**, « Démarrer la tournée », donner une prise ; un **médicament à risque** demande une **confirmation**.
-8. **Résidents** (annuaire), **Relève** (passation d'équipe, résumé à copier), **Assistant** (ex. « qui reste à servir ? »).
+8. **Résidents** (annuaire), **Relève** (créer une transmission, la retrouver avec un autre compte personnel et terminer l’action), **Assistant** (ex. « qui reste à servir ? »).
 9. **Thème sombre** (bouton lune), **Déconnexion**.
 - À surveiller : le **scan QR** nécessite une caméra ; l'**OCR pochette** nécessite le service Flask externe (absent → message « indisponible », c'est normal).
 
@@ -194,7 +204,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 ## À venir
 - **Espace médecin** : ajouter des dossiers de démo fictifs via `database/`, puis cadrer l’écriture du dossier médical.
 - Discuter de `integration` avec l'équipe, puis **ouvrir la pull request vers `main`** (plus tard, pas maintenant).
-- Logique métier EHPAD restante (features) : GIR/AGGIR, entité Prescription, rôles IDE/aide-soignant, motif+date de sortie, alerte dénutrition, relève persistée.
+- Logique métier EHPAD restante (features) : GIR/AGGIR, entité Prescription, rôles IDE/aide-soignant, motif+date de sortie, alerte dénutrition, circuit du plateau et attribution des actions de relève.
 - Sécurité avant exposition : environnement dédié, HTTPS, secrets et comptes hors démonstration, paramètres du proxy et revue indépendante.
 
 ### Décision — base de données & déploiement

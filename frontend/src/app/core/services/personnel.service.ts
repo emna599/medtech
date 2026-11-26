@@ -7,6 +7,9 @@ import {
   AssistantReply,
   CompleteRequest,
   Doubt,
+  HandoverAction,
+  HandoverBoard,
+  HandoverRequest,
   MealLocation,
   PochetteScan,
   QuantityEaten,
@@ -20,6 +23,20 @@ import {
 export class PersonnelService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/api/personnel`;
+
+  private readonly handover = `${environment.apiUrl}/api/releve`;
+
+  loadHandover(): Observable<HandoverBoard> {
+    return this.http.get<HandoverBoard>(this.handover);
+  }
+
+  createHandover(request: HandoverRequest): Observable<HandoverAction> {
+    return this.http.post<HandoverAction>(this.handover, request);
+  }
+
+  completeHandover(id: number): Observable<HandoverAction> {
+    return this.http.post<HandoverAction>(`${this.handover}/${id}/complete`, {});
+  }
 
   listService(kind: ServiceKind): Observable<ServiceItem[]> {
     return this.http.get<ServiceItem[]>(`${this.base}/service`, { params: { kind } });
