@@ -93,6 +93,9 @@ export function slotLabel(slot: string): string {
   return SLOT_LABEL[slot] ?? slot;
 }
 
+export type ResidentIdentity = Pick<ResidentCard,
+  'id' | 'firstName' | 'lastName' | 'age' | 'room' | 'photoUrl' | 'distinguishingFeatures'>;
+
 export function fullName(resident: Pick<ResidentCard, 'firstName' | 'lastName'>): string {
   return `${resident.firstName} ${resident.lastName.toUpperCase()}`;
 }

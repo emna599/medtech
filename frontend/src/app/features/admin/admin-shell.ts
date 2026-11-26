@@ -1,10 +1,13 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { IdentifyDialog, IdentifyDialogData, IdentifyResult } from '../personnel/identify-dialog/identify-dialog';
 import { Toolbar } from '../../shared/components/toolbar/toolbar';
 
 @Component({
   selector: 'app-admin-shell',
-  imports: [Toolbar, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [Toolbar, MatButtonModule, RouterOutlet, RouterLink, RouterLinkActive],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-toolbar />
@@ -18,6 +21,7 @@ import { Toolbar } from '../../shared/components/toolbar/toolbar';
             ariaCurrentWhenActive="page"
           >{{ item.label }}</a>
         }
+        <button mat-stroked-button type="button" (click)="openIdentify()">Identifier un résident</button>
       </nav>
       <main><router-outlet /></main>
     </div>
@@ -46,6 +50,19 @@ import { Toolbar } from '../../shared/components/toolbar/toolbar';
   `,
 })
 export class AdminShell {
+  private readonly dialog = inject(MatDialog);
+  private readonly router = inject(Router);
+
+  protected openIdentify(): void {
+    this.dialog.open<IdentifyDialog, IdentifyDialogData, IdentifyResult>(IdentifyDialog, {
+      width: '560px',
+      maxWidth: '100vw',
+      data: { admin: true },
+    }).afterClosed().subscribe((result) => {
+      if (result) void this.router.navigate(['/admin/residents', result.residentId]);
+    });
+  }
+
   protected readonly items = [
     { label: 'Tableau de bord', path: '/admin', exact: true },
     { label: 'Résidents', path: '/admin/residents', exact: false },

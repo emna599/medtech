@@ -38,18 +38,21 @@ import { ResidentFormDialog } from './resident-form-dialog';
 
       <div class="grid">
         <mat-card appearance="outlined">
-          <mat-card-header><mat-card-title>Occupants de la chambre</mat-card-title></mat-card-header>
+          <mat-card-header><mat-card-title>Occupants de la chambre {{ r.roomNumber ?? '' }}</mat-card-title></mat-card-header>
           <mat-card-content>
             @if (r.roomId === null) {
               <p>Aucune chambre attribuée.</p>
               @if (r.active) {
                 <button mat-button type="button" (click)="edit(r)">Attribuer une chambre</button>
               }
+            } @else if (!r.active) {
+              <p>Dernière chambre attribuée pendant le séjour.</p>
             } @else if (roommates.error()) {
               <p role="alert">Impossible de charger les occupants.</p>
             } @else if (roommates.isLoading()) {
               <p role="status">Chargement des occupants…</p>
             } @else if (roommates.hasValue()) {
+              <p>{{ r.firstName }} {{ r.lastName }} · résident consulté</p>
               @for (mate of roommates.value(); track mate.id) {
                 <p><a class="link" [routerLink]="['/admin/residents', mate.id]">{{ mate.firstName }} {{ mate.lastName }}</a></p>
               } @empty {
@@ -110,7 +113,7 @@ export class ResidentDetailPage {
   protected readonly roommates = rxResource({
     params: () => {
       const resident = this.resident.hasValue() ? this.resident.value() : undefined;
-      return resident?.roomId != null ? { room: resident.roomId, exclude: resident.id } : undefined;
+      return resident?.active && resident.roomId != null ? { room: resident.roomId, exclude: resident.id } : undefined;
     },
     stream: ({ params }) => this.service.byRoom(params.room)
       .pipe(map(list => list.filter(resident => resident.id !== params.exclude))),

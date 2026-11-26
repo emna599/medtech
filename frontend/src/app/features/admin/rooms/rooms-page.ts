@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal, viewChild } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -12,6 +12,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { RouterLink } from '@angular/router';
+import { AdminResidentService } from '../residents/admin-resident.service';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { Room } from '../../../shared/models/room.model';
 import { apiErrorMessage } from '../../../shared/utils/api-error';
@@ -25,6 +27,7 @@ type Availability = 'all' | 'free' | 'full';
   selector: 'app-rooms-page',
   imports: [
     MatCardModule,
+    RouterLink,
     MatSortModule,
     MatPaginatorModule,
     MatButtonModule,
@@ -99,6 +102,28 @@ type Availability = 'all' | 'free' | 'full';
               </div>
               <p><strong>Étage</strong> · {{ r.floor }}</p>
               <p><strong>Lits occupés</strong> · {{ r.occupied }} / {{ r.capacity }}</p>
+              <button mat-button type="button" [attr.aria-expanded]="selectedRoomId() === r.id"
+                (click)="selectedRoomId.set(selectedRoomId() === r.id ? undefined : r.id)">
+                {{ selectedRoomId() === r.id ? 'Masquer les occupants' : 'Voir les occupants' }}
+              </button>
+              @if (selectedRoomId() === r.id) {
+                @if (occupants.isLoading()) {
+                  <p role="status">Chargement des occupants…</p>
+                } @else if (occupants.error()) {
+                  <p role="alert">Impossible de charger les occupants.</p>
+                  <button mat-button type="button" (click)="occupants.reload()">Réessayer</button>
+                } @else if (occupants.hasValue()) {
+                  @if (occupants.value().length) {
+                    <ul aria-label="Occupants actifs">
+                      @for (resident of occupants.value(); track resident.id) {
+                        <li><a [routerLink]="['/admin/residents', resident.id]">{{ resident.firstName }} {{ resident.lastName }}</a></li>
+                      }
+                    </ul>
+                  } @else {
+                    <p>Aucun occupant actif.</p>
+                  }
+                }
+              }
             </mat-card-content>
             <mat-card-actions align="end">
               <button mat-button type="button" [attr.aria-label]="'Modifier la chambre ' + r.number" (click)="openForm(r)">Modifier</button>
@@ -118,6 +143,7 @@ type Availability = 'all' | 'free' | 'full';
 })
 export class RoomsPage {
   private readonly service = inject(AdminRoomService);
+  private readonly residents = inject(AdminResidentService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -129,6 +155,11 @@ export class RoomsPage {
   protected readonly availability = signal<Availability>('all');
   protected readonly loading = signal(false);
   protected readonly error = signal('');
+  protected readonly selectedRoomId = signal<number | undefined>(undefined);
+  protected readonly occupants = rxResource({
+    params: this.selectedRoomId,
+    stream: ({ params }) => this.residents.byRoom(params),
+  });
 
   protected readonly floors = computed(() =>
     [...new Set(this.rooms().map((r) => r.floor))].sort((a, b) => a - b),
@@ -193,6 +224,7 @@ export class RoomsPage {
         }
         this.service.delete(room.id).subscribe({
           next: () => {
+            if (this.selectedRoomId() === room.id) this.selectedRoomId.set(undefined);
             this.snackBar.open('Chambre supprimée', 'OK', { duration: 3000 });
             this.load();
           },

@@ -1,6 +1,7 @@
 package com.esigelec.ehpad_backend.service;
 
 import com.esigelec.ehpad_backend.dto.ResidentCardDto;
+import com.esigelec.ehpad_backend.dto.ResidentIdentityDto;
 import com.esigelec.ehpad_backend.entity.MealLocation;
 import com.esigelec.ehpad_backend.entity.Resident;
 import com.esigelec.ehpad_backend.entity.User;
@@ -11,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Locale;
 
 @Service
@@ -54,7 +57,7 @@ public class ResidentService {
      * anonyme d'un bracelet ou d'un badge (facultatif). Le QR peut contenir le jeton seul ou une adresse qui le contient.
      */
     @Transactional
-    public ResidentCardDto identifyByCode(String code, String username) {
+    public ResidentIdentityDto identifyByCode(String code, String username) {
         User user = currentUserService.require(username);
         String token = extractToken(code);
 
@@ -68,7 +71,10 @@ public class ResidentService {
             action = "IDENTIFICATION_CODE";
         }
         auditService.record(user, action, "Resident", resident.getId());
-        return assembler.assemble(List.of(resident)).get(resident.getId());
+        String room = resident.getRoom() == null ? null : resident.getRoom().getNumber();
+        int age = Period.between(resident.getBirthDate(), LocalDate.now()).getYears();
+        return new ResidentIdentityDto(resident.getId(), resident.getFirstName(), resident.getLastName(),
+                age, room, resident.getPhotoUrl(), resident.getDistinguishingFeatures());
     }
 
     /** Extrait le jeton : « abc », « https://site/qr/abc », « https://site/r?token=abc » donnent tous « abc ». */

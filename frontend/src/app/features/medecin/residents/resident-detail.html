@@ -370,8 +370,8 @@
     <section class="management-section qr-section" aria-labelledby="qr-code-title">
       <header class="section-header">
         <div>
-          <h2 id="qr-code-title">QR Code</h2>
-          <p>Code d’identification à scanner depuis l’espace personnel.</p>
+          <h2 id="qr-code-title">Bracelet d’identification</h2>
+          <p>L’administration et les aides-soignants utilisent ce code pour vérifier l’identité du résident.</p>
         </div>
         <button
           mat-flat-button
@@ -395,57 +395,49 @@
           <button mat-flat-button type="button" (click)="qrCodes.reload()">Réessayer</button>
         </section>
       } @else if (activeQrCode(); as currentQrCode) {
-        @if (qrImageDataUrl(); as imageUrl) {
-          <div class="qr-layout">
-            <mat-card appearance="outlined" class="qr-image-card">
-              <mat-card-content>
-                <img
-                  class="qr-image"
-                  [src]="imageUrl"
-                  [alt]="'Code QR actif de ' + currentResident.firstName + ' ' + currentResident.lastName"
-                />
-              </mat-card-content>
-            </mat-card>
-            <div class="qr-details">
-              <span class="work-status">Actif</span>
-              <p>
-                <strong>Créé le :</strong>
-                {{ currentQrCode.createdAt | date: 'dd/MM/yyyy HH:mm' }}
-              </p>
-              @if (currentQrCode.deactivatedAt) {
-                <p>
-                  <strong>Désactivé le :</strong>
-                  {{ currentQrCode.deactivatedAt | date: 'dd/MM/yyyy HH:mm' }}
-                </p>
-              }
-              <div class="qr-actions">
-                <button mat-stroked-button type="button" (click)="downloadQrCode()">
-                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">download</mat-icon>
-                  Télécharger
-                </button>
-                <button mat-stroked-button type="button" (click)="printQrCode()">
-                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">print</mat-icon>
-                  Imprimer
-                </button>
-                <button
-                  mat-button
-                  type="button"
-                  [disabled]="qrCodeSaving()"
-                  (click)="deactivateQrCode()"
-                >
-                  Désactiver
-                </button>
+        <div class="qr-details">
+          <span class="work-status">Actif</span>
+          <p>Créé le {{ currentQrCode.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+          <div class="qr-actions">
+            <button mat-stroked-button type="button" [disabled]="qrCodeSaving()"
+              [attr.aria-expanded]="visibleQrCodeId() === currentQrCode.id"
+              (click)="visibleQrCodeId.set(visibleQrCodeId() === currentQrCode.id ? null : currentQrCode.id)">
+              {{ visibleQrCodeId() === currentQrCode.id ? 'Masquer le QR code' : 'Afficher le QR code' }}
+            </button>
+            <button mat-button type="button" [disabled]="qrCodeSaving()" (click)="deactivateQrCode()">
+              Désactiver
+            </button>
+          </div>
+        </div>
+        @if (visibleQrCodeId() === currentQrCode.id) {
+          @if (qrImageDataUrl(); as imageUrl) {
+            <div class="qr-layout">
+              <mat-card appearance="outlined" class="qr-image-card">
+                <mat-card-content>
+                  <img class="qr-image" [src]="imageUrl" alt="Code QR du bracelet" />
+                </mat-card-content>
+              </mat-card>
+              <div class="qr-details">
+                <p>Imprimez le code pour le bracelet. En cas de perte, renouvelez-le.</p>
+                <div class="qr-actions">
+                  <button mat-stroked-button type="button" (click)="downloadQrCode()">
+                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">download</mat-icon>
+                    Télécharger
+                  </button>
+                  <button mat-stroked-button type="button" (click)="printQrCode()">
+                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">print</mat-icon>
+                    Imprimer
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-
-          <section class="qr-print-card" aria-hidden="true">
-            <h1>MedTech EHPAD</h1>
-            <img class="qr-print-image" [src]="imageUrl" alt="" />
-          </section>
-        } @else {
-          <p role="status">Ce code ne peut pas être affiché. Renouvelez-le ou désactivez-le.</p>
-          <button mat-button type="button" [disabled]="qrCodeSaving()" (click)="deactivateQrCode()">Désactiver</button>
+            <section class="qr-print-card" aria-hidden="true">
+              <h1>MedTech EHPAD</h1>
+              <img class="qr-print-image" [src]="imageUrl" alt="" />
+            </section>
+          } @else {
+            <p role="status">Ce code ne peut pas être affiché. Renouvelez-le ou désactivez-le.</p>
+          }
         }
       } @else {
         <p class="empty-state">Aucun code QR actif pour ce résident.</p>

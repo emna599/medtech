@@ -5,6 +5,15 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — bracelet et occupants des chambres
+
+- Ajouté l’identification dans l’espace admin. Les rôles ADMIN et PERSONNEL (aides-soignants dans la démo) utilisent le même service de lecture. La réponse QR est limitée aux éléments d’identité. Le médecin garde les commandes du bracelet et doit afficher le QR avant impression ou téléchargement.
+- Après identification, l’utilisateur vérifie l’identité et confirme l’ouverture de la fiche correspondant à son espace. En cas de doute, le résultat est écarté et l’écran invite à contacter un collègue. Ce refus concerne le rapprochement proposé et ne consigne pas de doute sur le dossier d’une personne dont l’identité est incertaine.
+- Les cartes de chambres affichent sur demande les occupants actifs avec accès à leurs fiches. La fiche admin rappelle le numéro de chambre et distingue les occupants actuels d’une ancienne affectation. Le formulaire admin possède déjà le statut « Résident actif ». Le motif et la date de sortie restent à cadrer.
+- Comparé les réponses API anonyme, médecin, admin et personnel. Vérifié dans Chromium le doute, la confirmation, les liens vers les fiches, et l’affichage volontaire du code. Lecture par saisie du code vérifiée, caméra physique non testée.
+
+---
+
 ## Relais Codex du 2026-11-26 — saisie libre explicite
 
 - Ajouté « Autre — saisir une valeur » aux suggestions d’allergie, gravité, régime et texture. Le choix libère le champ pour saisir une valeur. Chromium confirme sur le site local que seules les valeurs saisies sont envoyées dans les requêtes des deux formulaires.

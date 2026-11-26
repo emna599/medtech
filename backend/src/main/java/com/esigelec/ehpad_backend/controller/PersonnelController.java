@@ -11,6 +11,7 @@ import com.esigelec.ehpad_backend.dto.LocationRequest;
 import com.esigelec.ehpad_backend.dto.QuantityRequest;
 import com.esigelec.ehpad_backend.dto.PochetteScanDto;
 import com.esigelec.ehpad_backend.dto.ResidentCardDto;
+import com.esigelec.ehpad_backend.dto.ResidentIdentityDto;
 import com.esigelec.ehpad_backend.dto.ServiceItemDto;
 import com.esigelec.ehpad_backend.dto.ServiceKind;
 import com.esigelec.ehpad_backend.service.AppetiteService;
@@ -92,7 +93,7 @@ public class PersonnelController {
 
     /** Identification par le code anonyme d'un bracelet ou d'un badge (facultatif). */
     @PostMapping("/identify")
-    public ResidentCardDto identify(@Valid @RequestBody IdentifyRequest request, Authentication authentication) {
+    public ResidentIdentityDto identify(@Valid @RequestBody IdentifyRequest request, Authentication authentication) {
         return residentService.identifyByCode(request.code(), authentication.getName());
     }
 

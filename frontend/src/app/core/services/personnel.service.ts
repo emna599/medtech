@@ -15,6 +15,7 @@ import {
   PochetteScan,
   QuantityEaten,
   ResidentCard,
+  ResidentIdentity,
   ServiceItem,
   ServiceKind,
 } from '../../shared/models/personnel.model';
@@ -75,8 +76,8 @@ export class PersonnelService {
     });
   }
 
-  identify(code: string): Observable<ResidentCard> {
-    return this.http.post<ResidentCard>(`${this.base}/identify`, { code });
+  identify(code: string): Observable<ResidentIdentity> {
+    return this.http.post<ResidentIdentity>(`${this.base}/identify`, { code });
   }
 
   listResidents(): Observable<ResidentCard[]> {

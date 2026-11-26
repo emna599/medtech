@@ -1,6 +1,6 @@
 <div class="dialog">
   <header class="head">
-    <h2 class="title">Je ne le connais pas</h2>
+    <h2 class="title">Identifier un résident</h2>
     <button mat-icon-button type="button" aria-label="Fermer" (click)="close()">
       <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
     </button>
@@ -24,25 +24,21 @@
       @if (resident.distinguishingFeatures) {
         <p class="sub">{{ resident.distinguishingFeatures }}</p>
       }
-      @if (resident.allergies.length > 0) {
-        <p class="allergy" role="alert">
-          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
-          ALLERGIE :
-          @for (allergy of resident.allergies; track allergy.name; let last = $last) {
-            {{ allergy.name }}@if (!last) {, }
-          }
-        </p>
-      }
-
-      <p class="ask">Comparez le visage de la personne à cette photo.</p>
+      <p class="ask">
+        @if (resident.photoUrl) {
+          Comparez le visage de la personne à la photo.
+        } @else {
+          Vérifiez l’identité avec le résident ou un collègue. La chambre seule ne suffit pas.
+        }
+      </p>
       <div class="buttons">
         <button mat-flat-button type="button" class="yes" (click)="confirm()">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon>
-          C'est bien cette personne
+          {{ admin ? 'Confirmer et ouvrir la fiche administrative' : 'Confirmer et ouvrir la fiche' }}
         </button>
         <button mat-stroked-button type="button" class="no" (click)="reject()">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">cancel</mat-icon>
-          Ce n'est pas elle
+          J’ai un doute
         </button>
       </div>
     </section>
@@ -51,7 +47,7 @@
       @if (rejected()) {
         <p class="stop" role="alert">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">front_hand</mat-icon>
-          Ne donnez rien. Demandez à un collègue ou à l'infirmier référent qui est cette personne.
+          {{ admin ? 'Demandez à un soignant de vérifier l’identité du résident.' : 'Suspendez le service et demandez à un collègue de vérifier l’identité du résident.' }}
         </p>
       }
 
@@ -63,11 +59,11 @@
         }
         <input #qrfile type="file" accept="image/*" capture="environment" hidden (change)="qrPhoto($event)" />
         <div class="row">
-          <button mat-stroked-button type="button" (click)="qrfile.click()">
+          <button mat-stroked-button type="button" [disabled]="busy()" (click)="qrfile.click()">
             <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">photo_camera</mat-icon>
             Photo du QR code
           </button>
-          <button mat-button type="button" (click)="stopScan()">Annuler</button>
+          <button mat-button type="button" (click)="stopScan()" [disabled]="busy()">Annuler</button>
         </div>
       } @else {
         <p class="help">
@@ -103,11 +99,11 @@
         [disabled]="busy() || !code().trim()"
         (click)="identify()"
       >
-        Afficher la fiche
+        Rechercher le résident
       </button>
       }
 
-      @if (!scanning()) {
+      @if (!scanning() && !admin) {
       <p class="or">ou</p>
       <input #photo type="file" accept="image/*" capture="environment" hidden (change)="scanPochette($event)" />
       <button mat-stroked-button type="button" class="pochette" [disabled]="busy()" (click)="photo.click()">
@@ -117,7 +113,7 @@
       }
 
       <p class="hint">
-        Ni bracelet ni pochette ? Demandez à un collègue. Dans tous les cas, comparez toujours le visage à la photo.
+        En cas de doute, demandez à un collègue de vérifier l’identité du résident.
       </p>
     </section>
   }

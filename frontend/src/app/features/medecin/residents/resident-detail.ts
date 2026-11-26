@@ -146,6 +146,7 @@ export class ResidentDetailPage {
       null,
     ),
   );
+  protected readonly visibleQrCodeId = signal<number | null>(null);
   protected readonly qrImageDataUrl = computed(() => {
     const qrCode = this.activeQrCode();
     if (!qrCode?.token) return null;
@@ -276,6 +277,7 @@ export class ResidentDetailPage {
       return;
     }
 
+    this.visibleQrCodeId.set(null);
     this.qrCodeSaving.set(true);
     this.residentService.generateQrCode(residentId, currentQrCode?.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
@@ -307,6 +309,7 @@ export class ResidentDetailPage {
       return;
     }
 
+    this.visibleQrCodeId.set(null);
     this.qrCodeSaving.set(true);
     this.residentService.deactivateQrCode(residentId, currentQrCode.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
@@ -337,7 +340,7 @@ export class ResidentDetailPage {
   }
 
   protected printQrCode(): void {
-    if (this.activeQrCode()) {
+    if (this.visibleQrCodeId() === this.activeQrCode()?.id && this.qrImageDataUrl()) {
       window.print();
     }
   }

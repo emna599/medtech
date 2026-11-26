@@ -1,14 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
-import { fullName, ResidentCard } from '../../../shared/models/personnel.model';
+import { fullName, ResidentIdentity } from '../../../shared/models/personnel.model';
 import { decodeQrFromFile, QrReader } from '../components/qr-reader';
 import { ResidentAvatar } from '../components/resident-avatar';
+
+export interface IdentifyDialogData {
+  admin: boolean;
+}
 
 export interface IdentifyResult {
   residentId: number;
@@ -29,10 +33,12 @@ export class IdentifyDialog {
   private readonly api = inject(PersonnelService);
   private readonly ref = inject<MatDialogRef<IdentifyDialog, IdentifyResult>>(MatDialogRef);
 
+  protected readonly admin = inject<IdentifyDialogData>(MAT_DIALOG_DATA, { optional: true })?.admin ?? false;
+
   protected readonly code = signal('');
   protected readonly busy = signal(false);
   protected readonly error = signal<string | null>(null);
-  protected readonly found = signal<ResidentCard | null>(null);
+  protected readonly found = signal<ResidentIdentity | null>(null);
   protected readonly rejected = signal(false);
   /** Caméra de lecture du QR code ouverte. */
   protected readonly scanning = signal(false);
@@ -76,6 +82,7 @@ export class IdentifyDialog {
   }
 
   protected onQr(text: string): void {
+    if (this.busy()) return;
     this.scanning.set(false);
     this.code.set(text);
     this.identify();
@@ -95,8 +102,10 @@ export class IdentifyDialog {
     }
     this.error.set(null);
     this.rejected.set(false);
+    this.busy.set(true);
     decodeQrFromFile(file).then(
       (text) => {
+        this.busy.set(false);
         if (text) {
           this.scanning.set(false);
           this.code.set(text);
@@ -105,7 +114,10 @@ export class IdentifyDialog {
           this.error.set('Aucun QR code lisible sur cette photo. Rapprochez-vous et réessayez.');
         }
       },
-      () => this.error.set("Cette image n'a pas pu être lue."),
+      () => {
+        this.busy.set(false);
+        this.error.set("Cette image n'a pas pu être lue.");
+      },
     );
   }
 
