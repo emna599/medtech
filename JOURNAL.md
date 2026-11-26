@@ -152,3 +152,24 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 - Discuter de `integration` avec l'équipe, puis **ouvrir la pull request vers `main`** (plus tard, pas maintenant).
 - Logique métier EHPAD restante (features) : GIR/AGGIR, entité Prescription, rôles IDE/aide-soignant, motif+date de sortie, alerte dénutrition, relève persistée.
 - Sécurité : rate-limit sur le login, stratégie de révocation JWT, CSP.
+
+---
+
+## Base de données : la même pour toute l'équipe
+La base est **définie par le code** (scripts de `database/`), pas créée à la main. Deux façons de garantir que tout le monde a la même :
+
+- **Chacun sa base locale, identique (recommandé)** : avec `docker compose up`, les scripts SQL sont chargés automatiquement → base identique pour tous. Pour repartir d'une base neuve et identique : `docker compose down -v && docker compose up`.
+  - **Règle d'or** : ne jamais modifier la base à la main ; toute évolution passe par un `.sql` committé dans `database/`. (Amélioration possible plus tard : migrations **Flyway** au lieu du `DROP ... CREATE`.)
+- **Une seule base partagée dans le cloud (si on veut des données communes en direct)** : héberger Postgres (Neon / Supabase / Railway, offres gratuites) et pointer tous les `.env` vers la **même** `DB_URL`. Avantage : données réellement communes et en temps réel ; inconvénient : il faut gérer le secret de connexion (hors Git) et une écriture d'une personne affecte tout le monde. Non nécessaire pour le développement.
+
+## Continuer avec plusieurs modèles (Codex, Claude…) et se relayer
+Il n'y a pas de mémoire commune entre outils IA : **le dépôt Git est la mémoire partagée.** Pour que chaque modèle (et chaque coéquipier·ère) reparte avec **tout le contexte à jour**, on a ajouté :
+- **`AGENTS.md`** (lu automatiquement par **Codex**) et **`CLAUDE.md`** (lu par Claude Code) : vue d'ensemble, lancement, règles de branches, règle « base identique », et le **protocole de relais**.
+- **`JOURNAL.md`** : le journal vivant (ce fichier).
+
+**Protocole à chaque session, quel que soit le modèle ou la personne :**
+1. `git pull` sur `integration`, puis lire `AGENTS.md` + `JOURNAL.md`.
+2. Travailler sur `integration`.
+3. **Mettre à jour `JOURNAL.md`**, puis `git commit` + `git push`.
+
+C'est ça, le « temps réel » : non pas une mémoire partagée entre IA, mais une **synchronisation Git disciplinée** (pull au début, push + journal à jour à la fin).
