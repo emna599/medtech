@@ -19,12 +19,12 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
-public class ResidentService {
+public class AdminResidentService {
 
     private final ResidentRepository residentRepository;
     private final RoomRepository roomRepository;
 
-    public ResidentService(ResidentRepository residentRepository, RoomRepository roomRepository) {
+    public AdminResidentService(ResidentRepository residentRepository, RoomRepository roomRepository) {
         this.residentRepository = residentRepository;
         this.roomRepository = roomRepository;
     }

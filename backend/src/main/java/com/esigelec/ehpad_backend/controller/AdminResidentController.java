@@ -2,7 +2,7 @@ package com.esigelec.ehpad_backend.controller;
 
 import com.esigelec.ehpad_backend.dto.ResidentDto;
 import com.esigelec.ehpad_backend.dto.ResidentRequest;
-import com.esigelec.ehpad_backend.service.ResidentService;
+import com.esigelec.ehpad_backend.service.AdminResidentService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,9 +22,9 @@ import java.util.List;
 @RequestMapping("/api/admin/residents")
 public class AdminResidentController {
 
-    private final ResidentService service;
+    private final AdminResidentService service;
 
-    public AdminResidentController(ResidentService service) {
+    public AdminResidentController(AdminResidentService service) {
         this.service = service;
     }
 

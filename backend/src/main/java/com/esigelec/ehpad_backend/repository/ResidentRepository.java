@@ -17,4 +17,8 @@ public interface ResidentRepository extends JpaRepository<Resident, Long> {
     /** Lignes [id de chambre, nombre de résidents actifs]. */
     @Query("select r.room.id, count(r) from Resident r where r.active = true and r.room is not null group by r.room.id")
     List<Object[]> countActiveByRoom();
+
+    /** Recherche par nom ou prénom (utilisée côté médecin). */
+    List<Resident> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+            String firstName, String lastName);
 }
