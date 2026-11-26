@@ -12,8 +12,8 @@ public record RoomRequest(
         String number,
 
         @NotNull(message = "L'étage est obligatoire")
-        @Min(value = -5, message = "Étage invalide")
-        @Max(value = 50, message = "Étage invalide")
+        @Min(value = 0, message = "Étage invalide")
+        @Max(value = 20, message = "Étage invalide")
         Integer floor,
 
         @NotNull(message = "La capacité est obligatoire")

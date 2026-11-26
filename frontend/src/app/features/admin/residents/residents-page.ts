@@ -83,7 +83,13 @@ import { ResidentFormDialog } from './resident-form-dialog';
           </ng-container>
           <ng-container matColumnDef="room">
             <th mat-header-cell mat-sort-header *matHeaderCellDef>Chambre</th>
-            <td mat-cell *matCellDef="let r">{{ roomLabel(r) }}</td>
+            <td mat-cell *matCellDef="let r">
+              @if (noRoom(r)) {
+                <span class="badge off">Sans chambre</span>
+              } @else {
+                {{ roomLabel(r) }}
+              }
+            </td>
           </ng-container>
           <ng-container matColumnDef="admission">
             <th mat-header-cell mat-sort-header *matHeaderCellDef>Admission</th>
@@ -110,7 +116,7 @@ import { ResidentFormDialog } from './resident-form-dialog';
             </td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="columns"></tr>
-          <tr mat-row class="clickable" *matRowDef="let row; columns: columns" (click)="open(row)"></tr>
+          <tr mat-row class="clickable" [class.no-room]="noRoom(row)" *matRowDef="let row; columns: columns" (click)="open(row)"></tr>
         </table>
       </div>
       @if (!loading() && dataSource.data.length === 0) {
@@ -189,6 +195,11 @@ export class ResidentsPage {
 
   protected age(resident: Resident): number {
     return ageFrom(resident.birthDate);
+  }
+
+  /** Résident actif sans chambre : à mettre en évidence. */
+  protected noRoom(resident: Resident): boolean {
+    return resident.active && resident.roomId === null;
   }
 
   protected roomLabel(resident: Resident): string {

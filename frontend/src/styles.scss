@@ -10,8 +10,8 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        primary: mat.$cyan-palette,
+        tertiary: mat.$rose-palette,
       ),
       typography: Roboto,
       density: 0,
@@ -40,7 +40,44 @@ body {
 
 // ---- Styles communs aux pages d'administration ----
 body {
-  background-color: var(--mat-sys-surface-container-low);
+  background: linear-gradient(160deg, var(--mat-sys-surface-container-low) 0%, var(--mat-sys-surface-container) 100%) fixed;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page > :not(router-outlet) {
+  animation: rise 0.45s ease-out both;
+}
+
+.panel,
+.mat-mdc-card {
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.kpis .mat-mdc-card,
+.panels .mat-mdc-card,
+.grid .mat-mdc-card {
+  animation: rise 0.5s ease-out both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgb(0 0 0 / 10%);
+  }
+}
+
+.mat-mdc-row {
+  transition: background-color 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 .page-head {
@@ -141,5 +178,19 @@ tr.clickable {
 
   &:hover {
     text-decoration: underline;
+  }
+}
+
+// Résident actif sans chambre : ligne en rouge
+tr.no-room {
+  background: color-mix(in srgb, var(--mat-sys-error-container) 55%, transparent);
+
+  td:first-child {
+    box-shadow: inset 4px 0 0 var(--mat-sys-error);
+    font-weight: 500;
+  }
+
+  &:hover {
+    background: var(--mat-sys-error-container);
   }
 }

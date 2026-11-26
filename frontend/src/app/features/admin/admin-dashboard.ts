@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterLink } from '@angular/router';
+import { CountUp } from '../../shared/directives/count-up';
 import { ALL_ROLES } from '../../shared/models/user.model';
 import { ROLE_LABEL } from '../../shared/models/auth.model';
 import { DashboardStats } from '../../shared/models/dashboard.model';
@@ -12,7 +13,7 @@ import { AdminDashboardService } from './admin-dashboard.service';
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [DatePipe, MatCardModule, MatIconModule, MatProgressBarModule, RouterLink],
+  imports: [CountUp, DatePipe, MatCardModule, MatIconModule, MatProgressBarModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="page-head">
@@ -39,34 +40,34 @@ import { AdminDashboardService } from './admin-dashboard.service';
         }
 
         <section class="kpis">
-          <mat-card appearance="outlined">
+          <mat-card appearance="outlined" style="--i: 0">
             <mat-card-content>
               <span class="ico"><mat-icon fontSet="material-symbols-outlined">elderly</mat-icon></span>
-              <div class="value">{{ s.activeResidents }}</div>
+              <div class="value"><span [appCountUp]="s.activeResidents"></span></div>
               <div class="label">Résidents actifs</div>
               <div class="sub">{{ s.inactiveResidents }} inactif(s)</div>
             </mat-card-content>
           </mat-card>
-          <mat-card appearance="outlined">
+          <mat-card appearance="outlined" style="--i: 1">
             <mat-card-content>
               <span class="ico"><mat-icon fontSet="material-symbols-outlined">bed</mat-icon></span>
-              <div class="value">{{ s.occupiedBeds }} / {{ s.totalBeds }}</div>
+              <div class="value"><span [appCountUp]="s.occupiedBeds"></span> / {{ s.totalBeds }}</div>
               <div class="label">Lits occupés</div>
               <div class="sub">{{ s.freeBeds }} libre(s) · {{ s.totalRooms }} chambres</div>
             </mat-card-content>
           </mat-card>
-          <mat-card appearance="outlined">
+          <mat-card appearance="outlined" style="--i: 2">
             <mat-card-content>
               <span class="ico"><mat-icon fontSet="material-symbols-outlined">monitoring</mat-icon></span>
-              <div class="value">{{ s.occupancyRate }} %</div>
+              <div class="value"><span [appCountUp]="s.occupancyRate"></span> %</div>
               <div class="label">Taux d'occupation</div>
               <mat-progress-bar mode="determinate" [value]="s.occupancyRate" />
             </mat-card-content>
           </mat-card>
-          <mat-card appearance="outlined">
+          <mat-card appearance="outlined" style="--i: 3">
             <mat-card-content>
               <span class="ico"><mat-icon fontSet="material-symbols-outlined">manage_accounts</mat-icon></span>
-              <div class="value">{{ s.enabledUsers }}</div>
+              <div class="value"><span [appCountUp]="s.enabledUsers"></span></div>
               <div class="label">Comptes actifs</div>
               <div class="sub">{{ s.disabledUsers }} désactivé(s)</div>
             </mat-card-content>
@@ -74,7 +75,7 @@ import { AdminDashboardService } from './admin-dashboard.service';
         </section>
 
         <section class="panels">
-          <mat-card appearance="outlined">
+          <mat-card appearance="outlined" style="--i: 4">
             <mat-card-header><mat-card-title>Occupation par étage</mat-card-title></mat-card-header>
             <mat-card-content>
               @for (f of s.floors; track f.floor) {
@@ -89,7 +90,7 @@ import { AdminDashboardService } from './admin-dashboard.service';
             </mat-card-content>
           </mat-card>
 
-          <mat-card appearance="outlined">
+          <mat-card appearance="outlined" style="--i: 5">
             <mat-card-header><mat-card-title>Comptes par rôle</mat-card-title></mat-card-header>
             <mat-card-content>
               @for (r of roles(); track r.label) {
@@ -98,7 +99,7 @@ import { AdminDashboardService } from './admin-dashboard.service';
             </mat-card-content>
           </mat-card>
 
-          <mat-card appearance="outlined" class="wide">
+          <mat-card appearance="outlined" style="--i: 6" class="wide">
             <mat-card-header><mat-card-title>Dernières admissions</mat-card-title></mat-card-header>
             <mat-card-content>
               @for (r of s.recentAdmissions; track r.id) {
@@ -128,7 +129,7 @@ import { AdminDashboardService } from './admin-dashboard.service';
     .panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
     .wide { grid-column: 1 / -1; }
     .floor { display: flex; justify-content: space-between; margin: 12px 0 4px; }
-    .notice { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 12px; background: var(--mat-sys-tertiary-container); color: var(--mat-sys-on-tertiary-container); margin: 0; }
+    .notice { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 12px; background: var(--mat-sys-error-container); color: var(--mat-sys-on-error-container); margin: 0; }
     .notice .link { margin-left: auto; color: inherit; font-weight: 500; }
   `,
 })

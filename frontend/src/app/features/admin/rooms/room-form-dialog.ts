@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,7 +19,8 @@ import { AdminRoomService } from './admin-room.service';
         <mat-form-field appearance="outline">
           <mat-label>Numéro</mat-label>
           <input matInput formControlName="number" autocomplete="off" />
-          @if (form.controls.number.invalid) {
+          <mat-hint>Étage suivi de 2 chiffres : étage 2 → 201 à 299</mat-hint>
+          @if (form.controls.number.hasError('required')) {
             <mat-error>Le numéro est obligatoire</mat-error>
           }
         </mat-form-field>
@@ -27,7 +28,7 @@ import { AdminRoomService } from './admin-room.service';
           <mat-label>Étage</mat-label>
           <input matInput type="number" formControlName="floor" />
           @if (form.controls.floor.invalid) {
-            <mat-error>Étage entre -5 et 50</mat-error>
+            <mat-error>Étage entre 0 et 20</mat-error>
           }
         </mat-form-field>
         <mat-form-field appearance="outline">
@@ -37,6 +38,9 @@ import { AdminRoomService } from './admin-room.service';
             <mat-error>Capacité entre 1 et 20</mat-error>
           }
         </mat-form-field>
+        @if (form.hasError('numberFormat') && form.controls.number.touched) {
+          <p class="error" role="alert">Le numéro doit commencer par l'étage suivi de 2 chiffres (ex. étage 2 : 201).</p>
+        }
         @if (error()) {
           <p class="error" role="alert">{{ error() }}</p>
         }
@@ -67,11 +71,24 @@ export class RoomFormDialog {
 
   protected readonly saving = signal(false);
   protected readonly error = signal('');
-  protected readonly form = inject(FormBuilder).nonNullable.group({
-    number: [this.room?.number ?? '', [Validators.required, Validators.maxLength(20)]],
-    floor: [this.room?.floor ?? 1, [Validators.required, Validators.min(-5), Validators.max(50)]],
-    capacity: [this.room?.capacity ?? 1, [Validators.required, Validators.min(1), Validators.max(20)]],
-  });
+  protected readonly form = inject(FormBuilder).nonNullable.group(
+    {
+      number: [this.room?.number ?? '', [Validators.required, Validators.maxLength(20)]],
+      floor: [this.room?.floor ?? 1, [Validators.required, Validators.min(0), Validators.max(20)]],
+      capacity: [this.room?.capacity ?? 1, [Validators.required, Validators.min(1), Validators.max(20)]],
+    },
+    { validators: [RoomFormDialog.numberMatchesFloor] },
+  );
+
+  /** Numéro = étage + 2 chiffres (01 à 99). */
+  private static numberMatchesFloor(group: AbstractControl): ValidationErrors | null {
+    const number = String(group.get('number')?.value ?? '').trim();
+    const floor = group.get('floor')?.value;
+    if (!number || floor === null || floor === '') {
+      return null;
+    }
+    return new RegExp(`^${Number(floor)}(0[1-9]|[1-9][0-9])$`).test(number) ? null : { numberFormat: true };
+  }
 
   protected submit(): void {
     if (this.form.invalid) {

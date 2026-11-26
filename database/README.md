@@ -6,27 +6,49 @@ Base **PostgreSQL** nommée `medtech`. Le backend la valide au démarrage (`ddl-
 
 | Fichier | Contenu |
 |---|---|
+| `setup.ps1` | Script tout-en-un : crée la base et exécute les trois scripts ci-dessous |
+| `setup.sql` | Enchaîne schéma, comptes de démo et données de démo |
 | `medtech_schema.sql` | Création de toutes les tables et des index |
 | `seed_users.sql` | 3 comptes de démonstration (admin, personnel, médecin) |
 | `seed_demo.sql` | 6 chambres et 8 résidents fictifs pour tester |
 
-## Mise en place
+## Mise en place (identique pour toute l'équipe)
 
-1. Crée la base :
-   ```
-   & "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -c "CREATE DATABASE medtech;"
-   ```
-2. Exécute les scripts dans cet ordre, depuis pgAdmin (Query Tool sur la base `medtech`) ou avec psql :
-   ```
-   & "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d medtech -f database\medtech_schema.sql
-   & "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d medtech -f database\seed_users.sql
-   & "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d medtech -f database\seed_demo.sql
-   ```
-3. Reporte l'URL et le mot de passe dans le fichier `.env` (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`).
+Pour que tout le monde ait **la même base et les mêmes données**, chacun utilise le même script. En PowerShell, depuis la racine du dépôt :
+
+```
+.\database\setup.ps1
+```
+
+Le script :
+1. cherche `psql` tout seul ;
+2. crée la base `medtech` si elle n'existe pas ;
+3. exécute `medtech_schema.sql`, `seed_users.sql` puis `seed_demo.sql` (via `setup.sql`).
+
+Il demande le mot de passe PostgreSQL (jamais écrit dans un fichier) et une confirmation avant d'effacer les tables.
+
+Si PowerShell refuse d'exécuter le script : `Set-ExecutionPolicy -Scope Process Bypass`, puis relance.
+
+Ensuite, reporte l'URL et le mot de passe dans ton fichier `.env` (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`).
+
+### Sans le script (manuel)
+
+```
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -c "CREATE DATABASE medtech;"
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d medtech -f database\setup.sql
+```
 
 > **Attention** : `medtech_schema.sql` commence par supprimer toutes les tables (`DROP TABLE ... CASCADE`). Le relancer efface les données.
 
-`seed_demo.sql` n'insère des données que si la table `resident` est vide, donc il peut être relancé sans doublons.
+### Règle pour garder les bases identiques
+
+Chacun a sa propre base locale : les données saisies chez toi ne sont pas visibles chez les autres. Donc :
+- toute modification de structure passe par `medtech_schema.sql`, jamais à la main dans pgAdmin ;
+- toute donnée de démo commune passe par `seed_demo.sql` ou `seed_users.sql`, puis tout le monde relance `setup.ps1` après un `git pull`.
+
+## Numérotation des chambres
+
+Le numéro d'une chambre est l'**étage suivi de deux chiffres (01 à 99)** : étage 1 → 101 à 199, étage 2 → 201 à 299. Les étages vont de 0 à 20. Le backend et le formulaire refusent un numéro qui ne suit pas cette règle.
 
 ## Modèle de données
 
