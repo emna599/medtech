@@ -82,25 +82,6 @@
           Médicaments
         </mat-button-toggle>
       </mat-button-toggle-group>
-      @if (slots().length > 1) {
-        <div class="slots" role="tablist" aria-label="Créneau">
-          @for (slot of slots(); track slot) {
-            <button
-              type="button"
-              role="tab"
-              class="slot"
-              [attr.aria-selected]="slot === currentSlot()"
-              [class.slot-on]="slot === currentSlot()"
-              (click)="setSlot(slot)"
-            >
-              {{ slotText(slot) }}
-            </button>
-          }
-        </div>
-      } @else if (currentSlot(); as only) {
-        <p class="only-slot">{{ slotText(only) }}</p>
-      }
-
       @if (total() > 0) {
         <div class="progress">
           @if (lastRefresh(); as refreshed) {
@@ -114,48 +95,34 @@
         </div>
       }
     </div>
-    <section class="controls">
-      <mat-button-toggle-group
-        class="where"
-        aria-label="Lieu"
-        [hideSingleSelectionIndicator]="true"
-        [value]="location()"
-        (change)="setLocation($event.value)"
-      >
-        <mat-button-toggle value="SALLE">
-          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">dining</mat-icon>
-          Salle à manger · {{ remainingSalle() }}
-        </mat-button-toggle>
-        <mat-button-toggle value="CHAMBRE">
-          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
-          Chambres · {{ remainingChambre() }}
-        </mat-button-toggle>
-      </mat-button-toggle-group>
-
-      <mat-button-toggle-group
-        class="filter"
-        aria-label="Filtre"
-        [hideSingleSelectionIndicator]="true"
-        [value]="statusFilter()"
-        (change)="setStatusFilter($event.value)"
-      >
-        <mat-button-toggle value="A_FAIRE">À faire</mat-button-toggle>
-        <mat-button-toggle value="FAIT">Traités</mat-button-toggle>
-        <mat-button-toggle value="TOUS">Tous</mat-button-toggle>
-      </mat-button-toggle-group>
-
-      <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
-        <mat-label>Nom ou chambre</mat-label>
-        <input
-          matInput
-          type="search"
-          autocomplete="off"
-          [ngModel]="search()"
-          (ngModelChange)="search.set($event)"
-        />
-        <mat-icon matSuffix fontSet="material-symbols-outlined" aria-hidden="true">search</mat-icon>
-      </mat-form-field>
-    </section>
+    <div class="controls" aria-label="Filtres de la tournée" role="group">
+      <label>
+        <span>Créneau</span>
+        <select [ngModel]="currentSlot()" (ngModelChange)="setSlot($event)" [disabled]="slots().length === 0">
+          @if (slots().length === 0) { <option [ngValue]="null">Aucun créneau</option> }
+          @for (slot of slots(); track slot) { <option [ngValue]="slot">{{ slotText(slot) }}</option> }
+        </select>
+      </label>
+      <label>
+        <span>Lieu</span>
+        <select [ngModel]="location()" (ngModelChange)="setLocation($event)">
+          <option value="SALLE">Salle · {{ remainingSalle() }}</option>
+          <option value="CHAMBRE">Chambres · {{ remainingChambre() }}</option>
+        </select>
+      </label>
+      <label>
+        <span>Statut</span>
+        <select [ngModel]="statusFilter()" (ngModelChange)="setStatusFilter($event)">
+          <option value="A_FAIRE">À faire</option>
+          <option value="FAIT">Traités</option>
+          <option value="TOUS">Tous</option>
+        </select>
+      </label>
+      <label class="search">
+        <span>Nom ou chambre</span>
+        <input type="search" autocomplete="off" [ngModel]="search()" (ngModelChange)="search.set($event)" />
+      </label>
+    </div>
   </div>
 
   @if (kitchenSheetOpen() && kind() === 'REPAS') {
@@ -219,83 +186,93 @@
       <h2>{{ location() === 'CHAMBRE' ? 'En chambre' : 'En salle à manger' }}</h2>
       <span>{{ visible().length }} {{ kind() === 'REPAS' ? 'repas' : (visible().length === 1 ? 'prise' : 'prises') }}</span>
     </div>
-    <ul class="grid work-card-grid" [class.room-tour]="location() === 'CHAMBRE'">
-      @for (item of visible(); track item.id) {
-        <li>
-          <button type="button" [class]="'tile ' + statusClass(item)" (click)="open(item)">
-            <app-resident-avatar
-              [photoUrl]="item.resident.photoUrl"
-              [firstName]="item.resident.firstName"
-              [lastName]="item.resident.lastName"
-              [size]="40"
-            />
-            <span class="work-card-name tile-name">{{ name(item) }}</span>
-            <span class="work-card-room tile-room">
-              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
-              @if (item.resident.room; as room) { Chambre {{ room }} } @else { Sans chambre }
-            </span>
-            <span class="work-status tile-status">
-              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ statusIcon(item) }}</mat-icon>
-              {{ statusText(item) }}
-            </span>
-            <span class="tile-alerts">
-              @if (item.resident.identityDoubt) {
-                <span class="work-status work-alert work-alert-danger">
-                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">person_alert</mat-icon>
-                  Doute d’identité
-                </span>
-              }
-              @for (allergy of item.resident.allergies; track $index) {
-                <span class="work-status work-alert work-alert-danger">
-                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
-                  À éviter · {{ allergy.name }}
-                </span>
-              }
-              @if (item.kind === 'REPAS') {
-                @if (item.resident.mealTextureConflict) {
-                  <span class="work-status work-alert work-alert-danger">
-                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
-                    Textures contradictoires
-                  </span>
-                }
-                @if (item.resident.texture && item.resident.texture !== 'Normale') {
-                  <span class="work-status work-alert">
-                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
-                    Texture {{ item.resident.texture }}
-                  </span>
-                }
-                @if (item.resident.mealInstructionsChangedAt && (item.status === 'A_FAIRE' || item.status === 'PLUS_TARD')) {
-                  <span class="work-status work-alert">
-                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">assignment_late</mat-icon>
-                    Plateau à revérifier
-                  </span>
-                }
-                @if (item.resident.needsHelp) {
-                  <span class="work-status">
-                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">volunteer_activism</mat-icon>
-                    Aide au repas
-                  </span>
-                }
-              }
-              @if (item.highRisk) {
-                <span class="work-status work-alert work-alert-danger">
-                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
-                  Prise à risque
-                </span>
-              }
-            </span>
-            @if (item.kind === 'MEDICAMENT') {
-              <span class="tile-detail">{{ item.label }}@if (item.detail) { · {{ item.detail }} }</span>
-            } @else if (item.resident.texture === 'Normale' || item.resident.regime) {
-              <span class="tile-detail">
-                @if (item.resident.texture === 'Normale') { Texture normale }
-                @if (item.resident.texture === 'Normale' && item.resident.regime) { · }
-                @if (item.resident.regime; as regime) { Régime {{ regime }} }
+    <div class="register">
+      <div class="register-columns" aria-hidden="true">
+        <span>Résident</span><span>Chambre</span><span>Consignes et alertes</span><span>Statut</span><span></span>
+      </div>
+      <ul class="register-list" role="list">
+        @for (item of visible(); track item.id) {
+          <li>
+            <button type="button" [class]="'tile ' + statusClass(item)" (click)="open(item)">
+              <span class="tile-identity">
+                <app-resident-avatar
+                  [photoUrl]="item.resident.photoUrl"
+                  [firstName]="item.resident.firstName"
+                  [lastName]="item.resident.lastName"
+                  [size]="40"
+                />
+                <span class="work-card-name tile-name">{{ name(item) }}</span>
               </span>
-            }
-          </button>
-        </li>
-      }
-    </ul>
+              <span class="work-card-room tile-room">
+                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
+                @if (item.resident.room; as room) { Chambre {{ room }} } @else { Sans chambre }
+              </span>
+              <span class="tile-guidance">
+                <span class="tile-alerts">
+                  @if (item.resident.identityDoubt) {
+                    <span class="work-status work-alert work-alert-danger">
+                      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">person_alert</mat-icon>
+                      Doute d’identité
+                    </span>
+                  }
+                  @for (allergy of item.resident.allergies; track $index) {
+                    <span class="work-status work-alert work-alert-danger">
+                      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+                      À éviter · {{ allergy.name }}
+                    </span>
+                  }
+                  @if (item.kind === 'REPAS') {
+                    @if (item.resident.mealTextureConflict) {
+                      <span class="work-status work-alert work-alert-danger">
+                        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+                        Textures contradictoires
+                      </span>
+                    }
+                    @if (item.resident.texture && item.resident.texture !== 'Normale') {
+                      <span class="work-status work-alert">
+                        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
+                        Texture {{ item.resident.texture }}
+                      </span>
+                    }
+                    @if (item.resident.mealInstructionsChangedAt && (item.status === 'A_FAIRE' || item.status === 'PLUS_TARD')) {
+                      <span class="work-status work-alert">
+                        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">assignment_late</mat-icon>
+                        Plateau à revérifier
+                      </span>
+                    }
+                    @if (item.resident.needsHelp) {
+                      <span class="work-status">
+                        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">volunteer_activism</mat-icon>
+                        Aide au repas
+                      </span>
+                    }
+                  }
+                  @if (item.highRisk) {
+                    <span class="work-status work-alert work-alert-danger">
+                      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+                      Prise à risque
+                    </span>
+                  }
+                </span>
+                @if (item.kind === 'MEDICAMENT') {
+                  <span class="tile-detail">{{ item.label }}@if (item.detail) { · {{ item.detail }} }</span>
+                } @else if (item.resident.texture === 'Normale' || item.resident.regime) {
+                  <span class="tile-detail">
+                    @if (item.resident.texture === 'Normale') { Texture normale }
+                    @if (item.resident.texture === 'Normale' && item.resident.regime) { · }
+                    @if (item.resident.regime; as regime) { Régime {{ regime }} }
+                  </span>
+                }
+              </span>
+              <span class="work-status tile-status">
+                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ statusIcon(item) }}</mat-icon>
+                {{ statusText(item) }}
+              </span>
+              <mat-icon class="tile-arrow" fontSet="material-symbols-outlined" aria-hidden="true">chevron_right</mat-icon>
+            </button>
+          </li>
+        }
+      </ul>
+    </div>
   }
 </main>

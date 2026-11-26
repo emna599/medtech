@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — registre de tournée Personnel
+
+- La tournée utilise un registre à colonnes sur ordinateur et une liste de résidents sur mobile. Nom, chambre, consignes, alertes et statut sont alignés. La ligne ouvre la fiche de tournée.
+- Créneau, lieu, statut et recherche disposent de champs de même hauteur. Le sélecteur Repas/Médicaments et la progression sont au-dessus des filtres. Guide des parcours et identifiants de démo actualisés.
+- Compilation et 33 tests frontend réussis. Vérifié en Chromium : lieu, statut, recherche, fiche résident, impression cuisine et largeur de 320 px en clair et sombre.
+
+---
+
 ## Relais Codex du 2026-11-27 — feuille de préparation et responsabilités métier
 
 - Dans **Repas → Outils → Feuille de préparation**, aperçu et impression des totaux du créneau par texture et régime. Les repas à servir couvrent salle et chambres indépendamment des filtres de tournée. Repérage chiffré des consignes à vérifier, sans identité ni chambre.

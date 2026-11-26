@@ -2,7 +2,7 @@
 
 ## Présenter l’application
 
-- Connectez-vous avec un compte de démonstration du rôle à présenter, sur une base fictive.
+- Sur la base fictive, connectez-vous avec `admin`, `medecin`, `personnel` ou `personnel2`. Les deux derniers ouvrent l’espace Personnel. Le mot de passe de démonstration est `Demo1234!`.
 - Les titres, les cartes et les commandes sont lisibles dès l’ouverture, avec une taille adaptée à la largeur de l’écran. Dans l’en-tête, le logo ramène à l’accueil de votre rôle et le bouton lune ou soleil règle le thème. Le pied de page propose les raccourcis du rôle et **Haut de page**.
 - Côté personnel, **Identifier un résident** et **Service en salle** sont dans l’en-tête de la tournée. **Résidents** ouvre directement l’annuaire depuis l’en-tête. **Outils** regroupe la relève, l’organisation type, l’équipe, les notes et l’assistant. Les pictogrammes indiquent les sections et les commandes. Les statuts et alertes associent texte et icône.
 
@@ -23,8 +23,8 @@ Les actions principales sont pleines, les actions secondaires ont un contour fin
 
 ## Personnel
 
-1. Ouvrez **Repas** ou **Médicaments**. Choisissez le créneau, le lieu et le filtre de statut.
-2. Ouvrez la fiche depuis la carte. Vérifiez le nom, la chambre et les alertes. Le portrait est visible dans la fiche de tournée s’il est renseigné. Utilisez les confirmations demandées pour les repas et les prises à risque.
+1. Ouvrez **Repas** ou **Médicaments**. Les champs **Créneau**, **Lieu**, **Statut** et **Nom ou chambre** filtrent le registre.
+2. Ouvrez la fiche depuis la ligne du résident. Vérifiez le nom, la chambre et les alertes. Le portrait est visible dans la fiche de tournée s’il est renseigné. Utilisez les confirmations demandées pour les repas et les prises à risque.
 3. En salle, ouvrez **Service en salle**, choisissez le créneau et la table, puis **Installer un résident**. Vérifiez l’identité et confirmez sa présence.
 4. Sur le résident installé, sélectionnez **Associer un chevalet**, saisissez le numéro imprimé de 1 à 9999 et confirmez. Si le numéro est déjà utilisé, vérifiez l’ancienne affectation avec l’équipe. Le chevalet est disponible après **Libérer le chevalet** et confirmation, ou après **Enregistrer le départ**. Un changement de table conserve le chevalet.
 5. Sélectionnez **Ouvrir la fiche repas** pour effectuer la vérification du plateau et enregistrer le service.
