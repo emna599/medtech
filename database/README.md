@@ -2,31 +2,17 @@
 
 Base **PostgreSQL** nommée `medtech`. Le backend la valide au démarrage (`ddl-auto=validate`) : il ne crée ni ne modifie les tables, tout passe par ces scripts.
 
-## Fichiers
+## Initialisation locale
 
-| Fichier | Contenu |
-|---|---|
-| `medtech_schema.sql` | Création de toutes les tables et des index |
-| `seed_users.sql` | 3 comptes de démonstration (admin, personnel, médecin) |
-| `seed_demo.sql` | 6 chambres et 8 résidents fictifs pour tester |
+Docker exécute `database/setup.sql` à la création du volume. Le script enchaîne dans une même transaction le schéma, les comptes, les extensions du personnel et les données communes (12 résidents fictifs).
 
-## Mise en place
+Sans Docker, exécuter `./database/setup.ps1` sous PowerShell ou `psql -U postgres -d medtech -f database/setup.sql` sur une base locale créée au préalable. Le script PowerShell demande confirmation et utilise PostgreSQL sur localhost.
 
-1. Crée la base :
-   ```
-   & "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -c "CREATE DATABASE medtech;"
-   ```
-2. Exécute les scripts dans cet ordre, depuis pgAdmin (Query Tool sur la base `medtech`) ou avec psql :
-   ```
-   & "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d medtech -f database\medtech_schema.sql
-   & "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d medtech -f database\seed_users.sql
-   & "C:\Program Files\PostgreSQL\17\bin\psql.exe" -U postgres -d medtech -f database\seed_demo.sql
-   ```
-3. Reporte l'URL et le mot de passe dans le fichier `.env` (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`).
+**Attention** : l’initialisation supprime les tables MedTech de la base cible et efface les données qu’elles contiennent. Les évolutions du schéma et des données de démo passent par les fichiers SQL versionnés.
 
-> **Attention** : `medtech_schema.sql` commence par supprimer toutes les tables (`DROP TABLE ... CASCADE`). Le relancer efface les données.
+## Numérotation des chambres
 
-`seed_demo.sql` n'insère des données que si la table `resident` est vide, donc il peut être relancé sans doublons.
+Tout nouveau numéro est composé de l’étage (0 à 20) suivi de deux chiffres (01 à 99). Les anciens numéros sont conservés et peuvent être édités sans les renuméroter si le numéro et l’étage restent identiques.
 
 ## Modèle de données
 

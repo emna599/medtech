@@ -38,7 +38,13 @@ medtech/
 
 ### 1. Base de données
 
-Crée une base `medtech` puis exécute les scripts dans l'ordre. Voir [database/README.md](database/README.md).
+Même base et mêmes données pour toute l'équipe, avec un seul script (PowerShell, depuis la racine du dépôt) :
+
+```
+.\database\setup.ps1
+```
+
+Détails dans [database/README.md](database/README.md).
 
 ### 2. Variables d'environnement
 
@@ -117,6 +123,8 @@ Les routes `/api/admin/**` sont réservées au rôle ADMIN.
 - Une chambre qui contient des résidents actifs ne peut pas être supprimée.
 - Un résident ne peut pas être affecté à une chambre pleine (seuls les résidents actifs comptent).
 - La date d'admission ne peut pas précéder la date de naissance.
+- Le numéro de chambre est l'étage suivi de deux chiffres (étage 2 : 201 à 299).
+- Un résident actif sans chambre est signalé en rouge dans l'interface.
 
 ## Branches
 

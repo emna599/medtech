@@ -7,6 +7,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
+import { Logo } from '../../shared/components/logo/logo';
 import { ROLE_LABEL } from '../../shared/models/auth.model';
 
 interface NavItem {
@@ -19,7 +20,7 @@ interface NavItem {
 /** Cadre de l'interface admin : menu latéral, en-tête et zone de contenu. */
 @Component({
   selector: 'app-admin-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatSidenavModule, MatButtonModule, MatIconModule],
+  imports: [Logo, RouterOutlet, RouterLink, RouterLinkActive, MatSidenavModule, MatButtonModule, MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <mat-sidenav-container class="shell">
@@ -30,7 +31,7 @@ interface NavItem {
         (closedStart)="menuOpen.set(false)"
       >
         <div class="brand">
-          <span class="logo"><mat-icon fontSet="material-symbols-outlined">medical_services</mat-icon></span>
+          <app-logo [size]="44" [animated]="true" />
           <div>
             <div class="brand-name">MedTech EHPAD</div>
             <div class="brand-sub">Espace administrateur</div>
@@ -82,12 +83,11 @@ interface NavItem {
     .shell { height: 100vh; background: transparent; }
     .sidenav { width: 250px; border-right: 1px solid var(--mat-sys-outline-variant); }
     .brand { display: flex; align-items: center; gap: 12px; padding: 20px 16px 12px; }
-    .logo { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--mat-sys-primary); color: var(--mat-sys-on-primary); }
     .brand-name { font: var(--mat-sys-title-medium); }
     .brand-sub { font: var(--mat-sys-label-small); color: var(--mat-sys-on-surface-variant); }
     .nav { display: flex; flex-direction: column; gap: 4px; padding: 12px; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 28px; text-decoration: none; color: var(--mat-sys-on-surface-variant); font: var(--mat-sys-label-large); }
-    .nav-item:hover { background: var(--mat-sys-surface-container-high); }
+    .nav-item { transition: background-color 0.2s, transform 0.2s; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 28px; text-decoration: none; color: var(--mat-sys-on-surface-variant); font: var(--mat-sys-label-large); }
+    .nav-item:hover { background: var(--mat-sys-surface-container-high); transform: translateX(3px); }
     .nav-item.active { background: var(--mat-sys-secondary-container); color: var(--mat-sys-on-secondary-container); }
     .main { display: flex; flex-direction: column; }
     .topbar { display: flex; align-items: center; gap: 12px; height: 64px; padding: 0 24px; background: var(--mat-sys-surface); border-bottom: 1px solid var(--mat-sys-outline-variant); position: sticky; top: 0; z-index: 2; }

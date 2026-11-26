@@ -17,8 +17,8 @@ DELETE FROM resident WHERE identity_code LIKE 'DEMO-%';
 
 -- ---------- Chambres ----------
 INSERT INTO room (number, floor, capacity) VALUES
-    ('3', 1, 1), ('7', 1, 1), ('8', 1, 1), ('9', 1, 1), ('10', 1, 1), ('11', 1, 1), ('12', 1, 1),
-    ('14', 2, 1), ('15', 2, 1), ('16', 2, 1), ('17', 2, 1), ('21', 2, 1)
+    ('103', 1, 1), ('107', 1, 1), ('108', 1, 1), ('109', 1, 1), ('110', 1, 1), ('111', 1, 1), ('112', 1, 1),
+    ('214', 2, 1), ('215', 2, 1), ('216', 2, 1), ('217', 2, 1), ('221', 2, 1)
 ON CONFLICT (number) DO NOTHING;
 
 -- ---------- Résidents (noms inventés ; photo_url vide = avatar avec initiales) ----------
@@ -27,18 +27,18 @@ INSERT INTO resident (first_name, last_name, birth_date, admission_date, active,
 SELECT v.first_name, v.last_name, v.birth_date::date, v.admission_date::date, TRUE, r.id,
        v.meal_location, v.needs_help, v.features, v.code
 FROM (VALUES
-    ('Jeanne',  'Martin',   '1938-04-12', '2022-03-01', '12', 'CHAMBRE', TRUE,  'Cheveux blancs courts, lunettes',       'DEMO-001'),
-    ('Michel',  'Durand',   '1941-09-03', '2023-01-15', '7',  'SALLE',   FALSE, 'Moustache grise, déambulateur',        'DEMO-002'),
-    ('Odette',  'Petit',    '1936-01-25', '2021-11-20', '3',  'CHAMBRE', TRUE,  'Châle bleu, appareil auditif',         'DEMO-003'),
-    ('Paul',    'Bernard',  '1939-11-30', '2024-02-05', '15', 'CHAMBRE', FALSE, 'Grand, cheveux blancs, canne',         'DEMO-004'),
-    ('Simone',  'Leroy',    '1940-06-18', '2022-09-12', '8',  'SALLE',   FALSE, 'Cheveux gris bouclés, collier perles', 'DEMO-005'),
-    ('Henri',   'Moreau',   '1937-12-08', '2020-05-30', '14', 'SALLE',   FALSE, 'Chauve, lunettes rondes, fauteuil',    'DEMO-006'),
-    ('Colette', 'Simon',    '1942-02-14', '2023-06-18', '21', 'SALLE',   TRUE,  'Cheveux roux clairs, fauteuil',        'DEMO-007'),
-    ('Marcel',  'Laurent',  '1935-07-27', '2019-10-02', '9',  'SALLE',   FALSE, 'Béret, moustache blanche',             'DEMO-008'),
-    ('Rosa',    'Garcia',   '1943-03-09', '2024-04-22', '10', 'SALLE',   FALSE, 'Cheveux noirs attachés, lunettes',     'DEMO-009'),
-    ('Lucien',  'Roux',     '1938-10-21', '2022-12-07', '11', 'SALLE',   TRUE,  'Barbe blanche, cardigan vert',         'DEMO-010'),
-    ('Yvette',  'Fournier', '1941-05-16', '2023-09-29', '16', 'SALLE',   FALSE, 'Cheveux blancs longs, canne',          'DEMO-011'),
-    ('André',   'Girard',   '1940-08-04', '2021-07-13', '17', 'SALLE',   FALSE, 'Chauve, grosses lunettes',             'DEMO-012')
+    ('Jeanne',  'Martin',   '1938-04-12', '2022-03-01', '112', 'CHAMBRE', TRUE,  'Cheveux blancs courts, lunettes',       'DEMO-001'),
+    ('Michel',  'Durand',   '1941-09-03', '2023-01-15', '107',  'SALLE',   FALSE, 'Moustache grise, déambulateur',        'DEMO-002'),
+    ('Odette',  'Petit',    '1936-01-25', '2021-11-20', '103',  'CHAMBRE', TRUE,  'Châle bleu, appareil auditif',         'DEMO-003'),
+    ('Paul',    'Bernard',  '1939-11-30', '2024-02-05', '215', 'CHAMBRE', FALSE, 'Grand, cheveux blancs, canne',         'DEMO-004'),
+    ('Simone',  'Leroy',    '1940-06-18', '2022-09-12', '108',  'SALLE',   FALSE, 'Cheveux gris bouclés, collier perles', 'DEMO-005'),
+    ('Henri',   'Moreau',   '1937-12-08', '2020-05-30', '214', 'SALLE',   FALSE, 'Chauve, lunettes rondes, fauteuil',    'DEMO-006'),
+    ('Colette', 'Simon',    '1942-02-14', '2023-06-18', '221', 'SALLE',   TRUE,  'Cheveux roux clairs, fauteuil',        'DEMO-007'),
+    ('Marcel',  'Laurent',  '1935-07-27', '2019-10-02', '109',  'SALLE',   FALSE, 'Béret, moustache blanche',             'DEMO-008'),
+    ('Rosa',    'Garcia',   '1943-03-09', '2024-04-22', '110', 'SALLE',   FALSE, 'Cheveux noirs attachés, lunettes',     'DEMO-009'),
+    ('Lucien',  'Roux',     '1938-10-21', '2022-12-07', '111', 'SALLE',   TRUE,  'Barbe blanche, cardigan vert',         'DEMO-010'),
+    ('Yvette',  'Fournier', '1941-05-16', '2023-09-29', '216', 'SALLE',   FALSE, 'Cheveux blancs longs, canne',          'DEMO-011'),
+    ('André',   'Girard',   '1940-08-04', '2021-07-13', '217', 'SALLE',   FALSE, 'Chauve, grosses lunettes',             'DEMO-012')
 ) AS v(first_name, last_name, birth_date, admission_date, room_number, meal_location, needs_help, features, code)
 JOIN room r ON r.number = v.room_number;
 

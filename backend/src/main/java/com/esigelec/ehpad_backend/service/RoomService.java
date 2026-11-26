@@ -3,6 +3,7 @@ package com.esigelec.ehpad_backend.service;
 import com.esigelec.ehpad_backend.dto.RoomDto;
 import com.esigelec.ehpad_backend.dto.RoomRequest;
 import com.esigelec.ehpad_backend.entity.Room;
+import com.esigelec.ehpad_backend.exception.BadRequestException;
 import com.esigelec.ehpad_backend.exception.ConflictException;
 import com.esigelec.ehpad_backend.exception.ResourceNotFoundException;
 import com.esigelec.ehpad_backend.repository.ResidentRepository;
@@ -43,6 +44,7 @@ public class RoomService {
     @Transactional
     public RoomDto create(RoomRequest request) {
         String number = request.number().trim();
+        checkNumberFormat(number, request.floor());
         if (roomRepository.findByNumber(number).isPresent()) {
             throw new ConflictException("Ce numéro de chambre existe déjà");
         }
@@ -57,6 +59,9 @@ public class RoomService {
     public RoomDto update(Long id, RoomRequest request) {
         Room room = find(id);
         String number = request.number().trim();
+        if (!number.equals(room.getNumber()) || !request.floor().equals(room.getFloor())) {
+            checkNumberFormat(number, request.floor());
+        }
         roomRepository.findByNumber(number).ifPresent(other -> {
             if (!other.getId().equals(id)) {
                 throw new ConflictException("Ce numéro de chambre existe déjà");
@@ -80,6 +85,17 @@ public class RoomService {
             throw new ConflictException("Cette chambre contient encore des résidents : déplacez-les d'abord");
         }
         roomRepository.delete(room);
+    }
+
+    /** Règle de numérotation : numéro = étage suivi de deux chiffres (étage 2 : 201 à 299). */
+    private static void checkNumberFormat(String number, int floor) {
+        if (floor < 0 || floor > 20) {
+            throw new BadRequestException("L’étage doit être compris entre 0 et 20");
+        }
+        if (!number.matches(floor + "(0[1-9]|[1-9][0-9])")) {
+            throw new BadRequestException("Le numéro doit commencer par l'étage suivi de deux chiffres"
+                    + " (étage " + floor + " : " + floor + "01 à " + floor + "99)");
+        }
     }
 
     private Room find(Long id) {

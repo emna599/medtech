@@ -69,7 +69,7 @@ import { ResidentFormDialog } from './resident-form-dialog';
           </mat-card-content>
         </mat-card>
 
-        <mat-card appearance="outlined">
+        <mat-card appearance="outlined" [class.card-alert]="r.active && !r.roomNumber">
           <mat-card-header><mat-card-title>Chambre</mat-card-title></mat-card-header>
           <mat-card-content>
             @if (r.roomNumber) {
@@ -87,8 +87,13 @@ import { ResidentFormDialog } from './resident-form-dialog';
                 <p class="muted">Seul(e) dans la chambre.</p>
               }
             } @else {
-              <p class="muted">Aucune chambre attribuée.</p>
-              <button mat-stroked-button type="button" (click)="edit(r)">Attribuer une chambre</button>
+              <p class="alert">
+                <mat-icon fontSet="material-symbols-outlined">warning</mat-icon>
+                {{ r.active ? 'Aucune chambre attribuée.' : 'Pas de chambre (résident inactif).' }}
+              </p>
+              @if (r.active) {
+                <button mat-flat-button type="button" (click)="edit(r)">Attribuer une chambre</button>
+              }
             }
           </mat-card-content>
         </mat-card>
@@ -105,6 +110,8 @@ import { ResidentFormDialog } from './resident-form-dialog';
     dd { margin: 0; font-weight: 500; text-align: right; }
     h3 { font: var(--mat-sys-title-small); margin: 20px 0 4px; }
     .mate { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .alert { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 12px; background: var(--mat-sys-error-container); color: var(--mat-sys-on-error-container); }
+    .card-alert { border-color: var(--mat-sys-error); }
     .muted { color: var(--mat-sys-on-surface-variant); }
   `,
 })

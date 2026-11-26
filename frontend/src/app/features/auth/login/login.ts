@@ -2,20 +2,20 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
+import { Logo } from '../../../shared/components/logo/logo';
 import { ROLE_HOME_ROUTE } from '../../../shared/models/auth.model';
 
 @Component({
   selector: 'app-login',
   imports: [
     ReactiveFormsModule,
-    MatCardModule,
+    Logo,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
