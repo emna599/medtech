@@ -4,7 +4,7 @@
 
 - Connectez-vous avec un compte de démonstration du rôle à présenter, sur une base fictive.
 - Les titres, les cartes et les commandes sont lisibles dès l’ouverture, avec une taille adaptée à la largeur de l’écran. Dans l’en-tête, le logo ramène à l’accueil de votre rôle et le bouton lune ou soleil règle le thème. Le pied de page propose les raccourcis du rôle et **Haut de page**.
-- Côté personnel, cherchez les actions sous **Résidents et repas**, **Équipe et transmissions** ou **Assistance**. Les pictogrammes indiquent les sections et les commandes. Les statuts et alertes associent texte et icône.
+- Côté personnel, **Identifier un résident** et **Service en salle** sont dans l’en-tête de la tournée. Le menu **Outils** regroupe Résidents, Relève, Planning, Équipe, Notes de service et Assistant. Les pictogrammes indiquent les sections et les commandes. Les statuts et alertes associent texte et icône.
 
 ## Administration
 
@@ -26,7 +26,7 @@
 3. En salle, ouvrez **Service en salle**, choisissez le créneau et la table, puis **Installer un résident**. Vérifiez l’identité et confirmez sa présence.
 4. Sur le résident installé, sélectionnez **Associer un chevalet**, saisissez le numéro imprimé de 1 à 9999 et confirmez. Si le numéro est déjà utilisé, vérifiez l’ancienne affectation avec l’équipe. Le chevalet est disponible après **Libérer le chevalet** et confirmation, ou après **Enregistrer le départ**. Un changement de table conserve le chevalet.
 5. Sélectionnez **Ouvrir la fiche repas** pour effectuer la vérification du plateau et enregistrer le service.
-6. Pour transmettre une action à poursuivre, utilisez **Relève**. Pour une note horodatée de service, utilisez **Notes de service**.
+6. Pour transmettre une action à poursuivre, utilisez **Outils → Relève**. Pour une note horodatée de service, utilisez **Outils → Notes de service**.
 
 ## Matériel à vérifier avec l’équipe
 

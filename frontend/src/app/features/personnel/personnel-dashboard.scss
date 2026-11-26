@@ -1,9 +1,13 @@
-.top {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
+.tour-heading { align-items: center; gap: 8px 20px; }
+.heading-actions, .tour-context { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+.tour-context { gap: 8px 14px; }
+.tour-controls {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-line);
+  border-radius: var(--app-radius);
 }
 
 // Groupes de boutons : grandes pastilles arrondies, bien tactiles.
@@ -20,7 +24,7 @@ mat-button-toggle-group {
   font-weight: 700;
 }
 
-.service-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.service-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .service-page > .page-head { margin: 0; }
 
 .slots {
@@ -55,29 +59,21 @@ mat-button-toggle-group {
 }
 
 .progress {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 14px 18px;
-  border-radius: var(--app-radius);
-  background: var(--app-surface);
-  box-shadow: none;
-  border: 1px solid var(--app-line);
-  --mat-progress-bar-active-indicator-height: 5px;
-  --mat-progress-bar-track-height: 5px;
+  display: grid;
+  flex: 1 1 160px;
+  max-width: 250px;
+  min-width: 0;
+  gap: 4px;
+  margin-inline-start: auto;
+  --mat-progress-bar-active-indicator-height: 4px;
+  --mat-progress-bar-track-height: 4px;
   --mat-progress-bar-active-indicator-color: var(--app-ok);
   --mat-progress-bar-track-color: var(--app-line);
   --mat-progress-bar-track-shape: 8px;
 }
 
-.progress-text {
-  font: var(--mat-sys-body-large);
-}
-
-.progress-text strong {
-  font-size: 22px;
-  color: var(--app-ok);
-}
+.progress-text { color: var(--mat-sys-on-surface-variant); }
+.progress-text strong { color: var(--app-ok); }
 
 .controls {
   display: flex;
@@ -94,13 +90,10 @@ mat-button-toggle-group {
 }
 
 .start {
-  height: 64px;
-  font-size: 19px;
-  font-weight: 800;
-  border-radius: 32px;
+  justify-self: start;
+  font-weight: 750;
   --mat-button-filled-container-color: var(--app-ok);
   --mat-button-filled-label-text-color: var(--app-on-ok);
-  box-shadow: 0 6px 18px rgb(15 118 110 / 35%);
 }
 
 .state {
@@ -126,13 +119,11 @@ mat-button-toggle-group {
 
 ul.grid {
   list-style: none;
+  margin: 0;
   padding: 0;
 }
 
-.grid li {
-  min-width: 0;
-  container-type: inline-size;
-}
+.grid li { min-width: 0; }
 
 .room-tour {
   grid-template-columns: minmax(0, 1fr);
@@ -140,14 +131,17 @@ ul.grid {
 }
 
 .tile {
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: start;
-  gap: 6px 12px;
+  align-items: center;
+  align-content: start;
+  gap: 8px 10px;
   width: 100%;
-  padding: 12px;
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: var(--app-radius);
+  height: 100%;
+  padding: 14px;
+  border: 1px solid var(--app-line);
+  border-radius: 12px;
   background: var(--app-surface);
   color: var(--app-ink);
   font: inherit;
@@ -156,33 +150,31 @@ ul.grid {
   touch-action: manipulation;
 }
 
-.tile:hover {
-  border-color: var(--mat-sys-primary);
-}
+.tile:hover { border-color: var(--site-mark); }
 
 .tile:focus-visible,
-.slot:focus-visible {
-  outline: 3px solid var(--mat-sys-primary);
-  outline-offset: 2px;
-}
+.slot:focus-visible { outline: 3px solid var(--mat-sys-primary); outline-offset: 2px; }
 
-.tile-identity {
-  display: grid;
-  min-width: 0;
-  gap: 2px;
+.tile-name { grid-column: 2 / -1; font-size: 1.25rem; }
+
+.tile-room {
+  grid-column: 1 / 3;
+  font-size: 1rem;
 }
 
 .tile-status {
-  justify-self: start;
+  grid-column: 3;
+  justify-self: end;
+  background: var(--app-chip-bg);
+  color: var(--app-chip-ink);
 }
 
-.tile-alerts, .tile > .tile-detail {
-  grid-column: 2 / -1;
-}
+.tile .work-status { border-color: transparent; }
+
+.tile-alerts, .tile-detail { grid-column: 1 / -1; }
 
 .tile-alerts {
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
   gap: 5px;
   min-width: 0;
@@ -195,28 +187,17 @@ ul.grid {
   overflow-wrap: anywhere;
 }
 
-.is-done .tile-status {
-  background: var(--app-ok-bg);
-  color: var(--app-ok);
-}
-
-.is-absent .tile-status, .is-later .tile-status, .is-refused .tile-status {
-  background: var(--app-warn-bg);
-  color: var(--app-warn);
-}
-
-@container (max-width: 380px) {
-  .tile { grid-template-columns: auto minmax(0, 1fr); }
-  .tile-alerts, .tile > .tile-detail, .tile-status { grid-column: 1 / -1; }
-}
+.is-done .tile-status { background: var(--app-ok-bg); color: var(--app-ok); }
+.is-later .tile-status { background: var(--app-warn-bg); color: var(--app-warn); }
+.is-refused .tile-status { background: var(--app-danger-bg); color: var(--app-danger); }
 
 @media (max-width: 600px) {
-  .work-page {
-    padding: 12px;
-  }
+  .work-page { padding: 12px; }
   .controls mat-button-toggle-group { max-width: 100%; }
   .controls .search { flex-basis: 100%; }
-  .tools button { flex: 1 1 auto; }
+  .heading-actions { gap: 4px; }
+  .heading-actions button { padding-inline: 8px; }
+  .progress { margin-inline-start: 0; }
 }
 
 @media (max-width: 360px) {
@@ -238,26 +219,4 @@ ul.grid {
 
 .meal-change p {
   margin: 4px 0 0;
-}
-
-.tools {
-  display: grid;
-  width: 100%;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr) max-content;
-  gap: 10px;
-}
-
-.tool-group {
-  min-width: 0;
-  padding: 10px;
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: var(--app-radius);
-  background: var(--app-surface);
-}
-
-.tool-group h2 { margin: 0 0 6px; font-size: 1rem; line-height: 1.25; }
-.tool-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
-
-@media (max-width: 740px) {
-  .tools { grid-template-columns: minmax(0, 1fr); }
 }

@@ -1,86 +1,43 @@
 <app-toolbar />
 
 <main class="work-page service-page">
-  <header class="page-head">
-    <div>
-      <h1 class="cue-title">
-        <span class="material-symbols-outlined visual-cue" [class.cue--blue]="kind() === 'MEDICAMENT'"
-          aria-hidden="true">{{ kind() === 'REPAS' ? 'restaurant' : 'medication' }}</span>
-        <span>{{ kind() === 'REPAS' ? 'Repas' : 'Médicaments' }}</span>
-      </h1>
-      <p>{{ kind() === 'REPAS'
-        ? 'Choisissez un créneau et un lieu, puis ouvrez la fiche du résident pour servir.'
-        : 'Choisissez un créneau, puis ouvrez la fiche du résident pour vérifier la prise.' }}</p>
+  <header class="page-head tour-heading">
+    <h1>{{ kind() === 'REPAS' ? 'Tournée des repas' : 'Tournée des médicaments' }}</h1>
+    <div class="heading-actions">
+      <button mat-button type="button" (click)="openIdentify()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
+        Identifier un résident
+      </button>
+      <button mat-button type="button" (click)="openDining()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon>
+        Service en salle
+      </button>
+      <button mat-stroked-button type="button" [matMenuTriggerFor]="serviceTools">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">apps</mat-icon>
+        Outils
+      </button>
     </div>
+    <mat-menu #serviceTools="matMenu">
+      <button mat-menu-item type="button" (click)="openResidents()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon> Résidents
+      </button>
+      <button mat-menu-item type="button" (click)="openReleve()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon> Relève
+      </button>
+      <button mat-menu-item type="button" (click)="openPlanning()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">calendar_today</mat-icon> Planning
+      </button>
+      <button mat-menu-item type="button" (click)="openTeam()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">diversity_3</mat-icon> Équipe
+      </button>
+      <button mat-menu-item type="button" (click)="openNotes()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">note_alt</mat-icon> Notes de service
+      </button>
+      <button mat-menu-item type="button" (click)="openAssistant()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">support_agent</mat-icon> Assistant
+      </button>
+    </mat-menu>
   </header>
-  <section class="top">
-    <mat-button-toggle-group
-      class="kind"
-      aria-label="Type de service"
-      [hideSingleSelectionIndicator]="true"
-      [value]="kind()"
-      (change)="setKind($event.value)"
-    >
-      <mat-button-toggle value="REPAS">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
-        Repas
-      </mat-button-toggle>
-      <mat-button-toggle value="MEDICAMENT">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">medication</mat-icon>
-        Médicaments
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-
-    <div class="tools">
-      <div class="tool-group" role="group" aria-label="Résidents et repas">
-        <h2 class="cue-title"><span class="material-symbols-outlined visual-cue" aria-hidden="true">room_service</span><span>Résidents et repas</span></h2>
-        <div class="tool-buttons">
-          <button mat-stroked-button type="button" (click)="openResidents()">
-            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
-            Résidents
-          </button>
-          <button mat-stroked-button type="button" (click)="openIdentify()">
-            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon>
-            Identifier un résident
-          </button>
-          <button mat-stroked-button type="button" (click)="openDining()">
-            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon>
-            Service en salle
-          </button>
-        </div>
-      </div>
-      <div class="tool-group" role="group" aria-label="Équipe et transmissions">
-        <h2 class="cue-title"><span class="material-symbols-outlined visual-cue cue--blue" aria-hidden="true">diversity_3</span><span>Équipe et transmissions</span></h2>
-        <div class="tool-buttons">
-          <button mat-stroked-button type="button" (click)="openReleve()">
-            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
-            Relève
-          </button>
-          <button mat-stroked-button type="button" (click)="openPlanning()">
-            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">calendar_today</mat-icon>
-            Planning
-          </button>
-          <button mat-stroked-button type="button" (click)="openTeam()">
-            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
-            Équipe
-          </button>
-          <button mat-stroked-button type="button" (click)="openNotes()">
-            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">note_alt</mat-icon>
-            Notes de service
-          </button>
-        </div>
-      </div>
-      <div class="tool-group" role="group" aria-label="Assistance">
-        <h2 class="cue-title"><span class="material-symbols-outlined visual-cue cue--violet" aria-hidden="true">support_agent</span><span>Assistance</span></h2>
-        <div class="tool-buttons">
-          <button mat-stroked-button type="button" (click)="openAssistant()">
-            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">support_agent</mat-icon>
-            Assistant
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
 
   @if (kind() === 'REPAS' && refreshUnavailable()) {
     <p class="meal-change" role="status">
@@ -98,77 +55,96 @@
     </aside>
   }
 
-  @if (slots().length > 1) {
-    <div class="slots" role="tablist" aria-label="Créneau">
-      @for (slot of slots(); track slot) {
-        <button
-          type="button"
-          role="tab"
-          class="slot"
-          [attr.aria-selected]="slot === currentSlot()"
-          [class.slot-on]="slot === currentSlot()"
-          (click)="setSlot(slot)"
-        >
-          {{ slotText(slot) }}
-        </button>
+  <div class="tour-controls">
+    <div class="tour-context">
+      <mat-button-toggle-group
+        class="kind"
+        aria-label="Type de service"
+        [hideSingleSelectionIndicator]="true"
+        [value]="kind()"
+        (change)="setKind($event.value)"
+      >
+        <mat-button-toggle value="REPAS">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
+          Repas
+        </mat-button-toggle>
+        <mat-button-toggle value="MEDICAMENT">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">medication</mat-icon>
+          Médicaments
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+      @if (slots().length > 1) {
+        <div class="slots" role="tablist" aria-label="Créneau">
+          @for (slot of slots(); track slot) {
+            <button
+              type="button"
+              role="tab"
+              class="slot"
+              [attr.aria-selected]="slot === currentSlot()"
+              [class.slot-on]="slot === currentSlot()"
+              (click)="setSlot(slot)"
+            >
+              {{ slotText(slot) }}
+            </button>
+          }
+        </div>
+      } @else if (currentSlot(); as only) {
+        <p class="only-slot">{{ slotText(only) }}</p>
+      }
+
+      @if (total() > 0) {
+        <div class="progress">
+          <div class="progress-text">
+            <strong>{{ finished() }} / {{ total() }}</strong>
+            {{ kind() === 'REPAS' ? 'repas traités' : 'prises traitées' }}
+          </div>
+          <mat-progress-bar mode="determinate" [value]="progress()" aria-label="Avancement du service" />
+        </div>
       }
     </div>
-  } @else if (currentSlot(); as only) {
-    <p class="only-slot">{{ slotText(only) }}</p>
-  }
+    <section class="controls">
+      <mat-button-toggle-group
+        class="where"
+        aria-label="Lieu"
+        [hideSingleSelectionIndicator]="true"
+        [value]="location()"
+        (change)="setLocation($event.value)"
+      >
+        <mat-button-toggle value="SALLE">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">dining</mat-icon>
+          Salle à manger · {{ remainingSalle() }}
+        </mat-button-toggle>
+        <mat-button-toggle value="CHAMBRE">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
+          Chambres · {{ remainingChambre() }}
+        </mat-button-toggle>
+      </mat-button-toggle-group>
 
-  @if (total() > 0) {
-    <div class="progress">
-      <div class="progress-text">
-        <strong>{{ finished() }} / {{ total() }}</strong>
-        {{ kind() === 'REPAS' ? 'repas traités' : 'prises traitées' }}
-      </div>
-      <mat-progress-bar mode="determinate" [value]="progress()" aria-label="Avancement du service" />
-    </div>
-  }
+      <mat-button-toggle-group
+        class="filter"
+        aria-label="Filtre"
+        [hideSingleSelectionIndicator]="true"
+        [value]="statusFilter()"
+        (change)="setStatusFilter($event.value)"
+      >
+        <mat-button-toggle value="A_FAIRE">À faire</mat-button-toggle>
+        <mat-button-toggle value="FAIT">Traités</mat-button-toggle>
+        <mat-button-toggle value="TOUS">Tous</mat-button-toggle>
+      </mat-button-toggle-group>
 
-  <section class="controls">
-    <mat-button-toggle-group
-      class="where"
-      aria-label="Lieu"
-      [hideSingleSelectionIndicator]="true"
-      [value]="location()"
-      (change)="setLocation($event.value)"
-    >
-      <mat-button-toggle value="SALLE">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">dining</mat-icon>
-        Salle à manger · {{ remainingSalle() }}
-      </mat-button-toggle>
-      <mat-button-toggle value="CHAMBRE">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
-        Chambres · {{ remainingChambre() }}
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-
-    <mat-button-toggle-group
-      class="filter"
-      aria-label="Filtre"
-      [hideSingleSelectionIndicator]="true"
-      [value]="statusFilter()"
-      (change)="setStatusFilter($event.value)"
-    >
-      <mat-button-toggle value="A_FAIRE">À faire</mat-button-toggle>
-      <mat-button-toggle value="FAIT">Traités</mat-button-toggle>
-      <mat-button-toggle value="TOUS">Tous</mat-button-toggle>
-    </mat-button-toggle-group>
-
-    <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
-      <mat-label>Nom ou chambre</mat-label>
-      <input
-        matInput
-        type="search"
-        autocomplete="off"
-        [ngModel]="search()"
-        (ngModelChange)="search.set($event)"
-      />
-      <mat-icon matSuffix fontSet="material-symbols-outlined" aria-hidden="true">search</mat-icon>
-    </mat-form-field>
-  </section>
+      <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
+        <mat-label>Nom ou chambre</mat-label>
+        <input
+          matInput
+          type="search"
+          autocomplete="off"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+        />
+        <mat-icon matSuffix fontSet="material-symbols-outlined" aria-hidden="true">search</mat-icon>
+      </mat-form-field>
+    </section>
+  </div>
 
   @if (location() === 'CHAMBRE' && nextPending()) {
     <button mat-flat-button type="button" class="start" (click)="openNext()">
@@ -208,20 +184,15 @@
               [lastName]="item.resident.lastName"
               [size]="40"
             />
-            <span class="tile-identity">
-              <span class="work-card-name">{{ name(item) }}</span>
-              <span class="work-card-room">
-                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
-                @if (item.resident.room; as room) { Chambre {{ room }} } @else { Sans chambre }
-              </span>
+            <span class="work-card-name tile-name">{{ name(item) }}</span>
+            <span class="work-card-room tile-room">
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
+              @if (item.resident.room; as room) { Chambre {{ room }} } @else { Sans chambre }
             </span>
             <span class="work-status tile-status">
               <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ statusIcon(item) }}</mat-icon>
               {{ statusText(item) }}
             </span>
-            @if (item.kind === 'MEDICAMENT') {
-              <span class="tile-detail">{{ item.label }}@if (item.detail) { · {{ item.detail }} }</span>
-            }
             <span class="tile-alerts">
               @if (item.resident.identityDoubt) {
                 <span class="work-status work-alert work-alert-danger">
@@ -242,10 +213,10 @@
                     Textures contradictoires
                   </span>
                 }
-                @if (item.resident.texture; as texture) {
-                  <span class="work-status" [class.work-alert]="texture !== 'Normale'">
+                @if (item.resident.texture && item.resident.texture !== 'Normale') {
+                  <span class="work-status work-alert">
                     <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
-                    Texture · {{ texture }}
+                    Texture {{ item.resident.texture }}
                   </span>
                 }
                 @if (item.resident.mealInstructionsChangedAt && (item.status === 'A_FAIRE' || item.status === 'PLUS_TARD')) {
@@ -260,9 +231,6 @@
                     Aide au repas
                   </span>
                 }
-                @if (item.resident.regime; as regime) {
-                  <span class="tile-detail">Régime · {{ regime }}</span>
-                }
               }
               @if (item.highRisk) {
                 <span class="work-status work-alert work-alert-danger">
@@ -271,6 +239,15 @@
                 </span>
               }
             </span>
+            @if (item.kind === 'MEDICAMENT') {
+              <span class="tile-detail">{{ item.label }}@if (item.detail) { · {{ item.detail }} }</span>
+            } @else if (item.resident.texture === 'Normale' || item.resident.regime) {
+              <span class="tile-detail">
+                @if (item.resident.texture === 'Normale') { Texture normale }
+                @if (item.resident.texture === 'Normale' && item.resident.regime) { · }
+                @if (item.resident.regime; as regime) { Régime {{ regime }} }
+              </span>
+            }
           </button>
         </li>
       }

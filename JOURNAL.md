@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — réorganisation de la tournée
+
+- La tournée ouvre sur le titre, les accès courts à l’identification et au service en salle, puis les filtres et les cartes. Le menu **Outils** regroupe l’annuaire, la relève, le planning, l’équipe, les notes et l’assistant. La progression rejoint les commandes du créneau et les changements de consignes restent visibles.
+- Cartes alignées par rangée avec identité, chambre et statut dans des zones fixes. La texture normale et le régime sont présentés en texte. Allergies, textures adaptées et autres points de vigilance gardent un badge avec un libellé. Le pied de page du personnel est compact.
+- Guide des parcours et README personnel actualisés. Build et 33 tests frontend réussis. Vérifié dans Chromium sur les trois rôles de 320 à 1 920 px. La tournée a été contrôlée avec ouverture de la relève depuis Outils, du service en salle et d’une fiche résident.
+
+---
+
 ## Relais Codex du 2026-11-26 — repères visuels et pied de page
 
 - Ajouté des repères Material Symbols aux écrans principaux et aux sections de soin, à la tournée et aux panneaux d’équipe. Les pictogrammes accompagnent le libellé. La tournée donne une consigne de départ et met en évidence les changements de consignes par une icône et du texte.

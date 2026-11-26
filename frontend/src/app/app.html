@@ -1,7 +1,7 @@
 <div class="site-content" #pageStart tabindex="-1">
   <router-outlet />
 </div>
-<footer class="site-footer" [class.site-footer--guest]="!role()">
+<footer class="site-footer" [class.site-footer--guest]="!role()" [class.site-footer--personnel]="role() === 'PERSONNEL'">
   <div class="footer-inner">
     <div class="footer-brand">
       <img src="logo.svg" alt="" width="38" height="38" />
