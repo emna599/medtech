@@ -20,6 +20,11 @@ public class PersonnelExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of(ex.getMessage()));
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ApiError> handleForbidden(ForbiddenException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiError.of(ex.getMessage()));
+    }
+
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiError> handleBadRequest(BadRequestException ex) {
         return ResponseEntity.badRequest().body(ApiError.of(ex.getMessage()));

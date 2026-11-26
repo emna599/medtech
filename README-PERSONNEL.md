@@ -17,12 +17,12 @@ Principe de conception : **« un écran, un geste »**, pensé d'abord pour la t
 | Chambres | **Liste ordonnée par chambre** avec « Démarrer la tournée » : après chaque validation, la fiche du résident suivant s'ouvre |
 | Fiche résident | Photo, **bandeau rouge d'allergies**, régime et texture, actions **Servi / Donné**, **Refusé** (avec motif), **Plus tard**, quantité mangée, changement de lieu (salle ↔ chambre) |
 | Doute d'identité | Le soignant signale un doute : **Servi / Donné est bloqué** tant qu'un **autre** soignant ne l'a pas levé |
-| « Je ne le connais pas » | Saisie du code du bracelet (facultatif) pour afficher la fiche, puis confirmation « C'est bien cette personne » |
+| **Scanner** | Bouton unique en haut : **QR code** pendant les repas, **puce NFC** pour les médicaments. La fiche s'affiche, puis confirmation « C'est bien cette personne » |
 | Assistant | Bouton **Assistant** (en bas à droite) : questions en français, écrites ou **dictées à la voix**, réponses sur le service en cours. Il **propose** une validation, le soignant **confirme** |
 | Appétit | Dans la fiche d'un repas : graphique des 7 derniers jours (une barre par jour) et alerte **« en baisse »** quand les trois derniers jours sont nettement moins bons ou sous la moitié. L'assistant répond aussi à « appétit de Mme Martin ? » |
 | Mode sombre | Bouton lune / soleil dans le bandeau ; suit le réglage du système tant qu'on n'a pas choisi |
 | Relève | Bouton **Relève** : résumé à transmettre à l'équipe suivante (repas et prises faits par créneau, reste à faire, doutes d'identité, refus, repas à peine touchés, traitements à risque non donnés), avec **Copier le résumé** |
-| Pochette (OCR) | Dans « Je ne le connais pas » : **Photographier l'étiquette d'une pochette**. Le service OCR de l'équipe lit le nom, Spring retrouve le résident, et le soignant **compare le visage à la photo** avant de continuer. Facultatif : sans service OCR, un message l'indique |
+| Pochette (OCR) | Dans **Scanner** (onglet Autre) : **Photographier l'étiquette d'une pochette**. Le service OCR de l'équipe lit le nom, Spring retrouve le résident, et le soignant **compare le visage à la photo** avant de continuer. Facultatif : sans service OCR, un message l'indique |
 | Traçabilité | Chaque action est enregistrée dans `audit_log` avec le soignant, l'heure et le résident |
 
 ### Règles métier (côté serveur)
@@ -68,7 +68,9 @@ Frontend, `frontend/src/app/` :
 |---|---|
 | `features/personnel/personnel-dashboard.*` | Accueil (onglets, grille, liste, progression) |
 | `features/personnel/resident-sheet/` | Fiche résident (fenêtre de dialogue) |
-| `features/personnel/identify-dialog/` | Écran « Je ne le connais pas » |
+| `features/personnel/identify-dialog/` | Écran **Scanner** (NFC, QR code, code saisi, pochette) |
+| `features/personnel/planning-dialog/` | Mon planning (fixe, selon la fonction et l'équipe) |
+| `features/personnel/notes-dialog/` | Notes de traçabilité (saisie ou dictée) |
 | `features/personnel/components/resident-avatar.ts` | Photo ou initiales colorées |
 | `features/personnel/releve-dialog/` | Résumé de relève (lecture seule, calculé depuis le service du jour) |
 | `features/personnel/assistant-dialog/` | Fenêtre de l'assistant (discussion, dictée vocale, confirmation) |
@@ -84,7 +86,7 @@ Base de données, `database/` :
 | `medtech_schema.sql` | Schéma de base (équipe) |
 | `seed_users.sql` | Comptes de démonstration (équipe) |
 | `personnel_additions.sql` | Colonnes et tables du personnel (`medication_dose`, `identity_doubt`…), **re-jouable** |
-| `seed_personnel.sql` | 12 résidents fictifs, repas et prises du jour, **re-jouable** |
+| `seed_personnel.sql` | 80 résidents fictifs (`DEMO-001` à `DEMO-080`, chambres 1 à 80), repas et prises du jour, **re-jouable** |
 | `install_personnel.sql` | Les deux scripts ci-dessus à la suite |
 
 ---
@@ -95,6 +97,10 @@ Toutes les routes demandent l'en-tête `Authorization: Bearer <jwt>`.
 
 | Méthode | Route | Rôle |
 |---|---|---|
+| GET | `/api/personnel/me` | Le soignant connecté : fonction, équipe, droits |
+| GET | `/api/personnel/planning` | Planning type de sa fonction et de son équipe |
+| GET / POST | `/api/personnel/notes` | Notes de traçabilité (`?residentId=` pour un résident) |
+| GET / POST | `/api/personnel/residents/{id}/photo` | Photo d'un résident (l'envoi est **réservé à l'administrateur**) |
 | GET | `/api/personnel/residents?search=` | Liste des résidents actifs |
 | GET | `/api/personnel/residents/{id}` | Fiche d'un résident |
 | PUT | `/api/personnel/residents/{id}/meal-location` | Salle ↔ chambre |
@@ -104,7 +110,7 @@ Toutes les routes demandent l'en-tête `Authorization: Bearer <jwt>`.
 | GET | `/api/personnel/service?kind=REPAS\|MEDICAMENT` | Éléments du jour à servir |
 | POST | `/api/personnel/meals/{id}/complete` | Valider un repas (`status`, `comment`) |
 | PUT | `/api/personnel/meals/{id}/quantity` | Quantité mangée |
-| POST | `/api/personnel/doses/{id}/complete` | Valider une prise de médicament |
+| POST | `/api/personnel/doses/{id}/complete` | Valider une prise de médicament (**infirmiers seulement**, sinon 403) |
 | POST | `/api/personnel/assistant` | Question à l'assistant (`message`) : réponse, résidents cités, action à confirmer |
 | GET / POST | `/api/personnel/identity-doubts` | Lister / signaler un doute |
 | POST | `/api/personnel/identity-doubts/{id}/resolve` | Lever un doute (autre soignant) |
@@ -179,7 +185,7 @@ Ouvrir <http://localhost:4200>.
 | Utilisateur | Mot de passe | Usage |
 |---|---|---|
 | `personnel` | `Demo1234!` | Sam Soignant : espace personnel |
-| `personnel2` | `Demo1234!` | Léa Infirmière : lever un doute d'identité |
+| `personnel2` | `Demo1234!` | Léa, **aide-soignante** : repas et soins, médicaments en consultation seule ; lever un doute d'identité |
 | `admin`, `medecin` | `Demo1234!` | Autres espaces |
 
 Codes de bracelet de démonstration : `DEMO-001` à `DEMO-012`.
@@ -193,7 +199,7 @@ Codes de bracelet de démonstration : `DEMO-001` à `DEMO-012`.
 3. **Refus.** Ouvrir un résident, **Refusé** : un motif est obligatoire.
 4. **Tournée en chambre.** Onglet Chambres, **Démarrer la tournée** : les fiches s'enchaînent dans l'ordre des chambres.
 5. **Médicaments.** Bouton Médicaments, même geste avec **Donné**. Les prises « à risque » sont signalées.
-6. **Je ne le connais pas.** Saisir `DEMO-001`, vérifier la photo, **C'est bien cette personne**.
+6. **Scanner.** Dans l'onglet Autre, saisir `DEMO-001`, vérifier la photo, **C'est bien cette personne**.
 7. **Doute d'identité.** Avec `personnel`, ouvrir un résident, **J'ai un doute sur l'identité** puis **Signaler le doute** : Servi/Donné est bloqué. Dans une fenêtre de navigation privée, se connecter avec `personnel2`, ouvrir le même résident et appuyer sur **Confirmer l'identité**. Le blocage disparaît. Le même soignant ne peut pas lever son propre doute.
 8. **Changement de lieu.** Dans une fiche, passer un résident de la salle à la chambre : il apparaît dans l'autre onglet.
 
@@ -234,18 +240,50 @@ Sécurité : l'OCR ne fait que **proposer**. Le soignant doit comparer le visage
 - La caméra en direct exige **HTTPS ou localhost**.
 - Planche de QR de démonstration : `database/qr_demo_residents.png` (jetons `QR-DEMO-001` à `QR-DEMO-012`, créés par `seed_personnel.sql`).
 - Nouvelle dépendance front : `jsqr` → lancer `npm install` dans `frontend/frontend`.
-- Nouveau test Java : `ResidentServiceTokenTest`.
+- Nouveau test Java : `ResidentServiceTokenTest`, `StaffServiceTest`, `TeamServiceTest`, `ChevaletServiceTest`.
+
+## 7ter. Version 2 : fonctions, NFC, planning, notes, photos, base commune
+
+**Fonctions.** Un soignant est **infirmier** ou **aide-soignant** (table `staff_profile`). Seul l'infirmier (ou l'administrateur) peut valider une prise de médicament ; l'aide-soignant la consulte. Un compte PERSONNEL sans ligne dans `staff_profile` est traité comme aide-soignant. Pour en créer un :
+
+```sql
+INSERT INTO staff_profile (user_id, job, shift)
+SELECT id, 'INFIRMIER', 'JOUR' FROM users WHERE username = 'nom_utilisateur';  -- ou 'AIDE_SOIGNANT', 'NUIT'
+```
+
+**NFC et QR code.** Le bouton **Scanner** s'ouvre sur le **QR code** dans l'onglet Repas et sur la **puce NFC** dans l'onglet Médicaments. La lecture NFC du navigateur (Web NFC) ne marche que sur **Chrome pour Android, en HTTPS** ; ailleurs, on saisit le code de la puce. Les puces de démonstration contiennent `NFC-DEMO-001` à `NFC-DEMO-012` (écrire ce texte sur la puce avec une application comme « NFC Tools »). Table : `resident_nfc_tag`.
+
+**Équipe en service et répartition.** Bouton **Équipe** (ex. « 2 inf. · 1 AS ») : le nombre d'infirmiers et d'aides-soignants en service, leurs **noms**, leur part de résidents et l'heure de prise de service. Chacun appuie sur **Je prends mon service** / **Je termine mon service** (table `staff_presence`). Les résidents, triés par chambre, sont répartis à **parts égales entre les soignants présents de la même fonction** : un infirmier seul suit tout le monde (75 ou 80), deux infirmiers en suivent environ 40 chacun. L'écran principal montre **Mes résidents / Tous** et des alertes (aucun infirmier, plus de 40 résidents par infirmier, aucune aide-soignante). Les infirmiers voient toute l'équipe, les aides-soignants leurs collègues aides-soignants. Comptes de démo : `personnel` et `personnel3` (infirmiers), `personnel2` (aide-soignante), tous en service après `seed_personnel.sql`.
+
+**Matin, bracelets, chevalets, alertes (version 3).**
+- **Le matin** (petit-déjeuner, médicaments du matin), il n'y a plus de choix « salle à manger » : tout se fait en tournée des chambres.
+- **Identification** : les résidents **avec bracelet** ont un bouton **Scanner le bracelet** dans leur fiche (il confirme, ou signale un bracelet qui n'est pas le leur) ; **sans bracelet**, la fiche demande de lire le nom et de comparer le visage à la photo. Dans la démo, `DEMO-004` et `DEMO-009` n'ont pas de bracelet. C'est une aide, qui ne bloque pas le service.
+- **Distribution des repas de 11 h 30 à 13 h** : infirmiers et aides-soignants y figurent tous les deux au planning. Plusieurs plages peuvent être **en cours en même temps** (tournée de médicaments et distribution des repas). Une plage **Distribution des chevalets** (11 h à 11 h 30) précède le service : à adapter dans `seed_personnel.sql` si l'horaire diffère.
+- **Chevalets** : table `chevalet(id, code, resident_id, associated_at, associated_by)`. Dans la fiche d'un résident, pendant les repas : **Associer un chevalet** (saisir son numéro), **Changer**, **Retirer**. Un chevalet n'est associé qu'à un résident, et un résident n'a qu'un chevalet ; réassigner un chevalet déjà pris demande une confirmation. Saisir un numéro de chevalet dans **Scanner** (onglet Autre) retrouve aussi le résident. Démo : chevalets 1 à 20, les 1 à 8 déjà associés.
+- **Alertes du planning** : la **cloche** en haut active les notifications du navigateur. À l'heure où une tâche du planning commence, un message s'affiche dans la page (avec **Ouvrir** vers les repas ou les médicaments) et une notification système si elles sont activées. Elles ne fonctionnent que **page ouverte** (pas de serveur de notification).
+
+**Planning.** Bouton **Planning** : plages fixes selon la fonction et l'équipe (transmissions, tournées de 7 h, 11 h 30 et 17 h, pauses), avec la plage en cours en évidence. Elles viennent de la table `planning_task`, remplie par `seed_personnel.sql` ; on l'adapte en SQL.
+
+**Notes de traçabilité.** Bouton **Notes** (ou **Ajouter une note** dans une fiche) : saisie au clavier ou **dictée vocale**, trois types (traçabilité, observation, incident), chaque note est signée et horodatée (table `staff_note`).
+
+**Photos.** Les 12 résidents de démo ont un avatar illustré fictif (`frontend/public/avatars`). **L'administrateur** peut envoyer une vraie photo : **Résidents** → fiche → **Changer la photo** (JPEG, PNG ou WebP, 3 Mo maximum, stockée dans `resident_photo`).
+
+**Base de données commune.** Tout le monde exécute les **mêmes scripts versionnés** de `database/`, dans cet ordre, sur une base `medtech` vide :
+1. `medtech_schema.sql` puis `seed_users.sql` (équipe)
+2. `personnel_additions.sql` puis `seed_personnel.sql` (ou `install_personnel.sql` qui fait les deux)
+
+Tous les scripts sont relançables. Les données de démo sont identiques chez chacun après exécution ; pour repartir à zéro, relancer `seed_personnel.sql`.
 
 ## 8. Tests automatiques
 
 ```powershell
-# Frontend : 26 tests (modèles, appels HTTP, assistant, graphique d'appétit)
+# Frontend : modèles, planning, appels HTTP, assistant, graphique d'appétit, lecture NFC
 cd frontend
 npx ng test --watch=false
 
-# Backend : assistant et tendance d'appétit (JUnit + Mockito, sans base de données)
+# Backend : assistant, appétit, pochette, QR, droits infirmier (JUnit + Mockito, sans base de données)
 cd backend
-.\mvnw.cmd test -Dtest="AssistantServiceTest,AppetiteServiceTest,PochetteScanServiceTest"
+.\mvnw.cmd test -Dtest="AssistantServiceTest,AppetiteServiceTest,PochetteScanServiceTest,ResidentServiceTokenTest,StaffServiceTest,TeamServiceTest,ChevaletServiceTest"
 ```
 
 ## 9. Dépannage
@@ -267,3 +305,16 @@ cd backend
 - La dictée vocale n'est pas encore dans les commentaires de refus (uniquement dans l'assistant).
 - La lecture des pochettes dépend du prototype Flask : elle n'est pas fiable sur une photo floue ou mal éclairée.
 - Les tests Java (assistant, appétit, pochette) sont écrits mais n'ont pas été exécutés par l'auteur de ce document : à lancer avec `mvnw.cmd test`.
+
+## 7quater. Interface « Service » (salle à manger)
+
+Compte de démo : `service1` / `Demo1234!` (fonction `SERVICE`, équipe de jour). Au login, l'écran personnel affiche la salle à manger au lieu des tournées.
+
+- **Les résidents s'installent où ils veulent** : aucune place n'est attribuée. Chaque table (10 tables de 8 résidents au maximum, `dining_table`) a un lecteur RFID (`table_reader` : TR1 = Table 1…). Quand le résident s'assoit, le lecteur lit son bracelet (jeton NFC ou QR) et l'enregistre (`table_presence`). L'écran n'affiche à chaque table que les résidents **présents**, dans l'ordre d'arrivée.
+- Chaque résident présent montre nom, prénom, photo, allergies, régime/texture, chevalet, « En chambre » le cas échéant, et une case **Fait** (réutilise `POST /api/personnel/meals/{id}/complete`). Un clic ouvre la fiche détaillée avec « Fait » / « Refusé » (motif obligatoire). Une table pleine (8) refuse un 9e résident (409).
+- **Menu de la semaine** : table `weekly_menu` (lundi de la semaine, jour 1–7, déjeuner/dîner). Tant qu'aucune nouvelle semaine n'est saisie, le dernier menu se répète. Menu du jour en haut de l'écran, bouton « Menu de la semaine » pour naviguer.
+- **API** : `GET /api/personnel/dining/tables?slot=DEJEUNER|DINER`, `GET /api/personnel/dining/menu?date=AAAA-MM-JJ`, `POST /api/personnel/dining/readings` `{ readerCode, token | residentId, leaving }` (réponses `OK`, `ALREADY`, `MOVED`, `LEFT`). Un vrai lecteur (ESP32 + module RFID) appellera cette route avec un compte de service.
+- **Démonstration sans lecteur** : bouton « Simulateur de bracelet » (choisir un résident et une table → « Bracelet lu ») et bouton de départ sur chaque résident. Le seed installe 24 résidents au hasard sur les tables 1 à 4. Le bouton « Scanner » (NFC/QR/code) retrouve un résident déjà installé.
+- Le service en salle n'a pas accès aux médicaments et n'entre pas dans la répartition des résidents entre soignants.
+
+Après mise à jour : relancer `install_personnel.sql` (UTF-8), redémarrer le backend, tests : `DiningServiceTest`.

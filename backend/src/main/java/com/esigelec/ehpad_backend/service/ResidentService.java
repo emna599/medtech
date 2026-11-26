@@ -58,10 +58,22 @@ public class ResidentService {
         User user = currentUserService.require(username);
         String token = extractToken(code);
 
-        Resident resident = residentRepository.findResidentIdByActiveQrToken(token)
+        Resident resident = residentRepository.findResidentIdByActiveNfcToken(token)
                 .flatMap(residentRepository::findActiveById)
                 .orElse(null);
-        String action = "IDENTIFICATION_QR";
+        String action = "IDENTIFICATION_NFC";
+        if (resident == null) {
+            resident = residentRepository.findResidentIdByActiveQrToken(token)
+                    .flatMap(residentRepository::findActiveById)
+                    .orElse(null);
+            action = "IDENTIFICATION_QR";
+        }
+        if (resident == null) {
+            resident = residentRepository.findResidentIdByChevaletCode(token)
+                    .flatMap(residentRepository::findActiveById)
+                    .orElse(null);
+            action = "IDENTIFICATION_CHEVALET";
+        }
         if (resident == null) {
             resident = residentRepository.findActiveByIdentityCode(token)
                     .orElseThrow(() -> new ResourceNotFoundException("Aucun résident associé à ce code"));
@@ -69,6 +81,11 @@ public class ResidentService {
         }
         auditService.record(user, action, "Resident", resident.getId());
         return assembler.assemble(List.of(resident)).get(resident.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public List<Long> idsWithBracelet() {
+        return residentRepository.findResidentIdsWithBracelet();
     }
 
     /** Extrait le jeton : « abc », « https://site/qr/abc », « https://site/r?token=abc » donnent tous « abc ». */
