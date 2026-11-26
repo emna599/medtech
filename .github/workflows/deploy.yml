@@ -1,0 +1,22 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, medtech-pct]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build backend
+        run: mvn -B -DskipTests clean package
+        working-directory: backend
+
+      - name: Deploy
+        run: |
+          install -m 0644 backend/target/*.jar /opt/medtech/app.jar.new
+          sudo install -m 0644 /opt/medtech/app.jar.new /opt/medtech/app.jar
+          rm -f /opt/medtech/app.jar.new
+          sudo systemctl restart medtech
