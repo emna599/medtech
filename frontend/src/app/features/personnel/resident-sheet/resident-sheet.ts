@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -19,6 +19,7 @@ import {
   ServiceItem,
   slotLabel,
 } from '../../../shared/models/personnel.model';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { AppetiteChart } from '../components/appetite-chart';
 import { ResidentAvatar } from '../components/resident-avatar';
 
@@ -51,6 +52,7 @@ export interface ResidentSheetResult {
 })
 export class ResidentSheet {
   private readonly api = inject(PersonnelService);
+  private readonly dialog = inject(MatDialog);
   private readonly ref = inject<MatDialogRef<ResidentSheet, ResidentSheetResult>>(MatDialogRef);
   private readonly data = inject<ResidentSheetData>(MAT_DIALOG_DATA);
 
@@ -103,7 +105,46 @@ export class ResidentSheet {
   // ------------------------------------------------------------------ actions
 
   protected done(): void {
-    this.complete({ status: 'FAIT' });
+    const risks = this.servingRisks();
+    if (risks.length === 0) {
+      this.complete({ status: 'FAIT' });
+      return;
+    }
+    // Point à risque (allergie / texture / médicament à risque) : confirmation obligatoire.
+    this.dialog
+      .open(ConfirmDialog, {
+        data: {
+          title: 'Vérification avant de valider',
+          message: `${fullName(this.resident())} — ${risks.join(' · ')}. Confirmez avoir vérifié avant de valider.`,
+          confirmLabel: "J'ai vérifié, valider",
+        },
+        width: '420px',
+      })
+      .afterClosed()
+      .subscribe((ok) => {
+        if (ok) {
+          this.complete({ status: 'FAIT', acknowledgeRisk: true });
+        }
+      });
+  }
+
+  /** Points à vérifier avant de valider « servi / donné » pour ce résident. */
+  private servingRisks(): string[] {
+    const item = this.item();
+    const resident = item.resident;
+    const risks: string[] = [];
+    if (item.kind === 'REPAS') {
+      if (resident.allergies?.length) {
+        risks.push('Allergies : ' + resident.allergies.map((a) => a.name).join(', '));
+      }
+      if (resident.texture && resident.texture.toLowerCase() !== 'normale') {
+        risks.push('Texture ' + resident.texture.toLowerCase());
+      }
+    }
+    if (item.kind === 'MEDICAMENT' && item.highRisk) {
+      risks.push('Médicament à risque');
+    }
+    return risks;
   }
 
   protected later(): void {

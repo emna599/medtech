@@ -55,6 +55,8 @@ export interface Doubt {
 export interface CompleteRequest {
   status: Exclude<ServiceStatus, 'A_FAIRE'>;
   comment?: string;
+  /** Le soignant confirme avoir vérifié un point à risque (allergie / texture / médicament à risque). */
+  acknowledgeRisk?: boolean;
 }
 
 export const SLOT_LABEL: Record<string, string> = {

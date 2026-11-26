@@ -1,5 +1,6 @@
 package com.esigelec.ehpad_backend.service;
 
+import com.esigelec.ehpad_backend.dto.AllergyDto;
 import com.esigelec.ehpad_backend.dto.CompleteRequest;
 import com.esigelec.ehpad_backend.dto.ResidentCardDto;
 import com.esigelec.ehpad_backend.dto.ServiceItemDto;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -113,7 +115,9 @@ public class CareService {
         User user = currentUserService.require(username);
         Meal meal = mealRepository.findById(mealId).orElseThrow(() -> new ResourceNotFoundException("Repas introuvable"));
         Resident resident = requireActive(meal.getResident());
+        ResidentCardDto card = assembler.assemble(List.of(resident)).get(resident.getId());
         validate(request, meal.getStatus(), resident.getId());
+        requireMealRiskAck(request, card);
 
         meal.setStatus(request.status());
 
@@ -131,7 +135,10 @@ public class CareService {
         }
 
         auditService.record(user, "REPAS_" + request.status().name(), "Meal", meal.getId());
-        return toMealItem(meal, assembler.assemble(List.of(resident)).get(resident.getId()), distribution);
+        if (request.riskAcknowledged()) {
+            auditService.record(user, "REPAS_RISQUE_CONFIRME", "Meal", meal.getId());
+        }
+        return toMealItem(meal, card, distribution);
     }
 
     /** Quantité mangée, saisie au débarrassage (uniquement pour un repas déjà servi). */
@@ -158,6 +165,7 @@ public class CareService {
                 .orElseThrow(() -> new ResourceNotFoundException("Prise introuvable"));
         Resident resident = requireActive(dose.getResident());
         validate(request, dose.getStatus(), resident.getId());
+        requireDoseRiskAck(request, dose);
 
         dose.setStatus(request.status());
         dose.setUser(user);
@@ -165,6 +173,9 @@ public class CareService {
         dose.setGivenAt(request.status() == ServiceStatus.PLUS_TARD ? null : LocalDateTime.now());
 
         auditService.record(user, "PRISE_" + request.status().name(), "MedicationDose", dose.getId());
+        if (request.riskAcknowledged()) {
+            auditService.record(user, "PRISE_RISQUE_CONFIRME", "MedicationDose", dose.getId());
+        }
         return toDoseItem(dose, assembler.assemble(List.of(resident)).get(resident.getId()));
     }
 
@@ -183,6 +194,38 @@ public class CareService {
         if (request.status() == ServiceStatus.FAIT && doubtRepository.existsByResidentIdAndResolvedFalse(residentId)) {
             throw new ConflictException(
                     "Doute d'identité en cours : un collègue doit confirmer l'identité avant de valider");
+        }
+    }
+
+    /**
+     * Repas : avant de valider "servi", si le résident a des allergies ou une texture adaptée,
+     * le soignant doit avoir confirmé explicitement (acknowledgeRisk) avoir vérifié le plateau.
+     * Les allergies et la fausse route (texture) sont des risques vitaux en EHPAD.
+     */
+    private void requireMealRiskAck(CompleteRequest request, ResidentCardDto card) {
+        if (request.status() != ServiceStatus.FAIT || request.riskAcknowledged() || card == null) {
+            return;
+        }
+        List<String> risks = new ArrayList<>();
+        if (card.allergies() != null && !card.allergies().isEmpty()) {
+            risks.add("allergie(s) : " + card.allergies().stream()
+                    .map(AllergyDto::name).collect(Collectors.joining(", ")));
+        }
+        String texture = card.texture();
+        if (texture != null && !texture.isBlank() && !texture.equalsIgnoreCase("Normale")) {
+            risks.add("texture " + texture.toLowerCase(Locale.ROOT));
+        }
+        if (!risks.isEmpty()) {
+            throw new ConflictException(
+                    "Vérifiez le plateau avant de servir — " + String.join(" · ", risks) + " — puis confirmez.");
+        }
+    }
+
+    /** Médicament : une prise à risque ne peut être validée sans confirmation explicite du soignant. */
+    private void requireDoseRiskAck(CompleteRequest request, MedicationDose dose) {
+        if (request.status() == ServiceStatus.FAIT && dose.isHighRisk() && !request.riskAcknowledged()) {
+            throw new ConflictException(
+                    "Médicament à risque : vérifiez le résident et la prescription, puis confirmez.");
         }
     }
 
