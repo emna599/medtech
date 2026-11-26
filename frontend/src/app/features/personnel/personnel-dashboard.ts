@@ -6,7 +6,7 @@ import { TeamDialog } from './team-dialog/team-dialog';
 import { Router } from '@angular/router';
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { EMPTY, catchError, exhaustMap, filter, fromEvent, map, merge, timer } from 'rxjs';
+import { EMPTY, catchError, switchMap, filter, fromEvent, map, merge, timer } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
@@ -19,6 +19,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { errorMessage, PersonnelService } from '../../core/services/personnel.service';
+import { TourUpdatesService } from '../../core/services/tour-updates.service';
 import { Toolbar } from '../../shared/components/toolbar/toolbar';
 import {
   doneLabel,
@@ -167,9 +168,9 @@ export class PersonnelDashboard {
     this.load(() => {
       if (typeof residentId === 'number') this.openResident(residentId);
     });
-    merge(timer(10_000, 10_000), fromEvent(window, 'online')).pipe(
+    merge(timer(10_000, 10_000), fromEvent(window, 'online'), inject(TourUpdatesService).changes()).pipe(
       filter(() => !this.loading()),
-      exhaustMap(() => {
+      switchMap(() => {
         const revision = this.requestRevision;
         return this.api.listService(this.kind()).pipe(
           map(items => ({ items, revision })),

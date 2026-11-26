@@ -5,6 +5,15 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — synchronisation des tournées et commandes partagées
+
+- Les listes Repas et Médicaments se rechargent après un signal serveur lié à une transaction validée. Le flux authentifié transporte seulement un signal générique. L’API habituelle reste la source des données affichées. La vérification périodique toutes les dix secondes et au retour du réseau couvre les interruptions du flux. Les fiches ouvertes restent stables pendant la saisie.
+- Boutons pleins, secondaires à contour fin, filtres segmentés et champs encadrés appliquent les mêmes dimensions et états de focus. La déconnexion utilise le bouton secondaire partagé. Les rubriques du pied de page sont séparées par un filet. Guide des parcours et README personnel actualisés.
+- Migration versionnée `database/tour_updates.sql`. Sur base isolée, Chromium a vérifié la propagation d’un report de repas entre deux comptes avant le rafraîchissement de secours et le refus d’accès hors rôle. L’API a confirmé le signal après validation d’une prise et la fermeture du flux à la révocation. 35 tests backend et 33 tests frontend passent. Contrôles vérifiés dans les trois espaces sous Chromium, en clair et en sombre, jusqu’à 320 px.
+- La vue cuisine, les habilitations métier détaillées et le circuit des prescriptions restent à valider avec l’établissement. Les essais caméra et RFID restent reportés.
+
+---
+
 ## Relais Codex du 2026-11-26 — confirmation fiable des gestes de tournée
 
 - Repas et prises utilisent une référence de demande créée par la fiche. Le serveur enregistre le reçu et le geste dans la même transaction. Un rejeu par le même compte confirme l’opération déjà acceptée et renvoie l’état courant. La même clé avec une autre validation reçoit un conflit. Une coupure ou une réponse serveur incertaine propose de rejouer exactement la demande tant que la fiche est ouverte.

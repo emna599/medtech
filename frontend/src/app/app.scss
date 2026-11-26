@@ -68,7 +68,12 @@
   gap: 16px 24px;
 }
 
-.footer-inner nav strong { font-size: 1rem; }
+.footer-inner nav strong {
+  display: block;
+  padding-block-end: 8px;
+  border-bottom: 1px solid var(--site-footer-rule);
+  font-size: 1rem;
+}
 .footer-inner ul {
   display: grid;
   justify-items: start;

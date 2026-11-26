@@ -6,6 +6,8 @@
 - Les titres, les cartes et les commandes sont lisibles dès l’ouverture, avec une taille adaptée à la largeur de l’écran. Dans l’en-tête, le logo ramène à l’accueil de votre rôle et le bouton lune ou soleil règle le thème. Le pied de page propose les raccourcis du rôle et **Haut de page**.
 - Côté personnel, **Identifier un résident** et **Service en salle** sont dans l’en-tête de la tournée. Le menu **Outils** regroupe Résidents, Relève, Planning, Équipe, Notes de service et Assistant. Les pictogrammes indiquent les sections et les commandes. Les statuts et alertes associent texte et icône.
 
+Les actions principales sont pleines, les actions secondaires ont un contour fin et les liens conduisent vers un autre écran. Les commandes actives se distinguent par leur fond et le focus clavier par un contour visible. Les mêmes repères s’appliquent en thème clair et sombre.
+
 ## Administration
 
 1. Ouvrez **Résidents**, recherchez la personne et sélectionnez **Consulter la fiche**. Vérifiez le nom, la chambre et le statut.
@@ -27,6 +29,11 @@
 4. Sur le résident installé, sélectionnez **Associer un chevalet**, saisissez le numéro imprimé de 1 à 9999 et confirmez. Si le numéro est déjà utilisé, vérifiez l’ancienne affectation avec l’équipe. Le chevalet est disponible après **Libérer le chevalet** et confirmation, ou après **Enregistrer le départ**. Un changement de table conserve le chevalet.
 5. Sélectionnez **Ouvrir la fiche repas** pour effectuer la vérification du plateau et enregistrer le service.
 6. Pour transmettre une action à poursuivre, utilisez **Outils → Relève**. Pour une note horodatée de service, utilisez **Outils → Notes de service**.
+
+### Synchronisation entre les écrans
+
+- Quand une modification est enregistrée, les listes Repas et Médicaments des écrans connectés se rafraîchissent. Une fiche ouverte garde les informations en cours de vérification et le serveur contrôle la version des consignes à la validation.
+- En cas de coupure du flux, la liste tente une actualisation toutes les dix secondes et au retour du réseau. Vérifiez l’heure de dernière actualisation et suivez le circuit de continuité si l’écran signale une indisponibilité.
 
 ### Si une validation reste en attente
 

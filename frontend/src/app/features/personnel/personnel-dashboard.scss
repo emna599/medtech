@@ -10,10 +10,8 @@
   border-radius: var(--app-radius);
 }
 
-// Groupes de boutons : grandes pastilles arrondies, bien tactiles.
+// Sélection du type de tournée et des filtres.
 mat-button-toggle-group {
-  --mat-button-toggle-shape: 8px;
-  --mat-button-toggle-height: 44px;
   --mat-button-toggle-selected-state-background-color: var(--app-ok);
   --mat-button-toggle-selected-state-text-color: var(--app-on-ok);
   --mat-button-toggle-background-color: var(--app-surface);
@@ -34,9 +32,9 @@ mat-button-toggle-group {
 }
 
 .slot {
-  min-height: 40px;
+  min-height: var(--control-height);
   padding: 0 24px;
-  border-radius: 8px;
+  border-radius: var(--control-radius);
   border: 1px solid var(--app-line);
   background: var(--app-surface);
   color: var(--app-ink);
@@ -85,8 +83,6 @@ mat-button-toggle-group {
 .search {
   flex: 1 1 220px;
   min-width: min(100%, 200px);
-  --mat-form-field-container-shape: 8px;
-  --mat-form-field-outlined-container-shape: 8px;
 }
 
 .start {
@@ -214,7 +210,7 @@ ul.grid {
   border-inline-start: 4px solid var(--app-warn);
   background: var(--app-warn-bg);
   color: var(--app-warn);
-  border-radius: 8px;
+  border-radius: var(--control-radius);
 }
 
 .meal-change p {

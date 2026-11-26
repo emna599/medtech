@@ -4,7 +4,7 @@
 -- =====================================================
 
 -- Nettoyage (utile si tu relances le script)
-DROP TABLE IF EXISTS care_completion_receipt, resident_daily_entry, resident_daily_preferences, handover_action, auth_session, login_throttle, meal_instruction_change, audit_log, qr_code, meal_distribution, meal,
+DROP TABLE IF EXISTS tour_revision, care_completion_receipt, resident_daily_entry, resident_daily_preferences, handover_action, auth_session, login_throttle, meal_instruction_change, audit_log, qr_code, meal_distribution, meal,
     dietary_regime, allergy, medical_record, resident, room, users CASCADE;
 
 -- ---------- USERS (User est un mot réservé -> "users") ----------

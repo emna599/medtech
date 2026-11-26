@@ -177,15 +177,65 @@ body {
 }
 
 // -----------------------------------------------------------------------------
-//  Polish global — discret.
+//  Commandes partagées par les espaces métier et les dialogues.
 // -----------------------------------------------------------------------------
-.mat-mdc-unelevated-button.mat-mdc-button-base,
-.mat-mdc-outlined-button.mat-mdc-button-base {
-  --mdc-filled-button-container-shape: 7px;
-  --mdc-outlined-button-container-shape: 7px;
-  height: 42px;
-  font-weight: 600;
+:root {
+  --control-radius: 7px;
+  --control-height: 44px;
+  --control-outline: #72887f;
+  --control-focus: var(--mat-sys-primary);
+  --control-hover: var(--mat-sys-primary-container);
+}
+
+:root[data-theme='dark'] {
+  --control-outline: #829e95;
+}
+
+.mat-mdc-button-base {
+  --mat-button-filled-container-shape: var(--control-radius);
+  --mat-button-outlined-container-shape: var(--control-radius);
+  --mat-button-outlined-outline-color: var(--control-outline);
+  --mat-button-outlined-label-text-color: var(--mat-sys-on-surface);
+  --mat-button-protected-container-shape: var(--control-radius);
+  --mat-button-tonal-container-shape: var(--control-radius);
+  --mat-button-text-container-shape: var(--control-radius);
+}
+
+.mat-mdc-button-base:not(.mat-mdc-icon-button) {
+  height: auto;
+  min-height: var(--control-height);
+  max-width: 100%;
+  padding-block: 7px;
+  font-weight: 650;
   letter-spacing: 0;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.mat-mdc-outlined-button:not(:disabled, [aria-disabled='true']):hover {
+  background-color: var(--control-hover);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.mat-mdc-button-base:is(:focus-visible, .cdk-keyboard-focused) {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 3px;
+}
+
+.mat-button-toggle button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -4px;
+}
+
+.mat-button-toggle-group {
+  --mat-button-toggle-shape: var(--control-radius);
+  --mat-button-toggle-height: var(--control-height);
+}
+
+.mat-mdc-form-field.mat-form-field-appearance-outline {
+  --mat-form-field-outlined-container-shape: var(--control-radius);
+  --mat-form-field-outlined-hover-outline-color: var(--control-outline);
+  --mat-form-field-outlined-focus-outline-color: var(--control-focus);
 }
 
 .mat-mdc-card.mat-mdc-card {

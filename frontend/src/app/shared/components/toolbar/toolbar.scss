@@ -32,7 +32,6 @@
 .spacer { flex: 1 1 auto; }
 .user { align-items: flex-end; max-width: 24ch; min-width: 0; padding-inline-end: 12px; border-inline-end: 1px solid var(--site-divider); }
 .user-name { font-size: .9rem; overflow-wrap: anywhere; }
-.logout { border: 1px solid var(--site-divider); border-radius: 999px; }
 .user-role { font-size: .85rem; font-weight: 750; color: var(--mat-sys-primary); }
 
 @media (max-width: 600px) {
