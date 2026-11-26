@@ -103,7 +103,7 @@
       </button>
       }
 
-      @if (!scanning() && mode === 'personnel') {
+      @if (!scanning() && mode === 'personnel' && medicationAccess) {
       <p class="or">ou</p>
       <input #photo type="file" accept="image/*" capture="environment" hidden (change)="scanPochette($event)" />
       <button mat-stroked-button type="button" class="pochette" [disabled]="busy()" (click)="photo.click()">

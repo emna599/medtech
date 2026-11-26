@@ -40,6 +40,12 @@
           Feuille de préparation
         </button>
       }
+      @if (!medicationAccess()) {
+        <button mat-menu-item type="button" (click)="openReleve()">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">notification_important</mat-icon>
+          Transmettre un écart de prise
+        </button>
+      }
       <button mat-menu-item type="button" (click)="openReleve()">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon> Relève
       </button>
@@ -87,10 +93,12 @@
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
           Repas
         </mat-button-toggle>
+        @if (medicationAccess()) {
         <mat-button-toggle value="MEDICAMENT">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">medication</mat-icon>
           Médicaments
         </mat-button-toggle>
+        }
       </mat-button-toggle-group>
       @if (total() > 0) {
         <div class="progress">

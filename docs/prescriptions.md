@@ -12,7 +12,11 @@ Cette proposition sert à la revue avec un médecin, une IDE et l’établisseme
 | Exécution | Séparer la prise prévue, ce qui a été constaté et qui l’a enregistré. Garder les prises déjà documentées. Toute correction doit laisser une trace et un motif. |
 | Exceptions | Définir l’escalade pour un refus, une absence, un doute d’identité, un changement après préparation, une panne ou un transfert. Ne pas extrapoler les règles de repas au circuit médicaments. |
 
-## Habilitations à discuter
+## Habilitations validées pour la démo
+
+La tournée Médicaments est réservée aux comptes Personnel avec la fonction Infirmier. L’aide-soignant transmet les écarts par la relève. Les affectations datées restent à intégrer pour appliquer la restriction par secteur. La source des prescriptions et les étapes de dispensation restent à définir.
+
+## Habilitations à préciser
 
 - **Médecin** : proposer la création, la modification et l’arrêt des prescriptions par les prescripteurs habilités. Distinguer la possibilité de consulter de la possibilité de prescrire.
 - **IDE** : convenir qui prépare, administre, trace ou signale un écart. Limiter les informations aux résidents concernés.

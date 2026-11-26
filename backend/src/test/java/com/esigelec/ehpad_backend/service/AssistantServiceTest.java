@@ -45,7 +45,7 @@ class AssistantServiceTest {
 
     @Test
     void answersAllergiesOfAResidentWithAWarning() {
-        AssistantReply reply = assistant.answer("Quelles sont les allergies de Mme Martin ?");
+        AssistantReply reply = assistant.answer("Quelles sont les allergies de Mme Martin ?", true);
 
         assertThat(reply.intent()).isEqualTo("ALLERGIES");
         assertThat(reply.answer()).contains("Poisson");
@@ -58,7 +58,7 @@ class AssistantServiceTest {
                 meal(10L, durand, ServiceStatus.A_FAIRE),
                 meal(11L, martin, ServiceStatus.FAIT)));
 
-        AssistantReply reply = assistant.answer("Qui n'a pas encore mangé ?");
+        AssistantReply reply = assistant.answer("Qui n'a pas encore mangé ?", true);
 
         assertThat(reply.intent()).isEqualTo("RESTE_REPAS");
         assertThat(reply.answer()).contains("1 repas à servir").contains("Michel DURAND");
@@ -68,7 +68,7 @@ class AssistantServiceTest {
     void saysWhenEverythingIsDone() {
         when(careService.listToday(ServiceKind.REPAS)).thenReturn(List.of(meal(10L, durand, ServiceStatus.FAIT)));
 
-        AssistantReply reply = assistant.answer("Qui n'a pas encore mangé ?");
+        AssistantReply reply = assistant.answer("Qui n'a pas encore mangé ?", true);
 
         assertThat(reply.answer()).contains("Rien en attente");
     }
@@ -77,7 +77,7 @@ class AssistantServiceTest {
     void proposesAnActionButNeverRecordsIt() {
         when(careService.listToday(ServiceKind.REPAS)).thenReturn(List.of(meal(42L, durand, ServiceStatus.A_FAIRE)));
 
-        AssistantReply reply = assistant.answer("Marque le repas de M. Durand comme servi");
+        AssistantReply reply = assistant.answer("Marque le repas de M. Durand comme servi", true);
 
         assertThat(reply.action()).isNotNull();
         assertThat(reply.action().itemId()).isEqualTo(42L);
@@ -92,7 +92,7 @@ class AssistantServiceTest {
         when(residentService.list(null)).thenReturn(List.of(doubtful));
         when(careService.listToday(ServiceKind.REPAS)).thenReturn(List.of(meal(50L, doubtful, ServiceStatus.A_FAIRE)));
 
-        AssistantReply reply = assistant.answer("Marque le repas de Mme Garcia comme servi");
+        AssistantReply reply = assistant.answer("Marque le repas de Mme Garcia comme servi", true);
 
         assertThat(reply.action()).isNull();
         assertThat(reply.answer()).contains("Doute d'identité");
@@ -103,7 +103,7 @@ class AssistantServiceTest {
         ResidentCardDto otherMartin = resident(4L, "Paul", "Martin", "9", List.of(), false);
         when(residentService.list(null)).thenReturn(List.of(martin, otherMartin));
 
-        AssistantReply reply = assistant.answer("allergies de Martin");
+        AssistantReply reply = assistant.answer("allergies de Martin", true);
 
         assertThat(reply.intent()).isEqualTo("AMBIGU");
         assertThat(reply.residents()).hasSize(2);
@@ -113,7 +113,7 @@ class AssistantServiceTest {
     void warnsWhenAppetiteIsDeclining() {
         when(appetiteService.forResident(1L, 7)).thenReturn(new AppetiteDto(List.of(), 0.2, 0.9, true));
 
-        AssistantReply reply = assistant.answer("Appétit de Mme Martin ?");
+        AssistantReply reply = assistant.answer("Appétit de Mme Martin ?", true);
 
         assertThat(reply.intent()).isEqualTo("APPETIT");
         assertThat(reply.answer()).contains("en baisse");
@@ -121,7 +121,7 @@ class AssistantServiceTest {
 
     @Test
     void fallsBackToHelpOnAnUnknownQuestion() {
-        AssistantReply reply = assistant.answer("Quelle est la capitale de la France ?");
+        AssistantReply reply = assistant.answer("Quelle est la capitale de la France ?", true);
 
         assertThat(reply.intent()).isEqualTo("AIDE");
         assertThat(reply.action()).isNull();
@@ -132,7 +132,7 @@ class AssistantServiceTest {
         when(careService.listToday(ServiceKind.REPAS)).thenReturn(List.of(
                 meal(10L, durand, ServiceStatus.ABSENT), meal(11L, martin, ServiceStatus.REFUSE)));
 
-        AssistantReply reply = assistant.answer("Qui est absent au déjeuner ?");
+        AssistantReply reply = assistant.answer("Qui est absent au déjeuner ?", true);
 
         assertThat(reply.intent()).isEqualTo("ABSENCES");
         assertThat(reply.residents()).extracting(AssistantReply.ResidentRef::id).containsExactly(2L);
@@ -144,7 +144,7 @@ class AssistantServiceTest {
         when(careService.listToday(ServiceKind.REPAS)).thenReturn(List.of(
                 meal(42L, durand, ServiceStatus.A_FAIRE), meal(43L, durand, ServiceStatus.PLUS_TARD)));
 
-        AssistantReply reply = assistant.answer("Marque le repas de Durand comme servi");
+        AssistantReply reply = assistant.answer("Marque le repas de Durand comme servi", true);
 
         assertThat(reply.action()).isNull();
         assertThat(reply.answer()).contains("choisir");
@@ -154,7 +154,7 @@ class AssistantServiceTest {
     void sendsAResidentWithAllergiesToTheServiceSheetForConfirmation() {
         when(careService.listToday(ServiceKind.REPAS)).thenReturn(List.of(meal(42L, martin, ServiceStatus.A_FAIRE)));
 
-        AssistantReply reply = assistant.answer("Marque le repas de Martin comme servi");
+        AssistantReply reply = assistant.answer("Marque le repas de Martin comme servi", true);
 
         assertThat(reply.action()).isNull();
         assertThat(reply.answer()).contains("fiche de service");
@@ -162,7 +162,7 @@ class AssistantServiceTest {
 
     @Test
     void redirectsClinicalQuestionsToTheCareTeam() {
-        AssistantReply reply = assistant.answer("Quelle posologie prescrire pour Durand ?");
+        AssistantReply reply = assistant.answer("Quelle posologie prescrire pour Durand ?", true);
 
         assertThat(reply.intent()).isEqualTo("HORS_PERIMETRE");
         assertThat(reply.residents()).isEmpty();
@@ -178,5 +178,12 @@ class AssistantServiceTest {
     private static ServiceItemDto meal(Long id, ResidentCardDto resident, ServiceStatus status) {
         return new ServiceItemDto(ServiceKind.REPAS, id, "DEJEUNER", "Déjeuner", null,
                 LocalDate.now().atTime(12, 0), status, false, null, resident);
+    }
+    @Test
+    void restrictedSummaryDoesNotReadDoses() {
+        when(careService.listToday(ServiceKind.REPAS)).thenReturn(List.of());
+        AssistantReply reply = assistant.answer("Résumé du service", false);
+        assertThat(reply.answer()).doesNotContain("prises données");
+        org.mockito.Mockito.verify(careService, org.mockito.Mockito.never()).listToday(ServiceKind.MEDICAMENT);
     }
 }

@@ -9,6 +9,7 @@ import com.esigelec.ehpad_backend.entity.StaffProfile;
 import com.esigelec.ehpad_backend.entity.User;
 import com.esigelec.ehpad_backend.repository.PlanningTaskRepository;
 import com.esigelec.ehpad_backend.repository.StaffProfileRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,6 +59,17 @@ public class StaffService {
         return profile(user)
                 .map(StaffProfile::getJob)
                 .orElse(user.getRole() == Role.ADMIN ? Job.INFIRMIER : Job.AIDE_SOIGNANT);
+    }
+
+    public boolean canAccessMedication(String username) {
+        User user = currentUserService.require(username);
+        return user.getRole() == Role.PERSONNEL && jobOf(user) == Job.INFIRMIER;
+    }
+
+    public void requireMedicationAccess(String username) {
+        if (!canAccessMedication(username)) {
+            throw new AccessDeniedException("La tournée des médicaments est réservée aux infirmiers habilités");
+        }
     }
 
     public Shift shiftOf(User user) {

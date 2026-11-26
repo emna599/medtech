@@ -56,8 +56,8 @@ export class PersonnelService {
     return this.http.post<Reading>(`${this.base}/dining/readings`, { readerCode, ...identity, leaving });
   }
 
-  access(): Observable<{ diningOnly: boolean }> {
-    return this.http.get<{ diningOnly: boolean }>(`${this.base}/access`);
+  access(): Observable<{ diningOnly: boolean; medicationAccess: boolean }> {
+    return this.http.get<{ diningOnly: boolean; medicationAccess: boolean }>(`${this.base}/access`);
   }
 
   planning(): Observable<Planning> {

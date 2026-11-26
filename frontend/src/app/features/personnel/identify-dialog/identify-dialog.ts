@@ -15,6 +15,7 @@ export interface IdentifyDialogData {
   mode: 'admin' | 'medecin' | 'personnel';
   initialCode?: string | null;
   confirmationLabel?: string;
+  medicationAccess?: boolean;
 }
 
 export interface IdentifyResult {
@@ -37,6 +38,7 @@ export class IdentifyDialog {
   private readonly ref = inject<MatDialogRef<IdentifyDialog, IdentifyResult>>(MatDialogRef);
 
   private readonly data = inject<IdentifyDialogData>(MAT_DIALOG_DATA, { optional: true });
+  protected readonly medicationAccess = this.data?.medicationAccess ?? false;
   protected readonly mode = this.data?.mode ?? 'personnel';
   protected readonly confirmationLabel = this.data?.confirmationLabel
     ?? (this.mode === 'admin' ? 'Confirmer et ouvrir la fiche administrative' : 'Confirmer et ouvrir la fiche');

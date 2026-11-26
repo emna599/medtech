@@ -32,7 +32,7 @@ import { ResidentAvatar } from './components/resident-avatar';
 import { AssistantDialog, AssistantResult } from './assistant-dialog/assistant-dialog';
 import { ResidentsDialog, ResidentsResult } from './residents-dialog/residents-dialog';
 import { ReleveDialog } from './releve-dialog/releve-dialog';
-import { IdentifyDialog, IdentifyResult } from './identify-dialog/identify-dialog';
+import { IdentifyDialog, IdentifyDialogData, IdentifyResult } from './identify-dialog/identify-dialog';
 import { ResidentSheet, ResidentSheetData, ResidentSheetResult } from './resident-sheet/resident-sheet';
 
 type StatusFilter = 'A_FAIRE' | 'FAIT' | 'TOUS';
@@ -189,13 +189,15 @@ export class PersonnelDashboard {
   );
 
   protected readonly diningOnly = signal<boolean | null>(null);
+  protected readonly medicationAccess = signal(false);
   protected readonly accessError = signal(false);
 
   constructor() {
     const residentId = inject(Router).currentNavigation()?.extras.state?.['identifiedResidentId'];
     const updates = inject(TourUpdatesService);
     this.api.access().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: ({ diningOnly }) => {
+      next: ({ diningOnly, medicationAccess }) => {
+        this.medicationAccess.set(medicationAccess);
         this.diningOnly.set(diningOnly);
         if (diningOnly) {
           this.openDining();
@@ -234,7 +236,7 @@ export class PersonnelDashboard {
   }
 
   protected setKind(kind: ServiceKind): void {
-    if (kind === this.kind()) {
+    if (kind === this.kind() || (kind === 'MEDICAMENT' && !this.medicationAccess())) {
       return;
     }
     this.kitchenSheetOpen.set(false);
@@ -352,7 +354,8 @@ export class PersonnelDashboard {
   }
 
   protected openIdentify(): void {
-    const ref = this.dialog.open<IdentifyDialog, undefined, IdentifyResult>(IdentifyDialog, {
+    const ref = this.dialog.open<IdentifyDialog, IdentifyDialogData, IdentifyResult>(IdentifyDialog, {
+      data: { mode: 'personnel', medicationAccess: this.medicationAccess() },
       width: '560px',
       maxWidth: '100vw',
     });
@@ -380,7 +383,8 @@ export class PersonnelDashboard {
   }
 
   protected openAssistant(): void {
-    const ref = this.dialog.open<AssistantDialog, undefined, AssistantResult>(AssistantDialog, {
+    const ref = this.dialog.open<AssistantDialog, { medicationAccess: boolean }, AssistantResult>(AssistantDialog, {
+      data: { medicationAccess: this.medicationAccess() },
       maxWidth: '100vw',
       panelClass: 'assistant-panel',
       autoFocus: false,
@@ -391,6 +395,7 @@ export class PersonnelDashboard {
       }
       if (result.action) {
         const action = result.action;
+        if (action.kind === 'MEDICAMENT' && !this.medicationAccess()) return;
         this.chosenSlot.set(null);
         this.kind.set(action.kind);
         this.load(() => {

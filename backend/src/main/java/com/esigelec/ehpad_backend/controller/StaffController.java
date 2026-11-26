@@ -32,12 +32,13 @@ public class StaffController {
         this.noteService = noteService;
     }
 
-    public record StaffAccess(boolean diningOnly) {}
+    public record StaffAccess(boolean diningOnly, boolean medicationAccess) {}
 
     @GetMapping("/access")
     public StaffAccess access(Authentication authentication) {
-        return new StaffAccess(authentication.getAuthorities().stream()
-                .anyMatch(authority -> JwtAuthenticationFilter.DINING_AUTHORITY.equals(authority.getAuthority())));
+        boolean diningOnly = authentication.getAuthorities().stream()
+                .anyMatch(authority -> JwtAuthenticationFilter.DINING_AUTHORITY.equals(authority.getAuthority()));
+        return new StaffAccess(diningOnly, staffService.canAccessMedication(authentication.getName()));
     }
 
     /** Planning type (fixe) de la fonction et de l'équipe du soignant. */

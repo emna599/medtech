@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
 import { AssistantAction, AssistantResidentRef } from '../../../shared/models/personnel.model';
@@ -60,7 +60,8 @@ export class AssistantDialog {
   private readonly api = inject(PersonnelService);
   private readonly ref = inject<MatDialogRef<AssistantDialog, AssistantResult>>(MatDialogRef);
 
-  protected readonly suggestions = SUGGESTIONS;
+  protected readonly suggestions = inject<{ medicationAccess: boolean } | null>(MAT_DIALOG_DATA, { optional: true })
+    ?.medicationAccess ? SUGGESTIONS : SUGGESTIONS.filter(question => question !== 'Quels médicaments restent à donner ?');
   protected readonly messages = signal<ChatMessage[]>([
     {
       id: 0,

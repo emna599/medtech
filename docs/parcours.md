@@ -44,6 +44,12 @@ Dans **Administration → Comptes**, créez ou modifiez un compte **Personnel** 
 - Dans l’Assistant, **Ouvrir la fiche de tournée** ouvre le repas ou la prise proposé. La validation se fait dans cette fiche.
 
 
+### Médicaments et transmissions
+
+- Dans la démo, un compte Personnel avec la fonction **Infirmier** peut ouvrir et tracer les prises, ainsi qu’utiliser la lecture d’étiquette de pochette.
+- Côté aide-soignant, pour signaler une absence, un refus ou un doute à l’IDE, ouvrez **Outils → Transmettre un écart de prise** et consignez l’information dans la relève. Le registre des médicaments et ses validations sont réservés aux comptes habilités.
+- Ce premier contrôle repose sur la fonction. Le périmètre par secteur et par créneau reste à câbler aux affectations datées.
+
 ### Service en salle
 
 Avec le compte de démonstration **service1**, les tables s’ouvrent après la connexion. Sofia peut consulter le menu, enregistrer les arrivées et départs et gérer les chevalets. Le statut du repas reste visible sur la table. La validation du service se fait depuis la tournée de l’équipe qui y est habilitée.

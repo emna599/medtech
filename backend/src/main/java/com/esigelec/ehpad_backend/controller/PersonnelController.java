@@ -21,6 +21,7 @@ import com.esigelec.ehpad_backend.service.CareCompletionService;
 import com.esigelec.ehpad_backend.service.IdentityDoubtService;
 import com.esigelec.ehpad_backend.service.PochetteScanService;
 import com.esigelec.ehpad_backend.service.ResidentService;
+import com.esigelec.ehpad_backend.service.StaffService;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -49,6 +50,7 @@ import java.util.UUID;
 public class PersonnelController {
 
     private final ResidentService residentService;
+    private final StaffService staff;
     private final CareService careService;
     private final CareCompletionService completions;
     private final IdentityDoubtService doubtService;
@@ -62,8 +64,9 @@ public class PersonnelController {
                                IdentityDoubtService doubtService,
                                AssistantService assistantService,
                                AppetiteService appetiteService,
-                               PochetteScanService pochetteScanService) {
+                               PochetteScanService pochetteScanService, StaffService staff) {
         this.residentService = residentService;
+        this.staff = staff;
         this.careService = careService;
         this.completions = completions;
         this.doubtService = doubtService;
@@ -106,13 +109,15 @@ public class PersonnelController {
     /** Photo de l'étiquette d'une pochette : l'OCR propose un résident, le soignant vérifie le visage. */
     @PostMapping(value = "/identify/pochette", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public PochetteScanDto identifyByPochette(@RequestPart("photo") MultipartFile photo, Authentication authentication) {
+        staff.requireMedicationAccess(authentication.getName());
         return pochetteScanService.scan(photo, authentication.getName());
     }
 
     // ------------------------------------------------------------ repas et médicaments du jour
 
     @GetMapping("/service")
-    public List<ServiceItemDto> service(@RequestParam ServiceKind kind) {
+    public List<ServiceItemDto> service(@RequestParam ServiceKind kind, Authentication authentication) {
+        if (kind == ServiceKind.MEDICAMENT) staff.requireMedicationAccess(authentication.getName());
         return careService.listToday(kind);
     }
 
@@ -160,7 +165,7 @@ public class PersonnelController {
 
     /** Répond à une question en français. N'enregistre rien : une action proposée doit être confirmée. */
     @PostMapping("/assistant")
-    public AssistantReply assistant(@Valid @RequestBody AssistantRequest request) {
-        return assistantService.answer(request.message());
+    public AssistantReply assistant(@Valid @RequestBody AssistantRequest request, Authentication authentication) {
+        return assistantService.answer(request.message(), staff.canAccessMedication(authentication.getName()));
     }
 }

@@ -19,15 +19,18 @@ public class CareCompletionService {
     private final JdbcTemplate jdbc;
     private final CurrentUserService users;
     private final CareService care;
+    private final StaffService staff;
 
-    public CareCompletionService(JdbcTemplate jdbc, CurrentUserService users, CareService care) {
+    public CareCompletionService(JdbcTemplate jdbc, CurrentUserService users, CareService care, StaffService staff) {
         this.jdbc = jdbc;
         this.users = users;
         this.care = care;
+        this.staff = staff;
     }
 
     @Transactional
     public ServiceItemDto complete(ServiceKind kind, Long id, CompleteRequest request, UUID requestId, String username) {
+        if (kind == ServiceKind.MEDICAMENT) staff.requireMedicationAccess(username);
         if (requestId != null) {
             Long userId = users.require(username).getId();
             String fingerprint = fingerprint(kind, id, request);

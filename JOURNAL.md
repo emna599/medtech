@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — droits médicaments par fonction
+
+- Lecture et validation des prises ainsi que l’OCR de pochette réservés aux comptes Personnel avec fonction INFIRMIER. La validation vérifie la fonction avant tout reçu idempotent. Les écrans et l’Assistant suivent le même droit.
+- L’aide-soignant conserve la tournée Repas et ouvre la relève via **Transmettre un écart de prise**. Le compte Service reste sur les tables. Le dossier de prescription et les affectations datées qui limiteront les tournées par secteur restent à intégrer.
+- 36 tests backend et 33 tests frontend réussis. Chromium a vérifié les parcours IDE et aide-soignant. Sur PostgreSQL isolé, vérification de la lecture et de la validation IDE, du refus Aide-soignant/Service/Administration par API, du maintien des repas et du filtrage de l’Assistant.
+
+---
+
 ## Relais Codex du 2026-11-27 — fonctions et équipes dans l’administration
 
 - Le formulaire Comptes attribue les fonctions infirmier, aide-soignant et service en salle et l’équipe de jour ou de nuit. La liste distingue rôle, fonction et équipe. Les comptes historiques sans profil restent utilisables.
