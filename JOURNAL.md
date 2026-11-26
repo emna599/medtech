@@ -5,6 +5,15 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — revue des branches distantes
+
+- `feature/admin-users` (`c4e0ed6`) enrichit la démo avec 16 chambres, 24 résidents et des données de soin fictives. Le script complet recrée les tables et les QR de démo sont associés au médecin. Reprendre les données sur une base isolée et aligner le scénario QR avec la gestion admin.
+- `feature/personnel` (`13d836c`, `e20c930`) ajoute l’interface Service, les tables, le menu hebdomadaire, le planning, les notes et les lectures RFID. Vérifier les droits de lecture et d’écriture, le lien avec la relève et les migrations PostgreSQL. Le code et les scripts touchent des fichiers modifiés dans integration.
+- `feature/medecin` est toujours sur `125ec29`, déjà revu. `feature/auth` et `feature/backend-init` sont déjà dans l’ascendance d’integration. `main` (`3f8f9d2`) ajoute un workflow de déploiement du backend via un runner auto-hébergé, déclenché sur push main et configuré sans exécuter les tests Maven.
+- Revue statique et simulation Git uniquement. Trois conflits médecin, onze admin et neuf personnel. Aucun changement fonctionnel intégré ni déploiement déclenché.
+
+---
+
 ## Relais Codex du 2026-11-26 — revue de la branche médecin de Ran
 
 - Récupéré explicitement `feature/medecin` et examiné son unique commit divergent `125ec29`. Il encode une URL dans le QR pour ouvrir une fiche dans le navigateur, ajoute un aperçu médecin et affiche le nom et la chambre sur le bracelet imprimé.
