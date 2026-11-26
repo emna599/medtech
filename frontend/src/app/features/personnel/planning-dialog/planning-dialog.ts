@@ -44,7 +44,7 @@ export class PlanningDialog {
 
   protected readonly title = computed(() => {
     const planning = this.planning();
-    return planning ? `${JOB_LABEL[planning.job]} · ${SHIFT_LABEL[planning.shift]}` : 'Mon planning';
+    return planning ? `${JOB_LABEL[planning.job]} · ${SHIFT_LABEL[planning.shift]}` : '';
   });
 
   /** Plusieurs plages peuvent être en cours en même temps (tournée de médicaments et distribution des repas). */

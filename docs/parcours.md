@@ -4,7 +4,7 @@
 
 - Connectez-vous avec un compte de démonstration du rôle à présenter, sur une base fictive.
 - Les titres, les cartes et les commandes sont lisibles dès l’ouverture, avec une taille adaptée à la largeur de l’écran. Dans l’en-tête, le logo ramène à l’accueil de votre rôle et le bouton lune ou soleil règle le thème. Le pied de page propose les raccourcis du rôle et **Haut de page**.
-- Côté personnel, **Identifier un résident** et **Service en salle** sont dans l’en-tête de la tournée. Le menu **Outils** regroupe Résidents, Relève, Planning, Équipe, Notes de service et Assistant. Les pictogrammes indiquent les sections et les commandes. Les statuts et alertes associent texte et icône.
+- Côté personnel, **Identifier un résident** et **Service en salle** sont dans l’en-tête de la tournée. Le menu **Outils** regroupe Résidents, Relève, Organisation type, Équipe, Notes de service et Assistant. Les pictogrammes indiquent les sections et les commandes. Les statuts et alertes associent texte et icône.
 
 Les actions principales sont pleines, les actions secondaires ont un contour fin et les liens conduisent vers un autre écran. Les commandes actives se distinguent par leur fond et le focus clavier par un contour visible. Les mêmes repères s’appliquent en thème clair et sombre.
 
@@ -41,6 +41,11 @@ Les actions principales sont pleines, les actions secondaires ont un contour fin
 - Si le serveur signale une consigne modifiée, vérifiez la fiche actualisée et confirmez de nouveau si nécessaire. Si l’actualisation échoue, suivez le circuit de continuité de l’établissement.
 - Dans l’Assistant, **Ouvrir la fiche de tournée** ouvre le repas ou la prise proposé. La validation se fait dans cette fiche.
 
+
+### Organisation de l’équipe
+
+- Dans **Outils → Organisation type**, consultez un exemple de déroulement par fonction et par équipe. Les gardes et remplacements se vérifient auprès du responsable de service.
+- L’annuaire **Résidents** présente une ligne par personne. Recherchez par nom ou chambre, repérez le régime et les alertes, puis ouvrez la fiche.
 
 ## Matériel à vérifier avec l’équipe
 

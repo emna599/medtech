@@ -5,6 +5,16 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — lisibilité de la tournée et cohérence métier
+
+- Tournées avec commandes séparées par des filets, cartes ajustées à leur contenu et statut près du nom sur ordinateur. Annuaire du personnel sous forme de liste avec recherche par nom ou chambre.
+- L’écran **Organisation type** indique que les horaires actuels sont des exemples par fonction et par équipe. Le planning nominatif reste à concevoir avec un responsable de publication, des affectations datées et un circuit de remplacement.
+- Points de revue métier : la présence déclarée recalcule une répartition indicative des résidents. Une affectation de soins nécessite un responsable et un périmètre explicite. Le menu hebdomadaire est alimenté par les données de démonstration. Il reste à définir qui le publie et qui confirme la prise en compte d’un changement. Les journées de service et les gardes de nuit doivent partager une règle de date et de fuseau.
+- Compilation Angular et 33 tests frontend réussis.
+- Orientation approuvée pour la cuisine, les habilitations et le circuit des prescriptions. Les responsabilités opérationnelles et le logiciel de référence restent à confirmer avec l’établissement.
+
+---
+
 ## Relais Codex du 2026-11-26 — synchronisation des tournées et commandes partagées
 
 - Les listes Repas et Médicaments se rechargent après un signal serveur lié à une transaction validée. Le flux authentifié transporte seulement un signal générique. L’API habituelle reste la source des données affichées. La vérification périodique toutes les dix secondes et au retour du réseau couvre les interruptions du flux. Les fiches ouvertes restent stables pendant la saisie.

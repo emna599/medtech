@@ -91,7 +91,7 @@
   } @else {
     <section class="list-area">
       <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
-        <mat-label>Rechercher un résident (nom ou chambre)</mat-label>
+        <mat-label>Nom ou chambre</mat-label>
         <input matInput type="search" autocomplete="off" [ngModel]="search()" (ngModelChange)="search.set($event)" />
         <mat-icon matSuffix fontSet="material-symbols-outlined" aria-hidden="true">search</mat-icon>
       </mat-form-field>
@@ -106,7 +106,7 @@
       } @else if (visible().length === 0) {
         <p class="state">Aucun résident trouvé.</p>
       } @else {
-        <p class="count">{{ visible().length }} résident(s)</p>
+        <p class="count">{{ visible().length }} {{ visible().length === 1 ? 'résident' : 'résidents' }}</p>
         <ul class="list">
           @for (resident of visible(); track resident.id) {
             <li>
@@ -115,14 +115,16 @@
                   [photoUrl]="resident.photoUrl"
                   [firstName]="resident.firstName"
                   [lastName]="resident.lastName"
-                  [size]="48"
+                  [size]="36"
                 />
                 <span class="item-main">
-                  <span class="work-card-name">{{ name(resident) }}</span>
-                  <span class="work-card-room">
+                  <span class="item-name">{{ name(resident) }}</span>
+                  <span class="item-room">
                     <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
-                    {{ roomText(resident) }}
+                    <span>{{ roomText(resident) }}</span>
                   </span>
+                </span>
+                <span class="item-meta">
                   <span class="item-sub">{{ resident.regime || 'Normal' }}</span>
                   <span class="item-alerts">
                     @if (resident.identityDoubt) {

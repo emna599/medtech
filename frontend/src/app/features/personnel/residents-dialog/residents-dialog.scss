@@ -48,56 +48,53 @@
   color: var(--mat-sys-on-surface-variant);
 }
 
+
 .list {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
-  gap: 12px;
+  border-block-start: 1px solid var(--app-line);
 }
 
 .item {
   width: 100%;
-  min-height: 68px;
-  display: flex;
+  min-height: 66px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, .65fr) auto;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  border-radius: var(--app-radius);
-  border: 1px solid var(--mat-sys-outline-variant);
-  background: var(--app-surface);
+  gap: 8px 14px;
+  padding: 10px 6px;
+  border: 0;
+  border-block-end: 1px solid var(--app-line);
+  background: transparent;
   color: inherit;
   font: inherit;
   text-align: left;
   cursor: pointer;
 }
 
-.item:hover {
-  border-color: var(--brand-teal, #0f766e);
-}
+.item:hover { background: var(--app-teal-tint); }
+.item:focus-visible { outline: 2px solid var(--control-focus); outline-offset: -2px; }
 
-.item:focus-visible {
-  outline: 3px solid var(--brand-coral, #e8715a);
-  outline-offset: 2px;
-}
-
-.item-main {
-  flex: 1 1 auto;
+.item-main, .item-meta {
+  display: grid;
+  gap: 3px;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
+  overflow-wrap: anywhere;
 }
 
-.item-alerts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
+.item-name { font-size: 1.08rem; line-height: 1.2; font-weight: 700; }
+.item-room, .item-sub { color: var(--mat-sys-on-surface-variant); font-size: .9rem; }
+.item-room { display: flex; align-items: center; gap: 5px; }
+.item-room mat-icon { flex: none; font-size: 18px; width: 18px; height: 18px; }
+.item-alerts { display: flex; flex-wrap: wrap; gap: 4px; }
+.item-alerts:empty { display: none; }
+.item-alerts .work-status { font-size: .86rem; padding: 3px 6px; }
 
-.item-sub {
-  font-size: 13px;
-  color: var(--mat-sys-on-surface-variant);
+@media (max-width: 540px) {
+  .item { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .item > mat-icon { grid-column: 3; grid-row: 1 / span 2; }
+  .item-meta { grid-column: 2; }
 }
 
 .state {
