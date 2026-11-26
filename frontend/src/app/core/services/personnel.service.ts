@@ -8,6 +8,7 @@ import {
   CompleteRequest,
   Doubt,
   HandoverAction,
+  HandoverAssignment,
   HandoverBoard,
   HandoverRequest,
   MealLocation,
@@ -34,8 +35,12 @@ export class PersonnelService {
     return this.http.post<HandoverAction>(this.handover, request);
   }
 
-  completeHandover(id: number): Observable<HandoverAction> {
-    return this.http.post<HandoverAction>(`${this.handover}/${id}/complete`, {});
+  assignHandover(id: number, action: HandoverAssignment, version: number): Observable<HandoverAction> {
+    return this.http.post<HandoverAction>(`${this.handover}/${id}/assignment`, { action, version });
+  }
+
+  completeHandover(id: number, version: number): Observable<HandoverAction> {
+    return this.http.post<HandoverAction>(`${this.handover}/${id}/complete`, { version });
   }
 
   listService(kind: ServiceKind): Observable<ServiceItem[]> {

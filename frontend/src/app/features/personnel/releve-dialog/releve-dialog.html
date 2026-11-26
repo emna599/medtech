@@ -28,16 +28,32 @@
             <mat-card-content>
               <div class="work-card-heading">
                 <h4>{{ entry.residentName ?? 'Équipe' }}</h4>
-                <span class="work-status">À faire</span>
+                <span class="work-status">{{ entry.assignedTo ? 'En cours' : 'À faire' }}</span>
               </div>
               <p class="muted">{{ entry.authorName }} · {{ entry.createdAt | date:'dd/MM HH:mm' }}</p>
+              @if (entry.assigneeName) {
+                <p class="muted">Pris en charge par {{ entry.assigneeName }}</p>
+              }
               <p class="handover-text">{{ entry.observation }}</p>
               <p class="handover-text"><strong>Action attendue</strong><br />{{ entry.expectedAction }}</p>
             </mat-card-content>
             <mat-card-actions align="end">
-              <button mat-button type="button" [disabled]="closing() !== null || saving()" (click)="complete(entry.id)">
-                Marquer comme faite
-              </button>
+              @if (entry.assignedTo === null) {
+                <button mat-button type="button" [disabled]="closing() !== null || saving()" (click)="assign(entry, 'CLAIM')">
+                  Prendre en charge
+                </button>
+              } @else if (entry.assignedTo === currentUser()?.id) {
+                <button mat-button type="button" [disabled]="closing() !== null || saving()" (click)="assign(entry, 'RELEASE')">
+                  Libérer
+                </button>
+                <button mat-flat-button type="button" [disabled]="closing() !== null || saving()" (click)="complete(entry)">
+                  Marquer comme faite
+                </button>
+              } @else {
+                <button mat-button type="button" [disabled]="closing() !== null || saving()" (click)="assign(entry, 'TAKE_OVER')">
+                  Reprendre
+                </button>
+              }
             </mat-card-actions>
           </mat-card>
         } @empty {

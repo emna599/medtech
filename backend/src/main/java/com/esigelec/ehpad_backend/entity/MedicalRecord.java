@@ -10,6 +10,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +21,9 @@ public class MedicalRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private long version;
 
     // Un dossier médical appartient à un seul résident
     @OneToOne
@@ -42,6 +46,7 @@ public class MedicalRecord {
     }
 
     public Long getId() { return id; }
+    public long getVersion() { return version; }
 
     public Resident getResident() { return resident; }
     public void setResident(Resident resident) { this.resident = resident; }

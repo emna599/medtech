@@ -7,6 +7,8 @@ BEGIN;
 \ir personnel_additions.sql
 \ir security_and_concurrency.sql
 \ir handover.sql
+\ir handover_assignment.sql
 \ir resident_daily.sql
+\ir medical_record_version.sql
 \ir seed_personnel.sql
 COMMIT;

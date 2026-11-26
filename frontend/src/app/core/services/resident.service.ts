@@ -30,6 +30,10 @@ export class ResidentService {
     return this.http.get<MedicalRecord>(`${this.residentsUrl}/${id}/medical-record`);
   }
 
+  saveMedicalRecord(id: number, request: Pick<MedicalRecord, 'history' | 'treatments'> & { version: number | null }): Observable<MedicalRecord> {
+    return this.http.put<MedicalRecord>(`${this.residentsUrl}/${id}/medical-record`, request);
+  }
+
   findAllergiesByResidentId(residentId: number): Observable<Allergy[]> {
     return this.http.get<Allergy[]>(`${this.residentsUrl}/${residentId}/allergies`);
   }

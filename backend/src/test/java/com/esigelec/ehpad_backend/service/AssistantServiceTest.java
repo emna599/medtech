@@ -127,6 +127,48 @@ class AssistantServiceTest {
         assertThat(reply.action()).isNull();
     }
 
+    @Test
+    void listsAbsencesForTheRequestedMealSlot() {
+        when(careService.listToday(ServiceKind.REPAS)).thenReturn(List.of(
+                meal(10L, durand, ServiceStatus.ABSENT), meal(11L, martin, ServiceStatus.REFUSE)));
+
+        AssistantReply reply = assistant.answer("Qui est absent au déjeuner ?");
+
+        assertThat(reply.intent()).isEqualTo("ABSENCES");
+        assertThat(reply.residents()).extracting(AssistantReply.ResidentRef::id).containsExactly(2L);
+        assertThat(reply.action()).isNull();
+    }
+
+    @Test
+    void avoidsPreparingAnActionWhenSeveralItemsMatch() {
+        when(careService.listToday(ServiceKind.REPAS)).thenReturn(List.of(
+                meal(42L, durand, ServiceStatus.A_FAIRE), meal(43L, durand, ServiceStatus.PLUS_TARD)));
+
+        AssistantReply reply = assistant.answer("Marque le repas de Durand comme servi");
+
+        assertThat(reply.action()).isNull();
+        assertThat(reply.answer()).contains("choisir");
+    }
+
+    @Test
+    void sendsAResidentWithAllergiesToTheServiceSheetForConfirmation() {
+        when(careService.listToday(ServiceKind.REPAS)).thenReturn(List.of(meal(42L, martin, ServiceStatus.A_FAIRE)));
+
+        AssistantReply reply = assistant.answer("Marque le repas de Martin comme servi");
+
+        assertThat(reply.action()).isNull();
+        assertThat(reply.answer()).contains("fiche de service");
+    }
+
+    @Test
+    void redirectsClinicalQuestionsToTheCareTeam() {
+        AssistantReply reply = assistant.answer("Quelle posologie prescrire pour Durand ?");
+
+        assertThat(reply.intent()).isEqualTo("HORS_PERIMETRE");
+        assertThat(reply.residents()).isEmpty();
+        assertThat(reply.action()).isNull();
+    }
+
     private static ResidentCardDto resident(Long id, String first, String last, String room,
                                             List<AllergyDto> allergies, boolean doubt) {
         return new ResidentCardDto(id, first, last, 85, room, 1, null, MealLocation.SALLE, false, null,

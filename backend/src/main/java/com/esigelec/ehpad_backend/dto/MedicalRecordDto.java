@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public record MedicalRecordDto(
         String history,
         String treatments,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        long version
 ) {
 }

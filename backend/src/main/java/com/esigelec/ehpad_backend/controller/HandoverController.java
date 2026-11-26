@@ -32,8 +32,17 @@ public class HandoverController {
         return service.create(request, authentication.getName());
     }
 
+    @PostMapping("/{id}/assignment")
+    public HandoverActionDto assign(@PathVariable @Positive long id,
+                                    @Valid @RequestBody HandoverService.AssignmentRequest request,
+                                    Authentication authentication) {
+        return service.assign(id, request, authentication.getName());
+    }
+
     @PostMapping("/{id}/complete")
-    public HandoverActionDto complete(@PathVariable @Positive long id, Authentication authentication) {
-        return service.complete(id, authentication.getName());
+    public HandoverActionDto complete(@PathVariable @Positive long id,
+                                      @Valid @RequestBody HandoverService.CompletionRequest request,
+                                      Authentication authentication) {
+        return service.complete(id, request, authentication.getName());
     }
 }

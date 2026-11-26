@@ -75,6 +75,7 @@ export interface MedicalRecord {
   history: string | null;
   treatments: string | null;
   updatedAt: string | null;
+  version: number;
 }
 
 export interface Allergy {

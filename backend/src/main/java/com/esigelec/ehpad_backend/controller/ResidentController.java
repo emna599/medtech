@@ -1,12 +1,17 @@
 package com.esigelec.ehpad_backend.controller;
 
 import com.esigelec.ehpad_backend.dto.MedicalRecordDto;
+import com.esigelec.ehpad_backend.dto.MedicalRecordRequest;
+import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 import com.esigelec.ehpad_backend.dto.ResidentDetailDto;
 import com.esigelec.ehpad_backend.dto.ResidentSummaryDto;
 import com.esigelec.ehpad_backend.service.MedicalResidentService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,5 +41,12 @@ public class ResidentController {
     @PreAuthorize("hasRole('MEDECIN')")
     public MedicalRecordDto findMedicalRecordByResidentId(@PathVariable Long id) {
         return residentService.findMedicalRecordByResidentId(id);
+    }
+
+    @PutMapping("/{id}/medical-record")
+    @PreAuthorize("hasRole('MEDECIN')")
+    public MedicalRecordDto saveMedicalRecord(@PathVariable long id, @Valid @RequestBody MedicalRecordRequest request,
+                                              Authentication authentication) {
+        return residentService.saveMedicalRecord(id, request, authentication.getName());
     }
 }

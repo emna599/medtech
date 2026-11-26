@@ -5,6 +5,16 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — assistant, attribution et dossier médical
+
+- Étendu l’assistant du personnel : absences au repas, reports, refus par créneau, plateaux à revérifier, doutes d’identité, prises à risque en attente et aide pour le QR, le poids et la relève. Le serveur répond à partir des données de service et de règles locales. Une question clinique est réorientée vers l’équipe. En cas de plusieurs prises possibles ou de vérification à risque, l’assistant renvoie vers la fiche.
+- Une action de relève peut être prise en charge, libérée ou reprise par un autre soignant après confirmation. L’attribution et la clôture vérifient la version côté serveur. Seul le titulaire courant peut clôturer. La reprise indique le titulaire précédent et demande de vérifier avec l’équipe. Les changements d’attribution sont audités.
+- Le médecin peut créer et modifier les antécédents et traitements documentés d’un résident actif, avec contrôle de version et audit. Les informations sont des observations en texte, sans création d’ordonnance ni modification de la tournée. Les anciennes valeurs ne sont pas archivées par ce chantier. À cadrer avant un usage réel : conservation des révisions et validation du circuit de correction.
+- Migrations versionnées `handover_assignment.sql` et `medical_record_version.sql`. Vérifications : 31 tests backend, 31 tests frontend, rôles, saisies, concurrence de création et de modification du dossier, attribution simultanée, transfert et refus de clôture obsolète. Chromium valide la suggestion de l’assistant, la reprise et la saisie du dossier.
+- [Circuit du plateau](docs/circuit-plateau.md) préparé pour la validation avec l’établissement. La vue cuisine, l’accusé de réception, les rôles IDE/aide-soignant/cuisine et les prescriptions restent à valider avec l’équipe métier.
+
+---
+
 ## Relais Codex du 2026-11-26 — cartes de la salle à manger
 
 - Compacté les cartes de service : avatar à gauche, identité et texture regroupées, alertes juste en dessous, statut à droite ou sous le texte sur les cartes étroites.
@@ -188,7 +198,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 ### 🩺 MÉDECIN (`medecin` / Demo1234!)
 1. **Connexion** → annuaire **Résidents** de l’espace médecin.
 2. Rechercher un nom ou un numéro de chambre, puis ouvrir une fiche.
-3. Vérifier l’identité, la chambre et la section **Dossier médical**. Le jeu de démo actuel ne contient aucun dossier médical. L’interface affiche un message d’absence de dossier.
+3. Vérifier l’identité, la chambre et la section **Dossier médical**. Sur une base de démo initiale, utiliser **Créer le dossier** pour enregistrer des données fictives.
 4. Vérifier l’ajout, la modification et la suppression d’une allergie ou d’un régime avec des données fictives. L’ouverture de la fiche repas du même résident côté personnel doit afficher les consignes actualisées.
 5. Dans **QR Code**, vérifier le téléchargement et l’impression. Après renouvellement, vérifier côté personnel que le nouveau code identifie le résident et que l’ancien est refusé.
 6. Vérifier que le retour à la liste et la déconnexion fonctionnent.
@@ -208,7 +218,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 5. **Doute d'identité** : « J'ai un doute sur l'identité » → signaler. Essayer de servir → **bloqué** tant que le doute n'est pas levé. Lever le doute (⚠️ un **autre** soignant doit le faire : le backend refuse la même personne).
 6. **« Je ne le connais pas »** : identification par code bracelet / scan QR / photo de pochette (OCR).
 7. Onglet **Médicaments** : tournée **Matin / Midi / Soir**, « Démarrer la tournée », donner une prise ; un **médicament à risque** demande une **confirmation**.
-8. **Résidents** (annuaire), **Relève** (créer une transmission, la retrouver avec un autre compte personnel et terminer l’action), **Assistant** (ex. « qui reste à servir ? »).
+8. **Résidents** (annuaire), **Relève** (créer une transmission, la prendre en charge puis la reprendre et la clôturer avec un autre compte personnel), **Assistant** (ex. « qui reste à servir ? »).
 9. **Thème sombre** (bouton lune), **Déconnexion**.
 - À surveiller : le **scan QR** nécessite une caméra ; l'**OCR pochette** nécessite le service Flask externe (absent → message « indisponible », c'est normal).
 
@@ -220,9 +230,9 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 ---
 
 ## À venir
-- **Espace médecin** : ajouter des dossiers de démo fictifs via `database/`, puis cadrer l’écriture du dossier médical.
+- **Espace médecin** : ajouter des dossiers de démo fictifs via `database/`, puis définir la politique de conservation des révisions du dossier médical.
 - Discuter de `integration` avec l'équipe, puis **ouvrir la pull request vers `main`** (plus tard, pas maintenant).
-- Logique métier EHPAD restante (features) : GIR/AGGIR, entité Prescription, rôles IDE/aide-soignant, motif+date de sortie, alerte dénutrition, circuit du plateau et attribution des actions de relève.
+- Logique métier EHPAD restante (features) : GIR/AGGIR, entité Prescription, rôles IDE/aide-soignant, motif+date de sortie, alerte dénutrition et circuit du plateau.
 - Sécurité avant exposition : environnement dédié, HTTPS, secrets et comptes hors démonstration, paramètres du proxy et revue indépendante.
 
 ### Décision — base de données & déploiement

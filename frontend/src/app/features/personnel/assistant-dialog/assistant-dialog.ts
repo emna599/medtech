@@ -44,7 +44,10 @@ const SUGGESTIONS = [
   'Quels médicaments restent à donner ?',
   'Qui a refusé ?',
   'Résumé du service',
-  'Quelles sont les allergies ?',
+  'Qui est absent au déjeuner ?',
+  'Quels plateaux faut-il revérifier ?',
+  'Quels doutes d’identité sont en cours ?',
+  'Comment noter le poids ?',
 ];
 
 /**

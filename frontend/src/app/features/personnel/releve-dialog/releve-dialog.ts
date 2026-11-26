@@ -3,9 +3,9 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
-import { forkJoin, timeout, timer } from 'rxjs';
+import { Observable, forkJoin, timeout, timer } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -14,8 +14,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { createRequestId } from '../../../shared/utils/request-id';
+import { AuthService } from '../../../core/auth/auth.service';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
-import { Doubt, HandoverBoard, HandoverRequest, ResidentCard, fullName, ServiceItem, slotLabel } from '../../../shared/models/personnel.model';
+import { Doubt, HandoverAction, HandoverAssignment, HandoverBoard, HandoverRequest, ResidentCard, fullName, ServiceItem, slotLabel } from '../../../shared/models/personnel.model';
 
 interface SlotLine {
   slot: string;
@@ -41,6 +43,8 @@ interface Alert {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReleveDialog {
+  private readonly dialog = inject(MatDialog);
+  protected readonly currentUser = inject(AuthService).currentUser;
   private readonly api = inject(PersonnelService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly snackBar = inject(MatSnackBar);
@@ -190,15 +194,38 @@ export class ReleveDialog {
     });
   }
 
-  protected complete(id: number): void {
+  protected assign(entry: HandoverAction, action: HandoverAssignment): void {
     if (this.closing() !== null || this.saving()) return;
-    this.closing.set(id);
+    const perform = () => this.updateAction(entry,
+      this.api.assignHandover(entry.id, action, entry.assignmentVersion), 'Attribution mise à jour');
+    if (action !== 'TAKE_OVER') {
+      perform();
+      return;
+    }
+    this.dialog.open(ConfirmDialog, {
+      data: {
+        title: 'Reprendre cette action',
+        message: `Cette action est attribuée à ${entry.assigneeName}. Vérifiez avec l’équipe avant de la reprendre.`,
+        confirmLabel: 'Confirmer la reprise',
+      },
+    }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(confirmed => {
+      if (confirmed) perform();
+    });
+  }
+
+  protected complete(entry: HandoverAction): void {
+    this.updateAction(entry, this.api.completeHandover(entry.id, entry.assignmentVersion), 'Action terminée');
+  }
+
+  private updateAction(entry: HandoverAction, request: Observable<HandoverAction>, success: string): void {
+    if (this.closing() !== null || this.saving()) return;
+    this.closing.set(entry.id);
     this.actionError.set(null);
-    this.api.completeHandover(id).pipe(timeout(10000), takeUntilDestroyed(this.destroyRef)).subscribe({
+    request.pipe(timeout(10000), takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.closing.set(null);
         this.loadBoard();
-        this.snackBar.open('Action terminée', 'Fermer', { duration: 2500 });
+        this.snackBar.open(success, 'Fermer', { duration: 2500 });
       },
       error: error => {
         this.closing.set(null);

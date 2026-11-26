@@ -27,6 +27,7 @@ import {
   AllergyRequest,
   DietaryRegime,
   DietaryRegimeRequest,
+  MedicalRecord,
   QrCode,
 } from '../../../shared/models/resident.model';
 
@@ -82,6 +83,19 @@ export class ResidentDetailPage {
     }
     const error = this.resident.error();
     return error ? this.toResidentErrorMessage(error) : null;
+  });
+
+  protected readonly medicalRecordMissing = computed(() => {
+    const error = this.medicalRecord.error();
+    return error instanceof HttpErrorResponse && error.status === 404;
+  });
+  protected readonly medicalEditing = signal(false);
+  protected readonly medicalSaving = signal(false);
+  protected readonly medicalSaveError = signal<string | null>(null);
+  private medicalVersion: number | null = null;
+  protected readonly medicalForm = this.formBuilder.group({
+    history: ['', Validators.maxLength(8000)],
+    treatments: ['', Validators.maxLength(8000)],
   });
 
   protected readonly medicalRecordError = computed(() => {
@@ -170,11 +184,57 @@ export class ResidentDetailPage {
       untracked(() => {
         this.cancelAllergyForm();
         this.cancelDietaryRegimeForm();
+        this.medicalEditing.set(false);
+        this.medicalSaving.set(false);
+        this.medicalSaveError.set(null);
         this.qrCodeSaving.set(false);
         this.allergySaving.set(false);
         this.dietaryRegimeSaving.set(false);
       });
     });
+  }
+
+  protected editMedicalRecord(record: MedicalRecord | null): void {
+    this.medicalVersion = record?.version ?? null;
+    this.medicalForm.reset({ history: record?.history ?? '', treatments: record?.treatments ?? '' });
+    this.medicalSaveError.set(null);
+    this.medicalEditing.set(true);
+  }
+
+  protected cancelMedicalRecord(): void {
+    if (this.medicalSaving()) return;
+    this.medicalEditing.set(false);
+    this.medicalSaveError.set(null);
+  }
+
+  protected saveMedicalRecord(): void {
+    const id = this.residentId();
+    if (id === undefined || this.medicalSaving() || this.medicalForm.invalid) return;
+    const { history, treatments } = this.medicalForm.getRawValue();
+    if (!history.trim() && !treatments.trim()) {
+      this.medicalSaveError.set('Renseignez au moins un des deux champs.');
+      return;
+    }
+    this.medicalSaving.set(true);
+    this.medicalSaveError.set(null);
+    this.residentService.saveMedicalRecord(id, { history, treatments, version: this.medicalVersion })
+      .pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: () => {
+          if (id !== this.residentId()) return;
+          this.medicalSaving.set(false);
+          this.cancelMedicalRecord();
+          this.medicalRecord.reload();
+          this.showSuccess('Dossier enregistré.');
+        },
+        error: error => {
+          if (id !== this.residentId()) return;
+          this.medicalSaving.set(false);
+          this.medicalSaveError.set(error instanceof HttpErrorResponse && error.status === 409
+            ? 'Le dossier a changé. Copiez vos notes si nécessaire, annulez cette édition et relisez la dernière version.'
+            : 'Impossible d’enregistrer le dossier. Vérifiez les champs et réessayez.');
+          if (error instanceof HttpErrorResponse && error.status === 409) this.medicalRecord.reload();
+        },
+      });
   }
 
   protected generateQrCode(): void {

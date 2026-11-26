@@ -156,6 +156,9 @@ export interface HandoverAction {
   expectedAction: string;
   authorName: string;
   createdAt: string;
+  assignedTo: number | null;
+  assigneeName: string | null;
+  assignmentVersion: number;
   completedBy: string | null;
   completedAt: string | null;
 }
@@ -171,3 +174,5 @@ export interface HandoverRequest {
   observation: string;
   expectedAction: string;
 }
+
+export type HandoverAssignment = 'CLAIM' | 'RELEASE' | 'TAKE_OVER';

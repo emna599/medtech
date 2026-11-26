@@ -58,6 +58,7 @@ public final class ResidentMapper {
         return new MedicalRecordDto(
                 medicalRecord.getHistory(),
                 medicalRecord.getTreatments(),
-                medicalRecord.getUpdatedAt());
+                medicalRecord.getUpdatedAt(),
+                medicalRecord.getVersion());
     }
 }

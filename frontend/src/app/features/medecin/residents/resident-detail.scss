@@ -282,3 +282,6 @@ h2 {
     image-rendering: pixelated;
   }
 }
+
+.medical-form { display: grid; gap: 8px; }
+.medical-form mat-form-field { width: 100%; }

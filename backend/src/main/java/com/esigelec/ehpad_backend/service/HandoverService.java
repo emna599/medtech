@@ -62,12 +62,50 @@ public class HandoverService {
         return find(id);
     }
 
+    public enum Assignment { CLAIM, RELEASE, TAKE_OVER }
+    public record AssignmentRequest(@jakarta.validation.constraints.NotNull Assignment action,
+                                    @jakarta.validation.constraints.NotNull @jakarta.validation.constraints.PositiveOrZero Long version) {}
+    public record CompletionRequest(@jakarta.validation.constraints.NotNull @jakarta.validation.constraints.PositiveOrZero Long version) {}
+
     @Transactional
-    public HandoverActionDto complete(long id, String username) {
+    public HandoverActionDto assign(long id, AssignmentRequest request, String username) {
         User user = users.require(username);
-        if (!handovers.complete(id, user.getId())) {
+        HandoverActionDto entry = find(id);
+        Long assignee = entry.assignedTo();
+        if (entry.completedAt() != null || entry.assignmentVersion() != request.version()) {
+            throw new ConflictException("L’attribution de cette action a changé. Actualisez la relève.");
+        }
+        Long next = switch (request.action()) {
+            case CLAIM -> {
+                if (assignee != null) throw new ConflictException("Cette action est déjà attribuée.");
+                yield user.getId();
+            }
+            case RELEASE -> {
+                if (!Objects.equals(assignee, user.getId())) {
+                    throw new ConflictException("Seul le titulaire peut libérer cette action.");
+                }
+                yield null;
+            }
+            case TAKE_OVER -> {
+                if (assignee == null || Objects.equals(assignee, user.getId())) {
+                    throw new ConflictException("Cette action ne peut pas être reprise dans son état actuel.");
+                }
+                yield user.getId();
+            }
+        };
+        if (!handovers.assign(id, next, request.version())) {
+            throw new ConflictException("L’attribution de cette action a changé. Actualisez la relève.");
+        }
+        audit.record(user, "RELEVE_" + request.action().name(), "HandoverAction", id);
+        return find(id);
+    }
+
+    @Transactional
+    public HandoverActionDto complete(long id, CompletionRequest request, String username) {
+        User user = users.require(username);
+        if (!handovers.complete(id, user.getId(), request.version())) {
             find(id);
-            throw new ConflictException("Cette action a déjà été terminée.");
+            throw new ConflictException("Cette action a changé ou vous n’en êtes plus le titulaire.");
         }
         audit.record(user, "RELEVE_TERMINEE", "HandoverAction", id);
         return find(id);

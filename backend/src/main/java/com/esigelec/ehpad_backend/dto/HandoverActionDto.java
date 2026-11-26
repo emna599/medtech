@@ -10,6 +10,9 @@ public record HandoverActionDto(
         String expectedAction,
         String authorName,
         OffsetDateTime createdAt,
+        Long assignedTo,
+        String assigneeName,
+        long assignmentVersion,
         String completedBy,
         OffsetDateTime completedAt) {
 }
