@@ -100,14 +100,12 @@ export class PersonnelService {
     return this.http.get<ServiceItem[]>(`${this.base}/service`, { params: { kind } });
   }
 
-  complete(item: ServiceItem, body: CompleteRequest): Observable<ServiceItem> {
+  complete(item: Pick<ServiceItem, 'kind' | 'id'>, body: CompleteRequest, requestId: string): Observable<ServiceItem> {
     const path = item.kind === 'REPAS' ? 'meals' : 'doses';
-    return this.http.post<ServiceItem>(`${this.base}/${path}/${item.id}/complete`, body);
-  }
-
-  completeById(kind: ServiceKind, id: number, body: CompleteRequest): Observable<ServiceItem> {
-    const path = kind === 'REPAS' ? 'meals' : 'doses';
-    return this.http.post<ServiceItem>(`${this.base}/${path}/${id}/complete`, body);
+    return this.http.post<ServiceItem>(`${this.base}/${path}/${item.id}/complete`, body, {
+      headers: { 'Idempotency-Key': requestId },
+      timeout: 8000,
+    });
   }
 
   appetite(residentId: number, days = 7): Observable<Appetite> {

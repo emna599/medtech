@@ -15,5 +15,6 @@ BEGIN;
 \ir personnel_service.sql
 \ir chevalet.sql
 \ir resident_photo.sql
+\ir care_completion.sql
 \ir seed_service.sql
 COMMIT;

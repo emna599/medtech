@@ -28,6 +28,13 @@
 5. Sélectionnez **Ouvrir la fiche repas** pour effectuer la vérification du plateau et enregistrer le service.
 6. Pour transmettre une action à poursuivre, utilisez **Outils → Relève**. Pour une note horodatée de service, utilisez **Outils → Notes de service**.
 
+### Si une validation reste en attente
+
+- Gardez la fiche ouverte. Si le réseau a coupé, **Réessayer la même validation** renvoie la demande initiale. Vérifiez l’état affiché après le retour du serveur avant de refaire un geste.
+- Si le serveur signale une consigne modifiée, vérifiez la fiche actualisée et confirmez de nouveau si nécessaire. Si l’actualisation échoue, suivez le circuit de continuité de l’établissement.
+- Dans l’Assistant, **Ouvrir la fiche de tournée** ouvre le repas ou la prise proposé. La validation se fait dans cette fiche.
+
+
 ## Matériel à vérifier avec l’équipe
 
 Les essais caméra et lecteur RFID physiques sont reportés jusqu’à la mise à disposition du matériel. Le tableau **Service en salle** permet de vérifier la sélection de table, l’identification par saisie du code et les chevalets sur une base fictive.

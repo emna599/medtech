@@ -18,7 +18,7 @@ Principe de conception : **« un écran, un geste »**, pensé d'abord pour la t
 | Fiche résident | Photo, **bandeau rouge d'allergies**, régime et texture, actions **Servi / Donné**, **Refusé** (avec motif), **Plus tard**, quantité mangée, changement de lieu (salle ↔ chambre) |
 | Doute d'identité | Le soignant signale un doute : **Servi / Donné est bloqué** tant qu'un **autre** soignant ne l'a pas levé |
 | « Je ne le connais pas » | Saisie du code du bracelet (facultatif) pour afficher la fiche, puis confirmation « C'est bien cette personne » |
-| Assistant | Bouton **Assistant** (en bas à droite) : questions en français, écrites ou **dictées à la voix**, réponses sur le service en cours. Il **propose** une validation, le soignant **confirme** |
+| Assistant | Bouton **Assistant** (en bas à droite) : questions en français, écrites ou **dictées à la voix**, réponses sur le service en cours. Il ouvre la fiche de tournée proposée pour que le soignant vérifie et valide |
 | Appétit | Dans la fiche d'un repas : graphique des 7 derniers jours (une barre par jour) et alerte **« en baisse »** quand les trois derniers jours sont nettement moins bons ou sous la moitié. L'assistant répond aussi à « appétit de Mme Martin ? » |
 | Affichage | Contraste et tailles de lecture adaptés à l’écran par défaut. Bouton lune / soleil pour choisir le thème |
 | Relève | Bouton **Relève** pour transmettre et attribuer les actions à poursuivre, consulter les clôtures et copier le résumé du service |
@@ -202,7 +202,7 @@ Dans **Service en salle**, installez un résident après vérification de son id
 7. **Doute d'identité.** Avec `personnel`, ouvrir un résident, **J'ai un doute sur l'identité** puis **Signaler le doute** : Servi/Donné est bloqué. Dans une fenêtre de navigation privée, se connecter avec `personnel2`, ouvrir le même résident et appuyer sur **Confirmer l'identité**. Le blocage disparaît. Le même soignant ne peut pas lever son propre doute.
 8. **Changement de lieu.** Dans une fiche, passer un résident de la salle à la chambre : il apparaît dans l'autre onglet.
 
-9. **Assistant.** Bouton **Assistant**. Essayer : « Qui n'a pas encore mangé ? », « Quels médicaments restent à donner ? », « Allergies de Mme Simon », « Régime de M. Durand », « Où est Mme Petit ? », « Qui a refusé ? », « Résumé du service ». Pour agir : « Marque le repas de M. Durand comme servi » : l'assistant prépare l'action, rien n'est enregistré avant **Confirmer**. Le micro (Chrome ou Edge) dicte la question en français et l'envoie tout seul à la fin de la phrase. **Lire les réponses** active la voix de l'assistant ; **Mains libres** enchaîne : vous parlez, il répond à voix haute, puis il réécoute.
+9. **Assistant.** Bouton **Assistant**. Essayer : « Qui n'a pas encore mangé ? », « Quels médicaments restent à donner ? », « Allergies de Mme Simon », « Régime de M. Durand », « Où est Mme Petit ? », « Qui a refusé ? », « Résumé du service ». Pour agir : « Marque le repas de M. Durand comme servi » : l’assistant propose **Ouvrir la fiche de tournée**. La validation se fait depuis la fiche. Le micro (Chrome ou Edge) dicte la question en français et l'envoie tout seul à la fin de la phrase. **Lire les réponses** active la voix de l'assistant ; **Mains libres** enchaîne : vous parlez, il répond à voix haute, puis il réécoute.
 
 ### Sécurité de l'assistant
 

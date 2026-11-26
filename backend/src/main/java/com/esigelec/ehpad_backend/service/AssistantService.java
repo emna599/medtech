@@ -40,7 +40,7 @@ public class AssistantService {
             « allergies de Mme Martin », « régime de M. Durand », « où est Mme Petit ? », \
             « qui est absent au déjeuner ? », « quels repas sont reportés ? », « résumé du service ». \
             Demandez aussi « quels plateaux revérifier ? », « quels doutes d’identité ? » ou « comment faire une relève ? ». \
-            Je peux aussi préparer « marque le repas de M. Durand comme servi » : vous confirmez ensuite.""";
+            Je peux aussi préparer « marque le repas de M. Durand comme servi » : vous vérifiez ensuite la fiche de tournée.""";
 
     private final ResidentService residentService;
     private final CareService careService;
@@ -352,7 +352,7 @@ public class AssistantService {
         }
         String verb = medication ? "donné" : "servi";
         String summary = item.label() + " de " + name(r) + " → " + verb;
-        return new AssistantReply("Je prépare : " + summary + ". Confirmez-vous ?", "ACTION", List.of(ref(r)),
+        return new AssistantReply("Je prépare : " + summary + ". Ouvrez la fiche de tournée pour vérifier et valider.", "ACTION", List.of(ref(r)),
                 new PendingAction(kind, item.id(), summary));
     }
 

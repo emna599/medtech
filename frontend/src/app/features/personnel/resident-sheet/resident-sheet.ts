@@ -64,6 +64,9 @@ export class ResidentSheet {
   protected readonly name = computed(() => fullName(this.resident()));
 
   protected readonly busy = signal(false);
+  protected readonly pendingCompletion = signal<{id: string; body: CompleteRequest} | null>(null);
+  protected readonly needsRefresh = signal(false);
+  protected readonly actionsBlocked = computed(() => this.busy() || this.pendingCompletion() !== null || this.needsRefresh());
   protected readonly error = signal<string | null>(null);
 
   protected readonly refusing = signal(false);
@@ -228,30 +231,59 @@ export class ResidentSheet {
   }
 
   protected close(): void {
-    this.ref.close({ changed: this.changed, completed: false });
+    this.ref.close({ changed: this.changed || this.pendingCompletion() !== null, completed: false });
   }
 
   // ------------------------------------------------------------------ interne
 
+  protected retryCompletion(): void {
+    const request = this.pendingCompletion();
+    if (request) this.submitCompletion(request);
+  }
+
   private complete(body: CompleteRequest): void {
+    if (this.actionsBlocked()) return;
+    this.submitCompletion({ id: crypto.randomUUID(), body });
+  }
+
+  private submitCompletion(request: {id: string; body: CompleteRequest}): void {
+    if (this.busy()) return;
+    this.ref.disableClose = true;
     const item = this.item();
-    this.run(this.api.complete(item, body), (updated) => {
+    this.run(this.api.complete(item, request.body, request.id), (updated) => {
+      this.pendingCompletion.set(null);
+      this.ref.disableClose = false;
       this.item.set(updated);
       // « Un geste » : on referme tout de suite et la liste passe au suivant.
       this.ref.close({ changed: true, completed: true });
     }, (error) => {
-      if (item.kind === 'REPAS' && body.status === 'FAIT'
-          && error instanceof HttpErrorResponse && error.status === 409) {
-        const message = errorMessage(error);
-        this.run(this.api.listService('REPAS'), (items) => {
-          const updated = items.find((entry) => entry.id === item.id);
-          if (updated) {
-            this.item.set(updated);
-          }
-          this.changed = true;
-          this.error.set(message);
-        });
+      if (error instanceof HttpErrorResponse && (error.status === 0 || error.status >= 500)) {
+        this.pendingCompletion.set(request);
+        this.ref.disableClose = true;
+        this.error.set(null);
+        return;
       }
+      this.pendingCompletion.set(null);
+      this.ref.disableClose = false;
+      if (error instanceof HttpErrorResponse && error.status === 409) {
+        this.refreshItem(errorMessage(error));
+      }
+    });
+  }
+
+  protected refreshItem(message?: string): void {
+    const item = this.item();
+    this.changed = true;
+    this.needsRefresh.set(true);
+    this.run(this.api.listService(item.kind), (items) => {
+      const updated = items.find((entry) => entry.id === item.id);
+      if (!updated) {
+        this.error.set('Cette action ne figure plus dans la tournée.');
+        return;
+      }
+      this.item.set(updated);
+      this.needsRefresh.set(false);
+      this.error.set(message ?? null);
     });
   }
 

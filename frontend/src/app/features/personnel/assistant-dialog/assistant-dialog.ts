@@ -7,13 +7,10 @@ import { errorMessage, PersonnelService } from '../../../core/services/personnel
 import { AssistantAction, AssistantResidentRef } from '../../../shared/models/personnel.model';
 
 export interface AssistantResult {
-  /** Une action a été confirmée : l'accueil doit se recharger. */
-  changed: boolean;
+  action?: AssistantAction;
   /** Résident dont on veut ouvrir la fiche. */
   residentId?: number;
 }
-
-type ActionState = 'pending' | 'busy' | 'done' | 'error';
 
 interface ChatMessage {
   id: number;
@@ -21,8 +18,6 @@ interface ChatMessage {
   text: string;
   residents: AssistantResidentRef[];
   action: AssistantAction | null;
-  actionState: ActionState;
-  actionError: string | null;
 }
 
 /** Minimal : l'API de reconnaissance vocale n'est pas dans les types de TypeScript. */
@@ -52,7 +47,7 @@ const SUGGESTIONS = [
 
 /**
  * « MedTech Assist » : questions en français (écrites ou dictées) sur le service en cours.
- * L'assistant ne modifie rien : quand il propose une action, le soignant la confirme d'un bouton.
+ * Une action proposée ouvre la fiche de tournée correspondante.
  */
 @Component({
   selector: 'app-assistant-dialog',
@@ -73,8 +68,6 @@ export class AssistantDialog {
       text: 'Bonjour ! Posez-moi une question sur le service, par exemple « qui n\'a pas encore mangé ? ».',
       residents: [],
       action: null,
-      actionState: 'pending',
-      actionError: null,
     },
   ]);
   protected readonly draft = signal('');
@@ -88,7 +81,6 @@ export class AssistantDialog {
   protected readonly handsFree = signal(false);
   protected readonly lastId = computed(() => this.messages().length);
 
-  private changed = false;
   private nextId = 1;
   private recognition: Recognition | null = null;
   private heardSpeech = false;
@@ -139,31 +131,16 @@ export class AssistantDialog {
     });
   }
 
-  protected confirm(message: ChatMessage): void {
-    const action = message.action;
-    if (!action || message.actionState === 'busy' || message.actionState === 'done') {
-      return;
-    }
-    this.patch(message.id, { actionState: 'busy', actionError: null });
-    this.api.completeById(action.kind, action.itemId, { status: 'FAIT' }).subscribe({
-      next: () => {
-        this.changed = true;
-        this.patch(message.id, { actionState: 'done' });
-      },
-      error: (err: unknown) => this.patch(message.id, { actionState: 'error', actionError: errorMessage(err) }),
-    });
-  }
-
-  protected cancel(message: ChatMessage): void {
-    this.patch(message.id, { action: null });
+  protected openAction(action: AssistantAction): void {
+    this.ref.close({ action });
   }
 
   protected openResident(residentId: number): void {
-    this.ref.close({ changed: this.changed, residentId });
+    this.ref.close({ residentId });
   }
 
   protected close(): void {
-    this.ref.close({ changed: this.changed });
+    this.ref.close();
   }
 
   protected toggleSpeak(): void {
@@ -267,15 +244,11 @@ export class AssistantDialog {
       id: this.nextId++,
       residents: [],
       action: null,
-      actionState: 'pending',
-      actionError: null,
       ...partial,
     };
     this.messages.update((list) => [...list, message]);
     queueMicrotask(() => document.getElementById('assistant-end')?.scrollIntoView?.({ block: 'end' }));
   }
 
-  private patch(id: number, change: Partial<ChatMessage>): void {
-    this.messages.update((list) => list.map((m) => (m.id === id ? { ...m, ...change } : m)));
-  }
+
 }

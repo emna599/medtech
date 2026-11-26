@@ -5,6 +5,15 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — confirmation fiable des gestes de tournée
+
+- Repas et prises utilisent une référence de demande créée par la fiche. Le serveur enregistre le reçu et le geste dans la même transaction. Un rejeu par le même compte confirme l’opération déjà acceptée et renvoie l’état courant. La même clé avec une autre validation reçoit un conflit. Une coupure ou une réponse serveur incertaine propose de rejouer exactement la demande tant que la fiche est ouverte.
+- Pour servir un repas, l’API exige la version des consignes affichées. Après un conflit, la fiche recharge l’état et garde les actions bloquées si l’actualisation échoue. L’Assistant ouvre le repas ou la prise exacts pour vérification et validation dans le parcours habituel.
+- Les deux tournées s’actualisent toutes les dix secondes et au retour du réseau. L’écran indique la dernière actualisation et signale une actualisation indisponible. Le flux serveur continu reste une évolution de pilote.
+- Migration additive `care_completion.sql`. Vérifié sur PostgreSQL isolé : six requêtes simultanées avec la même clé produisent une écriture auditée, une clé réutilisée avec un contenu différent est refusée et une version de consignes absente ou obsolète ne permet pas de servir. Chromium a simulé la perte d’une réponse après enregistrement, puis vérifié le rejeu avec la même clé. Le circuit cuisine, les droits métier fins et les prescriptions restent à valider avec l’établissement.
+
+---
+
 ## Relais Codex du 2026-11-26 — réorganisation de la tournée
 
 - La tournée ouvre sur le titre, les accès courts à l’identification et au service en salle, puis les filtres et les cartes. Le menu **Outils** regroupe l’annuaire, la relève, le planning, l’équipe, les notes et l’assistant. La progression rejoint les commandes du créneau et les changements de consignes restent visibles.

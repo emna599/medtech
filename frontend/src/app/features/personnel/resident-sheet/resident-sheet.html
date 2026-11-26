@@ -21,7 +21,7 @@
         </p>
       }
     </div>
-    <button mat-icon-button type="button" aria-label="Fermer" (click)="close()">
+    <button mat-icon-button type="button" aria-label="Fermer" [disabled]="busy()" (click)="close()">
       <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
     </button>
   </header>
@@ -58,7 +58,7 @@
         <strong>Doute d'identité en cours.</strong>
         Un autre soignant doit confirmer qu'il s'agit bien de cette personne avant de valider.
       </div>
-      <button mat-stroked-button type="button" [disabled]="busy()" (click)="resolveDoubt()">
+      <button mat-stroked-button type="button" [disabled]="actionsBlocked()" (click)="resolveDoubt()">
         Confirmer l'identité
       </button>
     </div>
@@ -104,6 +104,23 @@
     }
   </section>
 
+  @if (pendingCompletion()) {
+    <div class="alert alert-warning" role="status">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">sync_problem</mat-icon>
+      <div>
+        <strong>Confirmation serveur en attente</strong>
+        <p>Vérifiez le résultat avant de refaire le geste.</p>
+        <button mat-stroked-button type="button" [disabled]="busy()" (click)="retryCompletion()">
+          Réessayer la même validation
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (needsRefresh()) {
+    <button mat-stroked-button type="button" [disabled]="busy()" (click)="refreshItem()">Actualiser la fiche</button>
+  }
+
   @if (error()) {
     <p class="error" role="alert">{{ error() }}</p>
   }
@@ -114,7 +131,7 @@
         mat-flat-button
         type="button"
         class="primary"
-        [disabled]="busy() || hasDoubt() || (item().kind === 'REPAS' && !!resident().mealTextureConflict)"
+        [disabled]="actionsBlocked() || hasDoubt() || (item().kind === 'REPAS' && !!resident().mealTextureConflict)"
         (click)="done()"
       >
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon>
@@ -123,13 +140,13 @@
 
       <div class="secondary">
         @if (item().kind === 'REPAS') {
-          <button mat-stroked-button type="button" [disabled]="busy()" (click)="absent()">Absent</button>
+          <button mat-stroked-button type="button" [disabled]="actionsBlocked()" (click)="absent()">Absent</button>
         }
-        <button mat-stroked-button type="button" [disabled]="busy()" (click)="toggleRefusal()">
+        <button mat-stroked-button type="button" [disabled]="actionsBlocked()" (click)="toggleRefusal()">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">block</mat-icon>
           Refusé
         </button>
-        <button mat-stroked-button type="button" [disabled]="busy()" (click)="later()">
+        <button mat-stroked-button type="button" [disabled]="actionsBlocked()" (click)="later()">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">schedule</mat-icon>
           Plus tard
         </button>
@@ -155,7 +172,7 @@
           <button
             mat-flat-button
             type="button"
-            [disabled]="busy() || !refusalReason()"
+            [disabled]="actionsBlocked() || !refusalReason()"
             (click)="confirmRefusal()"
           >
             Confirmer le refus
@@ -182,7 +199,7 @@
               role="radio"
               [attr.aria-checked]="item().quantityEaten === q"
               [class.chip-on]="item().quantityEaten === q"
-              [disabled]="busy()"
+              [disabled]="actionsBlocked()"
               (click)="setQuantity(q)"
             >
               {{ quantityLabel[q] }}
@@ -194,7 +211,7 @@
   }
 
   <footer class="more">
-    <button mat-button type="button" [disabled]="busy()" (click)="toggleLocation()">
+    <button mat-button type="button" [disabled]="actionsBlocked()" (click)="toggleLocation()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
       {{ otherLocationLabel() }}
     </button>
@@ -220,7 +237,7 @@
           (ngModelChange)="doubtNote.set($event)"
         />
       </mat-form-field>
-      <button mat-flat-button type="button" [disabled]="busy()" (click)="reportDoubt()">
+      <button mat-flat-button type="button" [disabled]="actionsBlocked()" (click)="reportDoubt()">
         Signaler le doute
       </button>
     </section>

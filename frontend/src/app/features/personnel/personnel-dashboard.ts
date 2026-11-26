@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { DiningDialog } from './dining-dialog/dining-dialog';
 import { NotesDialog } from './notes-dialog/notes-dialog';
 import { PlanningDialog, PlanningResult } from './planning-dialog/planning-dialog';
@@ -5,7 +6,7 @@ import { TeamDialog } from './team-dialog/team-dialog';
 import { Router } from '@angular/router';
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { EMPTY, catchError, exhaustMap, filter, map, timer } from 'rxjs';
+import { EMPTY, catchError, exhaustMap, filter, fromEvent, map, merge, timer } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
@@ -62,6 +63,7 @@ function rank(status: ServiceStatus): number {
   imports: [
     FormsModule,
     Toolbar,
+    DatePipe,
     MatButtonModule,
     MatMenuModule,
     MatButtonToggleModule,
@@ -93,6 +95,7 @@ export class PersonnelDashboard {
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly refreshUnavailable = signal(false);
+  protected readonly lastRefresh = signal<Date | null>(null);
   protected readonly changedMealResidents = computed(() => [...new Set(this.items()
     .filter(item => item.kind === 'REPAS' && PENDING.includes(item.status)
       && !!item.resident.mealInstructionsChangedAt)
@@ -164,11 +167,11 @@ export class PersonnelDashboard {
     this.load(() => {
       if (typeof residentId === 'number') this.openResident(residentId);
     });
-    timer(10_000, 10_000).pipe(
-      filter(() => this.kind() === 'REPAS' && !this.loading()),
+    merge(timer(10_000, 10_000), fromEvent(window, 'online')).pipe(
+      filter(() => !this.loading()),
       exhaustMap(() => {
         const revision = this.requestRevision;
-        return this.api.listService('REPAS').pipe(
+        return this.api.listService(this.kind()).pipe(
           map(items => ({ items, revision })),
           catchError(() => {
             if (revision === this.requestRevision) this.refreshUnavailable.set(true);
@@ -178,8 +181,9 @@ export class PersonnelDashboard {
       }),
       takeUntilDestroyed(this.destroyRef),
     ).subscribe(({ items, revision }) => {
-      if (revision === this.requestRevision && this.kind() === 'REPAS') {
+      if (revision === this.requestRevision) {
         this.items.set(items);
+        this.lastRefresh.set(new Date());
         this.refreshUnavailable.set(false);
       }
     });
@@ -218,6 +222,7 @@ export class PersonnelDashboard {
           return; // réponse périmée : l'utilisateur a changé de type entre-temps
         }
         this.items.set(items);
+        this.lastRefresh.set(new Date());
         this.refreshUnavailable.set(false);
         this.loading.set(false);
         onDone?.();
@@ -338,8 +343,20 @@ export class PersonnelDashboard {
       if (!result) {
         return;
       }
-      if (result.changed) {
-        this.load(() => this.openResidentIfAny(result.residentId));
+      if (result.action) {
+        const action = result.action;
+        this.chosenSlot.set(null);
+        this.kind.set(action.kind);
+        this.load(() => {
+          const item = this.items().find(entry => entry.id === action.itemId);
+          if (item) {
+            this.setSlot(item.slot);
+            this.setLocation(item.resident.mealLocation);
+            this.open(item);
+          } else {
+            this.snackBar.open('Cette action ne figure plus dans la tournée.', 'OK', { duration: 5000 });
+          }
+        });
       } else {
         this.openResidentIfAny(result.residentId);
       }

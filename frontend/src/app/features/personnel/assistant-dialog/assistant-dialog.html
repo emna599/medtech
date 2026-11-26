@@ -44,29 +44,9 @@
         </div>
       }
 
-      @if (m.action) {
+      @if (m.action; as action) {
         <div class="action">
-          @if (m.actionState === 'done') {
-            <span class="done">
-              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon>
-              Enregistré
-            </span>
-          } @else {
-            <button
-              mat-flat-button
-              type="button"
-              [disabled]="m.actionState === 'busy'"
-              (click)="confirm(m)"
-            >
-              Confirmer
-            </button>
-            <button mat-button type="button" [disabled]="m.actionState === 'busy'" (click)="cancel(m)">
-              Annuler
-            </button>
-          }
-          @if (m.actionError) {
-            <p class="error" role="alert">{{ m.actionError }}</p>
-          }
+          <button mat-flat-button type="button" (click)="openAction(action)">Ouvrir la fiche de tournée</button>
         </div>
       }
     </div>

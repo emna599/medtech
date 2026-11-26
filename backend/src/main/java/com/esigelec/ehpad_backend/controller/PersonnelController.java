@@ -17,6 +17,7 @@ import com.esigelec.ehpad_backend.dto.ServiceKind;
 import com.esigelec.ehpad_backend.service.AppetiteService;
 import com.esigelec.ehpad_backend.service.AssistantService;
 import com.esigelec.ehpad_backend.service.CareService;
+import com.esigelec.ehpad_backend.service.CareCompletionService;
 import com.esigelec.ehpad_backend.service.IdentityDoubtService;
 import com.esigelec.ehpad_backend.service.PochetteScanService;
 import com.esigelec.ehpad_backend.service.ResidentService;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -36,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * API de l'espace PERSONNEL (accès PERSONNEL et ADMIN, voir SecurityConfig).
@@ -47,6 +50,7 @@ public class PersonnelController {
 
     private final ResidentService residentService;
     private final CareService careService;
+    private final CareCompletionService completions;
     private final IdentityDoubtService doubtService;
     private final AssistantService assistantService;
     private final AppetiteService appetiteService;
@@ -54,12 +58,14 @@ public class PersonnelController {
 
     public PersonnelController(ResidentService residentService,
                                CareService careService,
+                               CareCompletionService completions,
                                IdentityDoubtService doubtService,
                                AssistantService assistantService,
                                AppetiteService appetiteService,
                                PochetteScanService pochetteScanService) {
         this.residentService = residentService;
         this.careService = careService;
+        this.completions = completions;
         this.doubtService = doubtService;
         this.assistantService = assistantService;
         this.appetiteService = appetiteService;
@@ -113,8 +119,9 @@ public class PersonnelController {
     @PostMapping("/meals/{id}/complete")
     public ServiceItemDto completeMeal(@PathVariable Long id,
                                        @Valid @RequestBody CompleteRequest request,
+                                       @RequestHeader(name = "Idempotency-Key", required = false) UUID requestId,
                                        Authentication authentication) {
-        return careService.completeMeal(id, request, authentication.getName());
+        return completions.complete(ServiceKind.REPAS, id, request, requestId, authentication.getName());
     }
 
     @PutMapping("/meals/{id}/quantity")
@@ -127,8 +134,9 @@ public class PersonnelController {
     @PostMapping("/doses/{id}/complete")
     public ServiceItemDto completeDose(@PathVariable Long id,
                                        @Valid @RequestBody CompleteRequest request,
+                                       @RequestHeader(name = "Idempotency-Key", required = false) UUID requestId,
                                        Authentication authentication) {
-        return careService.completeDose(id, request, authentication.getName());
+        return completions.complete(ServiceKind.MEDICAMENT, id, request, requestId, authentication.getName());
     }
 
     // ------------------------------------------------------------ doutes d'identité

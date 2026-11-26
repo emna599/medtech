@@ -191,6 +191,20 @@ public class CareService {
         return toDoseItem(dose, assembler.assemble(List.of(resident)).get(resident.getId()));
     }
 
+    @Transactional(readOnly = true)
+    public ServiceItemDto currentItem(ServiceKind kind, Long id) {
+        if (kind == ServiceKind.REPAS) {
+            Meal meal = mealRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Repas introuvable"));
+            Resident resident = requireActive(meal.getResident());
+            return toMealItem(meal, assembler.assemble(List.of(resident)).get(resident.getId()),
+                    distributionRepository.findByMealId(id).orElse(null));
+        }
+        MedicationDose dose = doseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Prise introuvable"));
+        Resident resident = requireActive(dose.getResident());
+        return toDoseItem(dose, assembler.assemble(List.of(resident)).get(resident.getId()));
+    }
+
     // ------------------------------------------------------------------ règles
 
     private void validate(CompleteRequest request, ServiceStatus current, Long residentId) {
@@ -214,14 +228,16 @@ public class CareService {
      * à partir de la version des consignes affichée sur sa fiche.
      */
     private void requireMealRiskAck(CompleteRequest request, ResidentCardDto card) {
-        if (request.status() != ServiceStatus.FAIT || card == null) {
+        if (request.status() != ServiceStatus.FAIT) {
             return;
+        }
+        if (card == null) {
+            throw new ConflictException("Les consignes du repas sont indisponibles. Actualisez la fiche.");
         }
         if (card.mealTextureConflict()) {
             throw new ConflictException("Plusieurs textures adaptées se contredisent. Demandez au médecin de corriger les consignes avant de servir.");
         }
-        if ((request.mealRiskVersion() != null || request.riskAcknowledged())
-                && !card.mealRiskVersion().equals(request.mealRiskVersion())) {
+        if (!card.mealRiskVersion().equals(request.mealRiskVersion())) {
             throw new ConflictException("Les consignes du repas ont changé. Vérifiez la fiche actualisée avant de confirmer.");
         }
         if (request.riskAcknowledged()) {

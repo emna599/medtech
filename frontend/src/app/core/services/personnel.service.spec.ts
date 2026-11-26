@@ -28,15 +28,17 @@ describe('PersonnelService', () => {
   });
 
   it('completes a meal on the meals route and a medication on the doses route', () => {
-    service.completeById('REPAS', 5, { status: 'FAIT' }).subscribe();
+    service.complete({ kind: 'REPAS', id: 5 }, { status: 'FAIT', mealRiskVersion: 'courante' }, 'cle-repas').subscribe();
     const meal = http.expectOne(`${BASE}/meals/5/complete`);
     expect(meal.request.method).toBe('POST');
-    expect(meal.request.body).toEqual({ status: 'FAIT' });
+    expect(meal.request.body).toEqual({ status: 'FAIT', mealRiskVersion: 'courante' });
+    expect(meal.request.headers.get('Idempotency-Key')).toBe('cle-repas');
     meal.flush({} as ServiceItem);
 
-    service.completeById('MEDICAMENT', 9, { status: 'REFUSE', comment: 'Nausées' }).subscribe();
+    service.complete({ kind: 'MEDICAMENT', id: 9 }, { status: 'REFUSE', comment: 'Nausées' }, 'cle-prise').subscribe();
     const dose = http.expectOne(`${BASE}/doses/9/complete`);
     expect(dose.request.body).toEqual({ status: 'REFUSE', comment: 'Nausées' });
+    expect(dose.request.headers.get('Idempotency-Key')).toBe('cle-prise');
     dose.flush({} as ServiceItem);
   });
 

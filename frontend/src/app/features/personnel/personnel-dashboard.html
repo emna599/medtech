@@ -39,10 +39,10 @@
     </mat-menu>
   </header>
 
-  @if (kind() === 'REPAS' && refreshUnavailable()) {
+  @if (refreshUnavailable()) {
     <p class="meal-change" role="status">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">sync_problem</mat-icon>
-      <span>Actualisation des consignes indisponible. Réessayez avant de préparer ou servir.</span>
+      <span>Actualisation indisponible. Vérifiez la fiche avant toute nouvelle action.</span>
     </p>
   }
   @if (changedMealResidents().length) {
@@ -94,6 +94,9 @@
 
       @if (total() > 0) {
         <div class="progress">
+          @if (lastRefresh(); as refreshed) {
+            <small>Actualisé à {{ refreshed | date:'HH:mm:ss' }}</small>
+          }
           <div class="progress-text">
             <strong>{{ finished() }} / {{ total() }}</strong>
             {{ kind() === 'REPAS' ? 'repas traités' : 'prises traitées' }}

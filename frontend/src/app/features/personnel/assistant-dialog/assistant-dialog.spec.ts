@@ -50,26 +50,23 @@ describe('AssistantDialog', () => {
     http.expectNone(`${BASE}/assistant`);
   });
 
-  it('records nothing until the nurse confirms, then completes the meal', () => {
+  it('opens the exact proposed item without recording the meal', () => {
     const fixture = create();
     fixture.componentInstance['send']('Marque le repas de M. Durand comme servi');
     http.expectOne(`${BASE}/assistant`).flush(proposal);
-    http.expectNone(`${BASE}/meals/42/complete`);
     fixture.detectChanges();
 
-    const confirmation = fixture.componentInstance['messages']().find((m) => m.action);
-    fixture.componentInstance['confirm'](confirmation!);
-    const req = http.expectOne(`${BASE}/meals/42/complete`);
-    expect(req.request.body).toEqual({ status: 'FAIT' });
-    req.flush({});
-
-    fixture.componentInstance['close']();
-    expect(close).toHaveBeenCalledWith({ changed: true });
+    const button = Array.from(fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>)
+      .find(element => element.textContent?.includes('Ouvrir la fiche de tournée'));
+    expect(button).toBeDefined();
+    button!.click();
+    http.expectNone(`${BASE}/meals/42/complete`);
+    expect(close).toHaveBeenCalledWith({ action: proposal.action });
   });
 
   it('opens the resident sheet from a name', () => {
     const fixture = create();
     fixture.componentInstance['openResident'](2);
-    expect(close).toHaveBeenCalledWith({ changed: false, residentId: 2 });
+    expect(close).toHaveBeenCalledWith({ residentId: 2 });
   });
 });
