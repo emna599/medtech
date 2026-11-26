@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EMPTY, catchError, exhaustMap, filter, map, timer } from 'rxjs';
@@ -153,7 +154,10 @@ export class PersonnelDashboard {
   );
 
   constructor() {
-    this.load();
+    const residentId = inject(Router).currentNavigation()?.extras.state?.['identifiedResidentId'];
+    this.load(() => {
+      if (typeof residentId === 'number') this.openResident(residentId);
+    });
     timer(10_000, 10_000).pipe(
       filter(() => this.kind() === 'REPAS' && !this.loading()),
       exhaustMap(() => {

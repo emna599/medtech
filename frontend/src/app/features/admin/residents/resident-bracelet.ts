@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { QrCode } from '../../../shared/models/resident.model';
 import { apiErrorMessage } from '../../../shared/utils/api-error';
+import { BRACELET_PATH, braceletCode } from '../../../shared/utils/bracelet-link';
 import { createQrSvgDataUrl } from '../../../shared/utils/qr-code';
 import { AdminResidentService } from './admin-resident.service';
 
@@ -52,7 +53,9 @@ export class ResidentBracelet {
     const qrCode = this.activeQrCode();
     if (!qrCode?.token) return null;
     try {
-      return createQrSvgDataUrl(qrCode.token);
+      const code = braceletCode(qrCode.token);
+      const link = code ? window.location.origin + BRACELET_PATH + '#' + code : null;
+      return createQrSvgDataUrl(link && new TextEncoder().encode(link).length <= 78 ? link : qrCode.token);
     } catch (error) {
       if (error instanceof RangeError) return null;
       throw error;

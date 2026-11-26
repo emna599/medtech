@@ -8,10 +8,12 @@ import { MatInputModule } from '@angular/material/input';
 import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
 import { fullName, ResidentIdentity } from '../../../shared/models/personnel.model';
 import { decodeQrFromFile, QrReader } from '../components/qr-reader';
+import { readBraceletCode } from '../../../shared/utils/bracelet-link';
 import { ResidentAvatar } from '../components/resident-avatar';
 
 export interface IdentifyDialogData {
-  mode: 'admin' | 'medecin';
+  mode: 'admin' | 'medecin' | 'personnel';
+  initialCode?: string | null;
 }
 
 export interface IdentifyResult {
@@ -33,7 +35,8 @@ export class IdentifyDialog {
   private readonly api = inject(PersonnelService);
   private readonly ref = inject<MatDialogRef<IdentifyDialog, IdentifyResult>>(MatDialogRef);
 
-  protected readonly mode = inject<IdentifyDialogData>(MAT_DIALOG_DATA, { optional: true })?.mode ?? 'personnel';
+  private readonly data = inject<IdentifyDialogData>(MAT_DIALOG_DATA, { optional: true });
+  protected readonly mode = this.data?.mode ?? 'personnel';
 
   protected readonly code = signal('');
   protected readonly busy = signal(false);
@@ -51,8 +54,19 @@ export class IdentifyDialog {
     return resident ? fullName(resident) : '';
   });
 
+  constructor() {
+    if (this.data?.initialCode) {
+      this.code.set(this.data.initialCode);
+      this.identify();
+    }
+  }
+
   protected identify(): void {
-    const code = this.code().trim();
+    const code = readBraceletCode(this.code(), window.location.origin);
+    if (!code && this.code().trim()) {
+      this.error.set('Ce QR code ne correspond pas à un bracelet MedTech de cet établissement.');
+      return;
+    }
     if (!code || this.busy()) {
       return;
     }

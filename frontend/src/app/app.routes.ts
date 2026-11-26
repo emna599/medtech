@@ -70,5 +70,10 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/medecin/residents/resident-detail').then((m) => m.ResidentDetailPage),
   },
+  {
+    path: 'b',
+    title: 'Identifier un résident',
+    loadComponent: () => import('./features/bracelet-entry/bracelet-entry').then(m => m.BraceletEntry),
+  },
   { path: '**', redirectTo: 'login' },
 ];

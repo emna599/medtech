@@ -6,9 +6,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Logo } from '../../../shared/components/logo/logo';
+import { BRACELET_PATH, braceletCode } from '../../../shared/utils/bracelet-link';
 import { ROLE_HOME_ROUTE } from '../../../shared/models/auth.model';
 
 @Component({
@@ -30,6 +31,8 @@ export class Login {
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly form = this.formBuilder.group({
     username: ['', [Validators.required]],
@@ -61,7 +64,12 @@ export class Login {
     this.auth.login(this.form.getRawValue()).subscribe({
       next: (response) => {
         this.loading.set(false);
-        void this.router.navigateByUrl(ROLE_HOME_ROUTE[response.user.role]);
+        const code = braceletCode(this.route.snapshot.fragment);
+        if (code) {
+          void this.router.navigate([BRACELET_PATH], { fragment: code, replaceUrl: true });
+        } else {
+          void this.router.navigateByUrl(ROLE_HOME_ROUTE[response.user.role]);
+        }
       },
       error: (error: unknown) => {
         this.loading.set(false);
