@@ -1,6 +1,6 @@
 // =============================================================================
 //  MedTech EHPAD — Design system SOBRE
-//  Neutre, à plat, angles discrets, une seule couleur d'accent (teal sobre).
+//  Surfaces sobres et accents empruntés au logo.
 //  Pas de dégradé, pas de serif éditorial, ombres minimales, bordures nettes.
 //  Typo : Inter.
 // =============================================================================
@@ -40,9 +40,13 @@ body {
 // -----------------------------------------------------------------------------
 :root {
   font-size: clamp(100%, calc(90% + 0.25vw), 131.25%);
-  --site-banner: #132c54;
-  --site-banner-border: #91b9e7;
-  --site-banner-text: #e1ecff;
+  --site-header: #f9faf7;
+  --site-footer: #11332d;
+  --site-footer-ink: #f2faf6;
+  --site-footer-link: #c7e8db;
+  --site-footer-rule: #618379;
+  --site-divider: #adc5be;
+  --site-mark: #0f766e;
   --work-title-size: clamp(1.65rem, 1.35rem + 1vw, 2.5rem);
   --brand-teal: #0f6b63;
   --brand-navy: #1f2b38;
@@ -50,10 +54,10 @@ body {
   --brand-teal-text: #0f6b63;
 
   // Mapping Material (couleurs système) — sobre
-  --mat-sys-primary: #183b72;
+  --mat-sys-primary: #0d655d;
   --mat-sys-on-primary: #ffffff;
-  --mat-sys-primary-container: #dbe9ff;
-  --mat-sys-on-primary-container: #112e5a;
+  --mat-sys-primary-container: #d6ece7;
+  --mat-sys-on-primary-container: #15443e;
   --mat-sys-secondary: #42505f;
   --mat-sys-secondary-container: #e7eaee;
   --mat-sys-on-secondary-container: #27313c;
@@ -69,12 +73,12 @@ body {
   --mat-sys-surface-container: #f1f3f5;
   --mat-sys-surface-container-high: #eceef1;
   --mat-sys-on-surface: #101d33;
-  --mat-sys-on-surface-variant: #304153;
+  --mat-sys-on-surface-variant: #344b47;
   --mat-sys-outline: #c3c9d0;
-  --mat-sys-outline-variant: #8999ad;
+  --mat-sys-outline-variant: #8ca9a2;
 
   // Jetons applicatifs
-  --app-bg: #eef2f8;
+  --app-bg: #f2f6f5;
   --app-surface: #ffffff;
   --app-surface-2: #f3f4f6;
   --app-line: #e3e6ea;
@@ -112,11 +116,15 @@ body {
 //  Mode sombre — sobre
 // -----------------------------------------------------------------------------
 :root[data-theme='dark'] {
+  --site-header: #1b2a28;
+  --site-footer: #102b27;
+  --site-divider: #4a6b62;
+  --site-mark: #88d5c6;
   --brand-teal: #3fb9ac;
   --brand-teal-text: #58c7ba;
-  --mat-sys-primary: #c2d9ff;
-  --mat-sys-on-primary: #102645;
-  --mat-sys-primary-container: #274873;
+  --mat-sys-primary: #9adccf;
+  --mat-sys-on-primary: #123831;
+  --mat-sys-primary-container: #234a43;
   --mat-sys-on-primary-container: #ffffff;
   --mat-sys-secondary: #aeb8c4;
   --mat-sys-secondary-container: #333d48;
@@ -125,17 +133,17 @@ body {
   --mat-sys-tertiary-container: #4a330f;
   --mat-sys-on-tertiary-container: #f3e6d0;
   --mat-sys-surface-tint: #58c7ba;
-  --mat-sys-surface: #14243d;
+  --mat-sys-surface: #1b2a28;
   --mat-sys-surface-container-lowest: #11161b;
   --mat-sys-surface-container-low: #1b2127;
   --mat-sys-surface-container: #1f262d;
   --mat-sys-surface-container-high: #272f37;
   --mat-sys-on-surface: #ffffff;
-  --mat-sys-on-surface-variant: #dce7f7;
+  --mat-sys-on-surface-variant: #d4e3df;
   --mat-sys-outline: #495058;
-  --mat-sys-outline-variant: #8096b4;
-  --app-bg: #0a1424;
-  --app-surface: #14243d;
+  --mat-sys-outline-variant: #71918a;
+  --app-bg: #111d1c;
+  --app-surface: #1b2a28;
   --app-surface-2: #11161b;
   --app-line: #2b323a;
   --app-line-soft: #232a31;

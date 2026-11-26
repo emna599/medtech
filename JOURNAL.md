@@ -5,6 +5,13 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — identité visuelle du site
+
+- Harmonisé l’en-tête, les boutons et les liens avec le vert du logo MedTech. Le logo de l’en-tête ramène à l’accueil du rôle. Le pied de page regroupe les raccourcis utiles en colonnes, séparés du retour en haut. Le motif de plan, de repère et de conversation est décoratif.
+- Le rendu reprend les principes d’alignement et de respiration des références visuelles, avec une composition propre à l’outil de l’établissement. Vérifié dans Chromium pour les trois rôles, sur mobile et ordinateur, en clair et en sombre. Build et 33 tests frontend réussis.
+
+---
+
 ## Relais Codex du 2026-11-26 — lisibilité permanente, en-tête et pied de page
 
 - Retiré la commande et le réglage Projection. Les contrastes, les cartes et l’échelle typographique s’appliquent dès l’ouverture et s’adaptent à la largeur de l’écran. Les groupes d’actions restent visibles dans la tournée.

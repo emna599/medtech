@@ -1,33 +1,53 @@
 <div class="site-content" #pageStart tabindex="-1">
   <router-outlet />
 </div>
-<footer class="site-footer">
+<footer class="site-footer" [class.site-footer--guest]="!role()">
   <div class="footer-inner">
-    <div>
-      <strong>MedTech EHPAD</strong>
-      <p>Gestion et coordination de l’établissement</p>
+    <div class="footer-brand">
+      <img src="logo.svg" alt="" width="38" height="38" />
+      <strong>MedTech <span>EHPAD</span></strong>
     </div>
     @if (role(); as currentRole) {
-      <nav aria-label="Raccourcis de votre espace">
-        <strong>{{ roleLabels[currentRole] }}</strong>
-        <ul>
-          @switch (currentRole) {
-            @case ('ADMIN') {
-              <li><a routerLink="/admin">Tableau de bord</a></li>
-              <li><a routerLink="/admin/residents">Résidents</a></li>
-              <li><a routerLink="/admin/rooms">Chambres et étages</a></li>
-              <li><a routerLink="/admin/users">Comptes</a></li>
-            }
-            @case ('PERSONNEL') {
-              <li><a routerLink="/personnel">Tournées et service</a></li>
-            }
-            @case ('MEDECIN') {
-              <li><a routerLink="/medecin/residents">Annuaire des résidents</a></li>
-            }
+      <nav aria-label="Raccourcis de votre espace" [class.footer-nav--admin]="currentRole === 'ADMIN'">
+        @switch (currentRole) {
+          @case ('ADMIN') {
+            <div>
+              <strong>Établissement</strong>
+              <ul>
+                <li><a routerLink="/admin/residents">Résidents</a></li>
+                <li><a routerLink="/admin/rooms">Chambres et étages</a></li>
+              </ul>
+            </div>
+            <div>
+              <strong>Administration</strong>
+              <ul>
+                <li><a routerLink="/admin">Tableau de bord</a></li>
+                <li><a routerLink="/admin/users">Comptes</a></li>
+              </ul>
+            </div>
           }
-        </ul>
+          @case ('PERSONNEL') {
+            <strong>Personnel</strong>
+            <ul><li><a routerLink="/personnel">Tournées et service</a></li></ul>
+          }
+          @case ('MEDECIN') {
+            <strong>Médecin</strong>
+            <ul><li><a routerLink="/medecin/residents">Annuaire des résidents</a></li></ul>
+          }
+        }
       </nav>
+      <div class="footer-map" aria-hidden="true">
+        <span class="map-route"></span>
+        <span class="map-pin"><span class="material-symbols-outlined">location_on</span></span>
+        <span class="map-message"><span class="material-symbols-outlined">chat_bubble</span></span>
+      </div>
     }
-    <button type="button" (click)="backToTop(pageStart)">Haut de page <span aria-hidden="true">↑</span></button>
   </div>
+  @if (role()) {
+    <div class="footer-utilities">
+      <button type="button" (click)="backToTop(pageStart)">
+        <span aria-hidden="true">↑</span> Haut de page
+      </button>
+    </div>
+  }
 </footer>
