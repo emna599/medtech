@@ -2,7 +2,7 @@
 -- MedTech - données de DÉMONSTRATION (100 % fictives) pour l'espace PERSONNEL
 -- À exécuter dans pgAdmin (Query Tool) sur la base "medtech",
 -- APRÈS medtech_schema.sql, seed_users.sql et personnel_additions.sql.
--- Relançable : supprime d'abord les résidents de démo (identity_code 'DEMO-%')
+-- Relançable : supprime d'abord les résidents de démo (identity_code 'DEMO-001' à 'DEMO-012')
 -- et recrée les repas et prises pour AUJOURD'HUI.
 -- =====================================================
 
@@ -13,7 +13,7 @@ INSERT INTO users (username, password_hash, full_name, role) VALUES
 ON CONFLICT (username) DO NOTHING;
 
 -- Nettoyage des anciennes données de démo (les tables liées suivent par ON DELETE CASCADE)
-DELETE FROM resident WHERE identity_code LIKE 'DEMO-%';
+DELETE FROM resident WHERE identity_code ~ '^DEMO-0(0[1-9]|1[0-2])$';
 
 -- ---------- Chambres ----------
 INSERT INTO room (number, floor, capacity) VALUES
@@ -83,7 +83,7 @@ SELECT 'DEJEUNER',
        END || CASE WHEN d.type ILIKE '%diab%' THEN ' (dessert sans sucre)' ELSE '' END,
        CURRENT_DATE + TIME '12:00', 'A_FAIRE', r.id
 FROM resident r JOIN dietary_regime d ON d.resident_id = r.id
-WHERE r.identity_code LIKE 'DEMO-%';
+WHERE r.identity_code ~ '^DEMO-0(0[1-9]|1[0-2])$';
 
 INSERT INTO meal (type, description, scheduled_at, status, resident_id)
 SELECT 'DINER',
@@ -94,7 +94,7 @@ SELECT 'DINER',
        END || CASE WHEN d.type ILIKE '%diab%' THEN ' (sans sucre)' ELSE '' END,
        CURRENT_DATE + TIME '19:00', 'A_FAIRE', r.id
 FROM resident r JOIN dietary_regime d ON d.resident_id = r.id
-WHERE r.identity_code LIKE 'DEMO-%';
+WHERE r.identity_code ~ '^DEMO-0(0[1-9]|1[0-2])$';
 
 -- ---------- Prises de médicaments du jour (médicaments courants, doses fictives) ----------
 INSERT INTO medication_dose (medication, dose, scheduled_at, high_risk, status, resident_id)
@@ -119,7 +119,7 @@ JOIN resident r ON r.identity_code = m.code;
 INSERT INTO qr_code (token, active, resident_id, user_id)
 SELECT 'QR-' || r.identity_code, TRUE, r.id, (SELECT id FROM users WHERE username = 'admin')
 FROM resident r
-WHERE r.identity_code LIKE 'DEMO-%';
+WHERE r.identity_code ~ '^DEMO-0(0[1-9]|1[0-2])$';
 
 -- ---------- Historique des 6 jours précédents (tendance d'appétit) ----------
 -- Martin (DEMO-001) et Petit (DEMO-003) mangent de moins en moins depuis 3 jours.
@@ -128,7 +128,7 @@ SELECT t.type, 'Repas (historique)', (CURRENT_DATE - d.n) + t.at_time, 'FAIT', r
 FROM resident r
 CROSS JOIN generate_series(1, 6) AS d(n)
 CROSS JOIN (VALUES ('DEJEUNER', TIME '12:00'), ('DINER', TIME '19:00')) AS t(type, at_time)
-WHERE r.identity_code LIKE 'DEMO-%';
+WHERE r.identity_code ~ '^DEMO-0(0[1-9]|1[0-2])$';
 
 INSERT INTO meal_distribution (served_at, quantity_eaten, meal_id, user_id)
 SELECT m.scheduled_at + INTERVAL '40 minutes',
@@ -140,9 +140,9 @@ SELECT m.scheduled_at + INTERVAL '40 minutes',
        m.id,
        (SELECT id FROM users WHERE username = 'personnel')
 FROM meal m JOIN resident r ON r.id = m.resident_id
-WHERE r.identity_code LIKE 'DEMO-%' AND m.scheduled_at < CURRENT_DATE;
+WHERE r.identity_code ~ '^DEMO-0(0[1-9]|1[0-2])$' AND m.scheduled_at < CURRENT_DATE;
 
 -- Vérification rapide
-SELECT (SELECT COUNT(*) FROM resident WHERE identity_code LIKE 'DEMO-%') AS residents,
+SELECT (SELECT COUNT(*) FROM resident WHERE identity_code ~ '^DEMO-0(0[1-9]|1[0-2])$') AS residents,
        (SELECT COUNT(*) FROM meal) AS repas,
        (SELECT COUNT(*) FROM medication_dose) AS prises;
