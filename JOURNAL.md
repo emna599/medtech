@@ -101,6 +101,8 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 
 > **Testé le 2026-11-26** : `docker compose up --build` construit les images et démarre DB + backend + frontend ; base initialisée (12 résidents), les 3 comptes se connectent (HTTP 200), app servie sur http://localhost:4200. ✅
 
+> **Si l’espace médecin affiche encore l’ancien écran** : vérifier que la copie utilisée par Docker est sur `integration` et à jour, puis reconstruire les services avec `docker compose up -d --build backend frontend`. Le commit Git seul ne met pas à jour les conteneurs déjà démarrés. Vérifié le 2026-11-26 : après reconstruction du frontend et de l’API sur le site local, le compte médecin ouvre l’annuaire puis les sections Allergies et Régimes alimentaires. Le conteneur et le volume PostgreSQL existants ont été conservés.
+
 ### Option 2 — Manuel (développement)
 1. Base : créer une base `medtech` puis exécuter dans l'ordre `database/medtech_schema.sql`, `seed_users.sql`, `personnel_additions.sql`, `seed_personnel.sql`.
 2. Copier `.env.example` → `.env` (à la racine) et renseigner les valeurs.
