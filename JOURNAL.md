@@ -5,6 +5,13 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — cartes de la salle à manger
+
+- Compacté les cartes de service : avatar à gauche, identité et texture regroupées, alertes juste en dessous, statut à droite ou sous le texte sur les cartes étroites.
+- Corrigé le débordement des contrôles à 320 px. Build Angular et 31 tests frontend réussis. Chromium vérifié à 1280, 390 et 320 px, y compris la visibilité d’une allergie et l’ouverture de la fiche. Site local actualisé.
+
+---
+
 ## Relais Codex du 2026-11-26 — écran personnel et suivi quotidien
 
 - Corrigé la disposition du tableau personnel : outils, créneau, progression, filtres et résultats ont chacun leur espace. Les cartes ont une hauteur cohérente par rangée et des avatars plus petits. L’assistant est avec les outils, sans bouton flottant au-dessus du contenu. Les alertes et les actions de service restent visibles.

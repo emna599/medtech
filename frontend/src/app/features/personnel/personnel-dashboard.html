@@ -160,25 +160,29 @@
               [photoUrl]="item.resident.photoUrl"
               [firstName]="item.resident.firstName"
               [lastName]="item.resident.lastName"
-              [size]="48"
+              [size]="40"
             />
-            <span class="tile-name">{{ name(item) }}</span>
-            <span class="tile-meta">
-              {{ item.kind === 'REPAS' ? (item.resident.texture ?? item.resident.regime ?? '') : item.label }}
-              @if (item.kind === 'MEDICAMENT' && item.detail) { · {{ item.detail }} }
-            </span>
-            @if (firstAllergy(item); as allergy) {
-              <span class="badge badge-allergy">
-                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
-                {{ allergy }}
+            <span class="tile-main">
+              <span class="tile-name">{{ name(item) }}</span>
+              <span class="tile-meta">
+                {{ item.kind === 'REPAS' ? (item.resident.texture ?? item.resident.regime ?? '') : item.label }}
+                @if (item.kind === 'MEDICAMENT' && item.detail) { · {{ item.detail }} }
               </span>
-            }
-            @if (item.resident.identityDoubt) {
-              <span class="badge badge-doubt">Doute d'identité</span>
-            }
-            @if (item.highRisk) {
-              <span class="badge badge-risk">À risque</span>
-            }
+              <span class="tile-alerts">
+                @if (firstAllergy(item); as allergy) {
+                  <span class="badge badge-allergy">
+                    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+                    {{ allergy }}
+                  </span>
+                }
+                @if (item.resident.identityDoubt) {
+                  <span class="badge badge-doubt">Doute d'identité</span>
+                }
+                @if (item.highRisk) {
+                  <span class="badge badge-risk">À risque</span>
+                }
+              </span>
+            </span>
             <span class="status">{{ statusText(item) }}</span>
           </button>
         </li>
