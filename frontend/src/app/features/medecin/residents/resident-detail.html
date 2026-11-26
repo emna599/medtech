@@ -14,7 +14,9 @@
   } @else if (residentError(); as message) {
     <section class="state" role="alert">
       <p>{{ message }}</p>
-      <button mat-flat-button type="button" (click)="resident.reload()">Réessayer</button>
+      @if (resident.status() !== 'idle') {
+        <button mat-flat-button type="button" (click)="resident.reload()">Réessayer</button>
+      }
     </section>
   } @else if (resident.value(); as currentResident) {
     <header class="page-header">

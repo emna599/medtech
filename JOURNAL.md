@@ -5,6 +5,16 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — espace médecin
+
+- Synchronisé `integration` et repris le commit `250187c` de `feature/medecin`. Les branches admin et personnel n’avaient aucun commit distant supplémentaire à intégrer.
+- L’espace médecin propose l’annuaire des résidents, la recherche par nom ou chambre, la fiche résident et le dossier médical en lecture seule. Le conflit du modèle partagé a été résolu en conservant les types et helpers admin et en ajoutant les DTO médecin. La navigation entre deux fiches annule les requêtes de la précédente.
+- Conservé les règles d’accès existantes et les mappings PostgreSQL déjà intégrés. Aucun changement d’API ou de SQL. Régénéré le lockfile pour que `npm ci` installe les dépendances requises par le build.
+- Vérifié sur une stack Docker isolée initialisée par les scripts versionnés : build de production, 23 tests backend et 26 tests frontend. Les trois comptes de démo se connectent. L’API du dossier répond 401 sans jeton, 403 pour admin/personnel et 404 pour médecin sur les 12 résidents du jeu de démo. Parcours Chromium validé : recherche, ouverture de fiche, dossier absent, nouvelle tentative avec un dossier fictif simulé, identifiant invalide et redirection du rôle personnel.
+- À venir pour le médecin : jeu de démo fictif pour les dossiers, écriture du dossier médical et QR codes. Le reste du backlog figure dans « À venir ».
+
+---
+
 ## Session du 2026-11-26
 
 ### 1. Analyse du dépôt
@@ -116,12 +126,10 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 
 ### 🩺 MÉDECIN (`medecin` / Demo1234!)
 1. **Connexion** → *Espace médecin*.
-2. ⚠️ **L'interface médecin est un placeholder** (le module n'a pas encore d'écrans). À tester donc surtout via l'API :
-   - `GET /api/residents` (liste), `GET /api/residents/{id}` (détail),
-   - `GET /api/residents/{id}/medical-record` (dossier — réservé MEDECIN).
-   - Contrôle d'accès : avec un jeton `personnel`, le dossier médical renvoie **403**.
-3. **Déconnexion**.
-- À faire ensuite (backlog) : écrire l'interface médecin + l'écriture du dossier, allergies/régimes, QR codes.
+2. Ouvrir **Consulter les résidents**, rechercher un nom ou un numéro de chambre, puis ouvrir une fiche.
+3. Vérifier l’identité, la chambre et la section **Dossier médical**. Le jeu de démo actuel ne contient aucun dossier médical. L’interface affiche un message d’absence de dossier.
+4. Vérifier que le retour à la liste et la déconnexion fonctionnent.
+- API : `GET /api/residents` (liste), `GET /api/residents/{id}` (détail), `GET /api/residents/{id}/medical-record` (dossier réservé à MEDECIN). Le dernier endpoint répond **403** avec un jeton personnel ou admin.
 
 ### 🧑‍⚕️ PERSONNEL / SOIGNANT (`personnel` / Demo1234!)
 1. **Connexion** → *Espace personnel*, onglet **Repas**.
@@ -148,7 +156,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 ---
 
 ## À venir
-- **Ré-intégration du travail d'un·e coéquipier·ère** (mises à jour en cours) : en fin de journée, une fois stabilisé, relire ses fichiers modifiés, les intégrer à `integration`, avec une passe **logique métier** + **sécurité** (JWT, CSRF, XSS, injection, contrôle d'accès par rôle au merge).
+- **Espace médecin** : ajouter des dossiers de démo fictifs via `database/`, puis cadrer l’écriture du dossier médical, les allergies/régimes et les QR codes.
 - Discuter de `integration` avec l'équipe, puis **ouvrir la pull request vers `main`** (plus tard, pas maintenant).
 - Logique métier EHPAD restante (features) : GIR/AGGIR, entité Prescription, rôles IDE/aide-soignant, motif+date de sortie, alerte dénutrition, relève persistée.
 - Sécurité : rate-limit sur le login, stratégie de révocation JWT, CSP.
