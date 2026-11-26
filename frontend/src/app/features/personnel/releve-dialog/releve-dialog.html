@@ -1,0 +1,70 @@
+<header class="head">
+  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
+  <div class="head-text">
+    <h2>Résumé de relève</h2>
+    <p>{{ nowText }}</p>
+  </div>
+  <button mat-icon-button type="button" aria-label="Fermer" (click)="ref.close()">
+    <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
+  </button>
+</header>
+
+<div class="body">
+  @if (loading()) {
+    <div class="state"><mat-spinner diameter="40" /></div>
+  } @else if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else {
+    <section>
+      <h3>Repas</h3>
+      @for (l of mealLines(); track l.slot) {
+        <p class="line"><span>{{ slotText(l.slot) }}</span><strong>{{ l.done }} / {{ l.total }}</strong></p>
+      } @empty {
+        <p class="muted">Aucun repas prévu.</p>
+      }
+    </section>
+
+    <section>
+      <h3>Médicaments</h3>
+      @for (l of doseLines(); track l.slot) {
+        <p class="line"><span>{{ slotText(l.slot) }}</span><strong>{{ l.done }} / {{ l.total }}</strong></p>
+      } @empty {
+        <p class="muted">Aucune prise prévue.</p>
+      }
+    </section>
+
+    <section>
+      <h3>Reste à faire</h3>
+      <p class="line"><span>Repas</span><strong>{{ todo().meals }}</strong></p>
+      <p class="line"><span>Prises de médicaments</span><strong>{{ todo().doses }}</strong></p>
+    </section>
+
+    @if (doubts().length > 0) {
+      <section class="warn">
+        <h3>Doutes d'identité à lever</h3>
+        @for (d of doubts(); track d.id) {
+          <p class="alert">{{ d.residentName }}</p>
+        }
+      </section>
+    }
+
+    <section>
+      <h3>À surveiller</h3>
+      @for (a of alerts(); track $index) {
+        <p class="alert">
+          <strong>{{ a.residentName }}</strong>@if (a.room) { (ch. {{ a.room }}) } : {{ a.text }}
+        </p>
+      } @empty {
+        <p class="muted">Rien de particulier à signaler.</p>
+      }
+    </section>
+  }
+</div>
+
+<footer class="foot">
+  <button mat-stroked-button type="button" [disabled]="loading() || !!error()" (click)="copy()">
+    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">content_copy</mat-icon>
+    Copier le résumé
+  </button>
+  <button mat-flat-button type="button" (click)="ref.close()">Fermer</button>
+</footer>

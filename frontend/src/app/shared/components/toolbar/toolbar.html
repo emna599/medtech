@@ -1,6 +1,9 @@
 <mat-toolbar class="toolbar">
-  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">medical_services</mat-icon>
-  <span class="app-name">MedTech EHPAD</span>
+  <img class="logo" src="logo.svg" alt="" />
+  <span class="brand">
+    <span class="app-name">Med<b>Tech</b></span>
+    <span class="app-sub">EHPAD</span>
+  </span>
 
   <span class="spacer"></span>
 
@@ -10,6 +13,16 @@
       <span class="user-role">{{ roleLabel() }}</span>
     </span>
   }
+
+  <button
+    mat-icon-button
+    type="button"
+    [attr.aria-label]="dark() ? 'Passer en mode clair' : 'Passer en mode sombre'"
+    [attr.aria-pressed]="dark()"
+    (click)="toggleTheme()"
+  >
+    <mat-icon fontSet="material-symbols-outlined">{{ dark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+  </button>
 
   <button mat-button type="button" (click)="logout()">
     <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">logout</mat-icon>

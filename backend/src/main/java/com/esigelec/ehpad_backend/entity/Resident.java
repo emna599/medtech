@@ -2,6 +2,8 @@ package com.esigelec.ehpad_backend.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,6 +41,23 @@ public class Resident {
     @JoinColumn(name = "room_id")
     private Room room;
 
+    @Column(name = "photo_url", length = 255)
+    private String photoUrl;
+
+    @Column(name = "distinguishing_features", length = 255)
+    private String distinguishingFeatures;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "meal_location", nullable = false, length = 20)
+    private MealLocation mealLocation = MealLocation.SALLE;
+
+    @Column(name = "needs_help", nullable = false)
+    private boolean needsHelp;
+
+    /** Identifiant anonyme (contenu d'un éventuel QR de bracelet) : jamais de donnée de santé. */
+    @Column(name = "identity_code", length = 50)
+    private String identityCode;
+
     public Long getId() { return id; }
 
     public String getFirstName() { return firstName; }
@@ -58,4 +77,19 @@ public class Resident {
 
     public Room getRoom() { return room; }
     public void setRoom(Room room) { this.room = room; }
+
+    public String getPhotoUrl() { return photoUrl; }
+    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
+
+    public String getDistinguishingFeatures() { return distinguishingFeatures; }
+    public void setDistinguishingFeatures(String distinguishingFeatures) { this.distinguishingFeatures = distinguishingFeatures; }
+
+    public MealLocation getMealLocation() { return mealLocation; }
+    public void setMealLocation(MealLocation mealLocation) { this.mealLocation = mealLocation; }
+
+    public boolean isNeedsHelp() { return needsHelp; }
+    public void setNeedsHelp(boolean needsHelp) { this.needsHelp = needsHelp; }
+
+    public String getIdentityCode() { return identityCode; }
+    public void setIdentityCode(String identityCode) { this.identityCode = identityCode; }
 }

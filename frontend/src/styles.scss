@@ -10,10 +10,13 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        primary: mat.$cyan-palette,
+        tertiary: mat.$orange-palette,
       ),
-      typography: Roboto,
+      typography: (
+        plain-family: 'Nunito, Roboto, sans-serif',
+        brand-family: 'Nunito, Roboto, sans-serif',
+      ),
       density: 0,
     )
   );
@@ -28,7 +31,7 @@ body {
   // Set a default background, font and text colors for the application using
   // Angular Material's system-level CSS variables. Learn more about these
   // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
+  background: var(--app-bg) fixed;
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
 
@@ -38,11 +41,92 @@ body {
 }
 /* You can add global styles to this file, and also import other style files */
 
-// ---- Styles communs aux pages d'administration ----
-body {
-  background-color: var(--mat-sys-surface-container-low);
+// Thème « santé et repas » : vert apaisant, touches chaudes, grandes zones tactiles.
+:root {
+  // Palette du logo MedTech : vert-bleu, bleu nuit, corail.
+  --brand-teal: #0f766e;
+  --brand-navy: #12365c;
+  --brand-coral: #e8715a;
+  --mat-sys-primary: #0f766e;
+  --mat-sys-on-primary: #fff;
+  --mat-sys-primary-container: #cdeeea;
+  --mat-sys-on-primary-container: #00302c;
+  --mat-sys-secondary: #12365c;
+  --mat-sys-secondary-container: #dbe7f3;
+  --mat-sys-on-secondary-container: #0b2540;
+  --mat-sys-tertiary: #b9472f;
+  --mat-sys-tertiary-container: #ffdcd3;
+  --mat-sys-on-tertiary-container: #3d0e03;
+  --mat-sys-surface-tint: #0f766e;
+  --brand-teal-text: #0f766e;
+  --app-bg: linear-gradient(180deg, #eff7f6 0%, #f8f6f3 100%);
+  --app-surface: #fff;
+  --app-surface-2: #f4f8f8;
+  --app-line: #c3dedb;
+  --app-line-soft: #dbe9e7;
+  --app-ink: #12365c;
+  --app-teal-tint: #e3f4f1;
+  --app-chip-bg: #e9eff2;
+  --app-chip-ink: #2f4560;
+  --app-on-ok: #fff;
+  --app-radius: 20px;
+  --app-shadow: 0 1px 2px rgb(18 54 92 / 8%), 0 4px 14px rgb(18 54 92 / 8%);
+  --app-ok: #0f766e;
+  --app-ok-bg: #e3f4f1;
+  --app-warn: #c9563e;
+  --app-warn-bg: #fff0ec;
+  --app-danger: #b3261e;
+  --app-danger-bg: #fdeceb;
 }
 
+.mat-mdc-snack-bar-container {
+  --mat-snack-bar-container-shape: 14px;
+}
+
+.mat-mdc-dialog-container {
+  --mat-dialog-container-shape: 24px;
+}
+
+// Mode sombre : activé par le bouton du bandeau ou, par défaut, par le réglage du système.
+:root[data-theme='dark'] {
+  --brand-teal: #11857a;
+  --brand-teal-text: #5fd8c8;
+  --mat-sys-primary: #5fd8c8;
+  --mat-sys-on-primary: #00302c;
+  --mat-sys-primary-container: #00504a;
+  --mat-sys-on-primary-container: #b4f1e9;
+  --mat-sys-secondary: #a9c8ea;
+  --mat-sys-secondary-container: #284a6b;
+  --mat-sys-on-secondary-container: #dbe7f3;
+  --mat-sys-tertiary: #ffb4a3;
+  --mat-sys-tertiary-container: #6b2a1a;
+  --mat-sys-on-tertiary-container: #ffdcd3;
+  --mat-sys-surface-tint: #5fd8c8;
+  --app-bg: linear-gradient(180deg, #0e1519 0%, #121a1f 100%);
+  --app-surface: #1b262d;
+  --app-surface-2: #141d22;
+  --app-line: #35504f;
+  --app-line-soft: #2a3d40;
+  --app-ink: #e6eef0;
+  --app-teal-tint: #17403c;
+  --app-chip-bg: #2a3a44;
+  --app-chip-ink: #cfe0e6;
+  --app-on-ok: #00302c;
+  --app-ok: #4fd1b8;
+  --app-ok-bg: #123a35;
+  --app-warn: #ff9a85;
+  --app-warn-bg: #3d2520;
+  --app-danger: #ff8a80;
+  --app-danger-bg: #3d1f1d;
+  --app-shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 14px rgb(0 0 0 / 35%);
+}
+
+:root[data-theme='dark'] body {
+  color-scheme: dark;
+}
+
+
+// ==== Utilitaires des pages ADMIN (repris de feature/admin-users) ====
 .page-head {
   display: flex;
   align-items: flex-start;
