@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — revue de la branche médecin de Ran
+
+- Récupéré explicitement `feature/medecin` et examiné son unique commit divergent `125ec29`. Il encode une URL dans le QR pour ouvrir une fiche dans le navigateur, ajoute un aperçu médecin et affiche le nom et la chambre sur le bracelet imprimé.
+- Revue statique : le nouveau GET QR serait refusé par la politique serveur actuelle. L’ouvrir aux trois rôles avec la réponse proposée exposerait aussi les allergies et les régimes à l’administration. Le parcours de connexion ne reprend pas le scan initial, car le login redirige vers l’accueil du rôle. La simulation de fusion révèle trois conflits dans le service Angular des résidents et la fiche médecin.
+- Aucune fusion réalisée. Si le scan depuis l’appareil photo du téléphone est retenu, réutiliser l’identification authentifiée limitée à l’identité, conserver la confirmation et la gestion du bracelet par l’admin, et vérifier la reprise du parcours après connexion. La branche de Ran n’a pas été exécutée pendant cette revue.
+
+---
+
 ## Relais Codex du 2026-11-26 — désactivation d’un résident
 
 - Ajouté « Désactiver le résident » en haut de la fiche admin, avec confirmation distincte de celle du bracelet. La fiche reste consultable, la dernière chambre reste indiquée et le résident est retiré de l’occupation et des listes actives.
