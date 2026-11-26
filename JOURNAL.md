@@ -5,6 +5,15 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — accès Service en salle
+
+- Un compte PERSONNEL avec la fonction SERVICE reçoit une autorité serveur propre au service en salle. Accès aux tables, au menu, aux lectures de présence, aux chevalets et à l’identification limitée. Les tournées, les médicaments, les dossiers, les notes et la relève sont refusés. Un changement de profil ferme aussi les abonnements aux tournées.
+- Sofia arrive directement sur les tables. Le jeu fictif ajoute `service1` et `personnel3` avec les profils de la branche d’origine. Le script de démo ajoute les comptes absents et conserve les comptes existants.
+- Vérifié sur PostgreSQL isolé : profils créés, accès aux tables et refus des routes de soins pour Sofia, accès Personnel pour Hugo. Chromium a vérifié l’ouverture des tables à la connexion de Sofia et leur réouverture. Compilation, 35 tests backend et 33 tests frontend réussis.
+- Attribution des fonctions depuis l’administration, habilitations par secteur et distinction IDE/aide-soignant restent à cadrer.
+
+---
+
 ## Relais Codex du 2026-11-27 — audit du profil Service et des branches
 
 - Récupéré les branches distantes `feature/*`. Les cinq branches historiques sont dans l’ascendance d’`integration`. `feature/personnel-v2` a un commit supplémentaire, `7b6b3d4`, qui ouvre les tables par défaut pour le profil SERVICE, facilite l’accès des soignants aux tables et simplifie certains écrans.

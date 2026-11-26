@@ -18,4 +18,5 @@ BEGIN;
 \ir care_completion.sql
 \ir tour_updates.sql
 \ir seed_service.sql
+\ir seed_dining_accounts.sql
 COMMIT;

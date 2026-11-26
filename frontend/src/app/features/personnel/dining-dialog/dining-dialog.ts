@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -31,6 +31,7 @@ export class DiningDialog {
   private readonly ref = inject<MatDialogRef<DiningDialog, DiningSelection>>(MatDialogRef);
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly diningOnly = inject<{ diningOnly: boolean } | null>(MAT_DIALOG_DATA, { optional: true })?.diningOnly ?? false;
   protected readonly slot = signal<DiningSlot>(new Date().getHours() < 15 ? 'DEJEUNER' : 'DINER');
   protected readonly dining = signal<Dining | null>(null);
   protected readonly busy = signal(false);

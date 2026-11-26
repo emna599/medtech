@@ -1,5 +1,6 @@
 package com.esigelec.ehpad_backend.security;
 
+import com.esigelec.ehpad_backend.repository.StaffProfileRepository;
 import com.esigelec.ehpad_backend.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +31,7 @@ public class SecurityConfig {
                                                    JwtService jwtService,
                                                    UserRepository userRepository,
                                                    AuthSessionStore sessions,
+                                                   StaffProfileRepository profiles,
                                                    CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
                 // Jetons Bearer uniquement, sans cookie d’authentification.
@@ -42,8 +44,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/resident-photos/*").hasAnyRole("ADMIN", "PERSONNEL", "MEDECIN")
-                        .requestMatchers(HttpMethod.POST, "/api/identification/bracelet").hasAnyRole("ADMIN", "PERSONNEL", "MEDECIN")
+                        .requestMatchers(HttpMethod.POST, "/api/identification/bracelet").hasAnyRole("ADMIN", "PERSONNEL", "MEDECIN", "DINING_SERVICE")
                         .requestMatchers("/api/residents/*/qr-codes", "/api/residents/*/qr-codes/**").denyAll()
+                        .requestMatchers(HttpMethod.GET, "/api/personnel/access").hasAnyRole("PERSONNEL", "ADMIN", "DINING_SERVICE")
+                        .requestMatchers(HttpMethod.GET, "/api/personnel/dining/tables", "/api/personnel/dining/menu").hasAnyRole("PERSONNEL", "DINING_SERVICE")
+                        .requestMatchers(HttpMethod.POST, "/api/personnel/dining/readings").hasAnyRole("PERSONNEL", "DINING_SERVICE")
+                        .requestMatchers(HttpMethod.PUT, "/api/personnel/dining/chevalets/*").hasAnyRole("PERSONNEL", "DINING_SERVICE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/personnel/dining/chevalets/*/*").hasAnyRole("PERSONNEL", "DINING_SERVICE")
                         .requestMatchers("/api/personnel/planning",
                                 "/api/personnel/team", "/api/personnel/team/**",
                                 "/api/personnel/notes", "/api/personnel/dining/**").hasRole("PERSONNEL")
@@ -54,7 +61,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/me", "/api/auth/logout").authenticated()
                         .anyRequest().denyAll())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService, userRepository, sessions),
+                .addFilterBefore(new JwtAuthenticationFilter(jwtService, userRepository, sessions, profiles),
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

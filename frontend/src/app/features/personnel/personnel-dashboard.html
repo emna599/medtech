@@ -1,5 +1,15 @@
 <app-toolbar />
 
+@if (diningOnly() === true) {
+  <main class="work-page">
+    <h1>Service en salle</h1>
+    <button mat-flat-button type="button" (click)="openDining()">Ouvrir les tables</button>
+  </main>
+} @else if (accessError()) {
+  <main class="work-page"><p role="alert">L’espace de travail est indisponible. Rechargez la page pour réessayer.</p></main>
+} @else if (diningOnly() === null) {
+  <main class="work-page"><p role="status">Chargement de votre espace…</p></main>
+} @else {
 <main class="work-page service-page">
   <header class="page-head tour-heading">
     <div class="tour-title">
@@ -276,3 +286,4 @@
     </div>
   }
 </main>
+}

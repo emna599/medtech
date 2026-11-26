@@ -2,7 +2,7 @@
 
 ## Présenter l’application
 
-- Sur la base fictive, connectez-vous avec `admin`, `medecin`, `personnel` ou `personnel2`. Les deux derniers ouvrent l’espace Personnel. Le mot de passe de démonstration est `Demo1234!`.
+- Sur la base fictive, utilisez `admin`, `medecin`, `personnel`, `personnel2`, `personnel3` ou `service1`. Le mot de passe de démonstration est `Demo1234!`.
 - Les titres, les cartes et les commandes sont lisibles dès l’ouverture, avec une taille adaptée à la largeur de l’écran. Dans l’en-tête, le logo ramène à l’accueil de votre rôle et le bouton lune ou soleil règle le thème. Le pied de page propose les raccourcis du rôle et **Haut de page**.
 - Côté personnel, **Identifier un résident** et **Service en salle** sont dans l’en-tête de la tournée. **Résidents** ouvre directement l’annuaire depuis l’en-tête. **Outils** regroupe la relève, l’organisation type, l’équipe, les notes et l’assistant. Les pictogrammes indiquent les sections et les commandes. Les statuts et alertes associent texte et icône.
 
@@ -41,6 +41,10 @@ Les actions principales sont pleines, les actions secondaires ont un contour fin
 - Si le serveur signale une consigne modifiée, vérifiez la fiche actualisée et confirmez de nouveau si nécessaire. Si l’actualisation échoue, suivez le circuit de continuité de l’établissement.
 - Dans l’Assistant, **Ouvrir la fiche de tournée** ouvre le repas ou la prise proposé. La validation se fait dans cette fiche.
 
+
+### Service en salle
+
+Avec le compte de démonstration **service1**, les tables s’ouvrent après la connexion. Sofia peut consulter le menu, enregistrer les arrivées et départs et gérer les chevalets. Le statut du repas reste visible sur la table. La validation du service se fait depuis la tournée de l’équipe qui y est habilitée.
 
 ### Préparation cuisine
 

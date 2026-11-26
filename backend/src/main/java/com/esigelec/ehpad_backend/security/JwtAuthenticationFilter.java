@@ -1,6 +1,9 @@
 package com.esigelec.ehpad_backend.security;
 
+import com.esigelec.ehpad_backend.entity.Job;
+import com.esigelec.ehpad_backend.entity.Role;
 import com.esigelec.ehpad_backend.entity.User;
+import com.esigelec.ehpad_backend.repository.StaffProfileRepository;
 import com.esigelec.ehpad_backend.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,16 +28,20 @@ import java.util.List;
  */
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    public static final String DINING_AUTHORITY = "ROLE_DINING_SERVICE";
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final AuthSessionStore sessions;
+    private final StaffProfileRepository profiles;
 
-    public JwtAuthenticationFilter(JwtService jwtService, UserRepository userRepository, AuthSessionStore sessions) {
+    public JwtAuthenticationFilter(JwtService jwtService, UserRepository userRepository, AuthSessionStore sessions,
+                                   StaffProfileRepository profiles) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.sessions = sessions;
+        this.profiles = profiles;
     }
 
     @Override
@@ -55,12 +62,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                                 user.getUsername(),
                                 null,
-                                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
+                                List.of(authorityFor(user)));
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     });
         }
 
         filterChain.doFilter(request, response);
+    }
+    private SimpleGrantedAuthority authorityFor(User user) {
+        if (user.getRole() == Role.PERSONNEL
+                && profiles.findById(user.getId()).filter(profile -> profile.getJob() == Job.SERVICE).isPresent()) {
+            return new SimpleGrantedAuthority(DINING_AUTHORITY);
+        }
+        return new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
     }
 }

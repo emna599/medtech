@@ -4,6 +4,7 @@ import com.esigelec.ehpad_backend.dto.NoteDto;
 import com.esigelec.ehpad_backend.dto.NoteRequest;
 import com.esigelec.ehpad_backend.dto.PlanningDto;
 import com.esigelec.ehpad_backend.dto.TeamDto;
+import com.esigelec.ehpad_backend.security.JwtAuthenticationFilter;
 import com.esigelec.ehpad_backend.service.NoteService;
 import com.esigelec.ehpad_backend.service.StaffService;
 import com.esigelec.ehpad_backend.service.TeamService;
@@ -29,6 +30,14 @@ public class StaffController {
         this.staffService = staffService;
         this.teamService = teamService;
         this.noteService = noteService;
+    }
+
+    public record StaffAccess(boolean diningOnly) {}
+
+    @GetMapping("/access")
+    public StaffAccess access(Authentication authentication) {
+        return new StaffAccess(authentication.getAuthorities().stream()
+                .anyMatch(authority -> JwtAuthenticationFilter.DINING_AUTHORITY.equals(authority.getAuthority())));
     }
 
     /** Planning type (fixe) de la fonction et de l'équipe du soignant. */

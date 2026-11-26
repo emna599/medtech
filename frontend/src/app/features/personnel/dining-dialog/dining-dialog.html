@@ -77,7 +77,9 @@
                         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ statusIcons[meal.status] }}</mat-icon>
                         {{ labels[meal.status] }}
                       </span>
-                      <button mat-button [disabled]="busy()" (click)="openMeal(seat)">Ouvrir la fiche repas</button>
+                      @if (!diningOnly) {
+                        <button mat-button [disabled]="busy()" (click)="openMeal(seat)">Ouvrir la fiche repas</button>
+                      }
                     }
                     @if (table.readerCode) {
                       <button mat-button [disabled]="busy()" (click)="leave(table, seat)">Enregistrer le départ</button>

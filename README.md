@@ -89,15 +89,18 @@ L'application est disponible sur http://localhost:4200.
 
 ## Comptes de démonstration
 
-Comptes fictifs créés par `database/seed_users.sql`, mot de passe `Demo1234!` :
+Comptes fictifs chargés par `database/setup.sql`, mot de passe `Demo1234!` :
 
 | Identifiant | Rôle |
 |---|---|
 | `admin` | ADMIN |
-| `personnel` | PERSONNEL |
+| `personnel`, `personnel2`, `personnel3` | PERSONNEL |
+| `service1` | PERSONNEL, accès Service en salle |
 | `medecin` | MEDECIN |
 
 À supprimer ou à changer avant tout usage réel.
+
+Sur une base de démonstration locale déjà initialisée, ajoutez Sofia et Hugo sans réinitialiser les données avec `docker compose exec -T db psql -U postgres -d medtech -v ON_ERROR_STOP=1 -f /sql/seed_dining_accounts.sql`.
 
 ## API
 

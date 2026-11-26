@@ -182,6 +182,8 @@ Ouvrir <http://localhost:4200>.
 |---|---|---|
 | `personnel` | `Demo1234!` | Sam Soignant : espace personnel |
 | `personnel2` | `Demo1234!` | Léa Infirmière : lever un doute d'identité |
+| `personnel3` | `Demo1234!` | Hugo Infirmier, espace personnel |
+| `service1` | `Demo1234!` | Sofia Service, tables et menu |
 | `admin`, `medecin` | `Demo1234!` | Autres espaces |
 
 Codes de bracelet de démonstration : `DEMO-001` à `DEMO-012`.

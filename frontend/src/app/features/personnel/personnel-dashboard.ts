@@ -188,12 +188,30 @@ export class PersonnelDashboard {
     ),
   );
 
+  protected readonly diningOnly = signal<boolean | null>(null);
+  protected readonly accessError = signal(false);
+
   constructor() {
     const residentId = inject(Router).currentNavigation()?.extras.state?.['identifiedResidentId'];
+    const updates = inject(TourUpdatesService);
+    this.api.access().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: ({ diningOnly }) => {
+        this.diningOnly.set(diningOnly);
+        if (diningOnly) {
+          this.openDining();
+        } else {
+          this.startTour(updates, residentId);
+        }
+      },
+      error: () => this.accessError.set(true),
+    });
+  }
+
+  private startTour(updates: TourUpdatesService, residentId: unknown): void {
     this.load(() => {
       if (typeof residentId === 'number') this.openResident(residentId);
     });
-    merge(timer(10_000, 10_000), fromEvent(window, 'online'), inject(TourUpdatesService).changes()).pipe(
+    merge(timer(10_000, 10_000), fromEvent(window, 'online'), updates.changes()).pipe(
       filter(() => !this.loading()),
       switchMap(() => {
         const revision = this.requestRevision;
@@ -297,7 +315,8 @@ export class PersonnelDashboard {
   }
 
   protected openDining(): void {
-    this.dialog.open<DiningDialog, void, { residentId: number; mealId: number }>(DiningDialog, {
+    this.dialog.open<DiningDialog, { diningOnly: boolean }, { residentId: number; mealId: number }>(DiningDialog, {
+      data: { diningOnly: this.diningOnly() === true },
       width: '960px',
       maxWidth: '96vw',
     }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((selection) => {
