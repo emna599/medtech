@@ -79,17 +79,20 @@ export interface MedicalRecord {
 
 export interface Allergy {
   id: number;
+  version: number;
   name: string;
   severity: string | null;
 }
 
 export interface AllergyRequest {
+  version?: number;
   name: string;
   severity: string | null;
 }
 
 export interface DietaryRegime {
   id: number;
+  version: number;
   type: string;
   texture: string | null;
   restrictions: string | null;
@@ -98,6 +101,7 @@ export interface DietaryRegime {
 }
 
 export interface DietaryRegimeRequest {
+  version?: number;
   type: string;
   texture: string | null;
   restrictions: string | null;

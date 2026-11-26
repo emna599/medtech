@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { EMPTY, catchError, exhaustMap, filter, map, timer } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -76,11 +78,19 @@ export class PersonnelDashboard {
   protected readonly location = signal<MealLocation>('SALLE');
   protected readonly statusFilter = signal<StatusFilter>('A_FAIRE');
   protected readonly search = signal('');
+  private requestRevision = 0;
+  private readonly destroyRef = inject(DestroyRef);
   private readonly chosenSlot = signal<string | null>(null);
 
   protected readonly items = signal<ServiceItem[]>([]);
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
+  protected readonly refreshUnavailable = signal(false);
+  protected readonly changedMealResidents = computed(() => [...new Set(this.items()
+    .filter(item => item.kind === 'REPAS' && PENDING.includes(item.status)
+      && !!item.resident.mealInstructionsChangedAt)
+    .map(item => fullName(item.resident)))]);
+
 
   /** Créneaux disponibles (déjeuner, dîner... ou matin, midi, soir), dans l'ordre de la journée. */
   protected readonly slots = computed(() => {
@@ -144,6 +154,25 @@ export class PersonnelDashboard {
 
   constructor() {
     this.load();
+    timer(10_000, 10_000).pipe(
+      filter(() => this.kind() === 'REPAS' && !this.loading()),
+      exhaustMap(() => {
+        const revision = this.requestRevision;
+        return this.api.listService('REPAS').pipe(
+          map(items => ({ items, revision })),
+          catchError(() => {
+            if (revision === this.requestRevision) this.refreshUnavailable.set(true);
+            return EMPTY;
+          }),
+        );
+      }),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(({ items, revision }) => {
+      if (revision === this.requestRevision && this.kind() === 'REPAS') {
+        this.items.set(items);
+        this.refreshUnavailable.set(false);
+      }
+    });
   }
 
   protected setKind(kind: ServiceKind): void {
@@ -170,19 +199,21 @@ export class PersonnelDashboard {
 
   protected load(onDone?: () => void): void {
     const requested = this.kind();
+    const revision = ++this.requestRevision;
     this.loading.set(true);
     this.error.set(null);
-    this.api.listService(requested).subscribe({
+    this.api.listService(requested).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (items) => {
-        if (requested !== this.kind()) {
+        if (revision !== this.requestRevision) {
           return; // réponse périmée : l'utilisateur a changé de type entre-temps
         }
         this.items.set(items);
+        this.refreshUnavailable.set(false);
         this.loading.set(false);
         onDone?.();
       },
       error: (err: unknown) => {
-        if (requested !== this.kind()) {
+        if (revision !== this.requestRevision) {
           return;
         }
         this.error.set(errorMessage(err));

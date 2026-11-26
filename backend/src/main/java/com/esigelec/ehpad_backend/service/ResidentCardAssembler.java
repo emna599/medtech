@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -29,13 +30,15 @@ public class ResidentCardAssembler {
     private final AllergyRepository allergyRepository;
     private final DietaryRegimeRepository regimeRepository;
     private final IdentityDoubtRepository doubtRepository;
+    private final MealInstructionChanges instructionChanges;
 
     public ResidentCardAssembler(AllergyRepository allergyRepository,
                                  DietaryRegimeRepository regimeRepository,
-                                 IdentityDoubtRepository doubtRepository) {
+                                 IdentityDoubtRepository doubtRepository, MealInstructionChanges instructionChanges) {
         this.allergyRepository = allergyRepository;
         this.regimeRepository = regimeRepository;
         this.doubtRepository = doubtRepository;
+        this.instructionChanges = instructionChanges;
     }
 
     /** À appeler dans une transaction (la chambre du résident est chargée à la demande). */
@@ -52,22 +55,28 @@ public class ResidentCardAssembler {
                 .collect(Collectors.groupingBy(r -> r.getResident().getId()));
         Set<Long> withDoubt = new HashSet<>(doubtRepository.findResidentIdsWithOpenDoubt(ids));
 
+        Map<Long, OffsetDateTime> changes = instructionChanges.todayFor(ids);
+
         for (Resident resident : residents) {
             cards.putIfAbsent(resident.getId(), toCard(
                     resident,
                     allergies.getOrDefault(resident.getId(), List.of()),
                     regimes.getOrDefault(resident.getId(), List.of()),
-                    withDoubt.contains(resident.getId())));
+                    withDoubt.contains(resident.getId()), changes.get(resident.getId())));
         }
         return cards;
     }
 
-    private ResidentCardDto toCard(Resident r, List<Allergy> allergies, List<DietaryRegime> regimes, boolean doubt) {
+    private ResidentCardDto toCard(Resident r, List<Allergy> allergies, List<DietaryRegime> regimes, boolean doubt,
+                                   OffsetDateTime changedAt) {
         List<DietaryRegime> sortedRegimes = regimes.stream().sorted(Comparator.comparing(DietaryRegime::getId)).toList();
         String regime = join(sortedRegimes.stream().map(DietaryRegime::getType).toList(), ", ");
         List<String> textures = sortedRegimes.stream().map(DietaryRegime::getTexture)
                 .filter(t -> t != null && !t.isBlank()).map(String::strip).toList();
-        String adaptedTextures = join(textures.stream().filter(t -> !t.equalsIgnoreCase("Normale")).toList(), " / ");
+        List<String> adapted = textures.stream().filter(t -> !t.equalsIgnoreCase("Normale")).toList();
+        String adaptedTextures = join(adapted, " / ");
+        boolean textureConflict = adapted.stream().map(t -> t.toLowerCase(java.util.Locale.ROOT))
+                .distinct().limit(2).count() > 1;
         String texture = adaptedTextures == null ? textures.stream().findFirst().orElse(null) : adaptedTextures;
         String restrictions = join(sortedRegimes.stream().map(regimeEntry -> {
             String intolerances = regimeEntry.getIntolerances();
@@ -94,7 +103,9 @@ public class ResidentCardAssembler {
                 texture,
                 restrictions,
                 instructions,
-                doubt);
+                doubt,
+                changedAt,
+                textureConflict);
     }
 
     private static String join(List<String> values, String separator) {

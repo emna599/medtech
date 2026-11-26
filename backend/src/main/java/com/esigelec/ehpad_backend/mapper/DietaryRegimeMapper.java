@@ -17,7 +17,7 @@ public final class DietaryRegimeMapper {
                 regime.getTexture(),
                 regime.getRestrictions(),
                 regime.getIntolerances(),
-                regime.getInstructions());
+                regime.getInstructions(), regime.getVersion());
     }
 
     public static DietaryRegime toEntity(DietaryRegimeRequestDto request, Resident resident) {

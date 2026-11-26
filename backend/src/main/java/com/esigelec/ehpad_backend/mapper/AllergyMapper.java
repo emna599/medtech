@@ -11,7 +11,7 @@ public final class AllergyMapper {
     }
 
     public static MedicalAllergyDto toDto(Allergy allergy) {
-        return new MedicalAllergyDto(allergy.getId(), allergy.getName(), allergy.getSeverity());
+        return new MedicalAllergyDto(allergy.getId(), allergy.getName(), allergy.getSeverity(), allergy.getVersion());
     }
 
     public static Allergy toEntity(AllergyRequestDto request, Resident resident) {

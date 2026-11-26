@@ -25,6 +25,8 @@ export interface ResidentCard {
   texture: string | null;
   restrictions: string | null;
   mealRiskVersion?: string;
+  mealInstructionsChangedAt?: string | null;
+  mealTextureConflict?: boolean;
   instructions: string | null;
   identityDoubt: boolean;
 }

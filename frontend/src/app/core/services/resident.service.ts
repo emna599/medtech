@@ -49,8 +49,8 @@ export class ResidentService {
     );
   }
 
-  deleteAllergy(residentId: number, allergyId: number): Observable<void> {
-    return this.http.delete<void>(`${this.residentsUrl}/${residentId}/allergies/${allergyId}`);
+  deleteAllergy(residentId: number, allergyId: number, version: number): Observable<void> {
+    return this.http.delete<void>(`${this.residentsUrl}/${residentId}/allergies/${allergyId}`, { params: { version } });
   }
 
   findDietaryRegimesByResidentId(residentId: number): Observable<DietaryRegime[]> {
@@ -78,9 +78,10 @@ export class ResidentService {
     );
   }
 
-  deleteDietaryRegime(residentId: number, regimeId: number): Observable<void> {
+  deleteDietaryRegime(residentId: number, regimeId: number, version: number): Observable<void> {
     return this.http.delete<void>(
       `${this.residentsUrl}/${residentId}/dietary-regimes/${regimeId}`,
+      { params: { version } },
     );
   }
 

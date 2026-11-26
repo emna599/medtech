@@ -21,7 +21,7 @@ import { AdminUserService } from './admin-user.service';
           <mat-label>Nouveau mot de passe</mat-label>
           <input matInput type="password" formControlName="password" autocomplete="new-password" />
           @if (form.controls.password.invalid) {
-            <mat-error>8 caractères minimum</mat-error>
+            <mat-error>12 à 72 caractères</mat-error>
           }
         </mat-form-field>
         @if (error()) {
@@ -54,7 +54,7 @@ export class PasswordDialog {
   protected readonly saving = signal(false);
   protected readonly error = signal('');
   protected readonly form = inject(FormBuilder).nonNullable.group({
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: ['', [Validators.required, Validators.minLength(12), Validators.maxLength(72)]],
   });
 
   protected submit(): void {

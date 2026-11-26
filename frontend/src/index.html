@@ -2,18 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <script>
-      (function () {
-        var mode = null;
-        try {
-          mode = localStorage.getItem('medtech-theme');
-        } catch (e) {}
-        if (mode !== 'dark' && mode !== 'light') {
-          mode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        document.documentElement.setAttribute('data-theme', mode);
-      })();
-    </script>
+    <script src="theme-init.js"></script>
     <title>MedTech EHPAD</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

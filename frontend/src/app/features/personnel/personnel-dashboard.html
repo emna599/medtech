@@ -35,6 +35,16 @@
     </button>
   </section>
 
+  @if (kind() === 'REPAS' && refreshUnavailable()) {
+    <p role="status">Actualisation des consignes indisponible. Réessayez avant de préparer ou servir.</p>
+  }
+  @if (changedMealResidents().length) {
+    <aside class="meal-change" role="status">
+      <strong>Consignes de repas modifiées aujourd’hui</strong>
+      <p>{{ changedMealResidents().join(', ') }}. Revérifiez les plateaux déjà préparés.</p>
+    </aside>
+  }
+
   @if (slots().length > 1) {
     <div class="slots" role="tablist" aria-label="Créneau">
       @for (slot of slots(); track slot) {

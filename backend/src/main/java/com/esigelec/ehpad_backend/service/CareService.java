@@ -117,9 +117,11 @@ public class CareService {
     @Transactional
     public ServiceItemDto completeMeal(Long mealId, CompleteRequest request, String username) {
         User user = currentUserService.require(username);
-        Meal meal = mealRepository.findById(mealId).orElseThrow(() -> new ResourceNotFoundException("Repas introuvable"));
-        Resident resident = requireActive(residentRepository.findByIdForUpdate(meal.getResident().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Résident introuvable")));
+        Long residentId = mealRepository.findResidentId(mealId)
+                .orElseThrow(() -> new ResourceNotFoundException("Repas introuvable"));
+        Resident resident = lockActiveResident(residentId);
+        Meal meal = mealRepository.findByIdForUpdate(mealId)
+                .orElseThrow(() -> new ResourceNotFoundException("Repas introuvable"));
         ResidentCardDto card = assembler.assemble(List.of(resident)).get(resident.getId());
         validate(request, meal.getStatus(), resident.getId());
         requireMealRiskAck(request, card);
@@ -150,7 +152,7 @@ public class CareService {
     @Transactional
     public ServiceItemDto setQuantity(Long mealId, QuantityEaten quantity, String username) {
         User user = currentUserService.require(username);
-        Meal meal = mealRepository.findById(mealId).orElseThrow(() -> new ResourceNotFoundException("Repas introuvable"));
+        Meal meal = mealRepository.findByIdForUpdate(mealId).orElseThrow(() -> new ResourceNotFoundException("Repas introuvable"));
         Resident resident = requireActive(meal.getResident());
         if (meal.getStatus() != ServiceStatus.FAIT) {
             throw new ConflictException("La quantité ne peut être saisie que pour un repas servi");
@@ -166,9 +168,11 @@ public class CareService {
     @Transactional
     public ServiceItemDto completeDose(Long doseId, CompleteRequest request, String username) {
         User user = currentUserService.require(username);
-        MedicationDose dose = doseRepository.findById(doseId)
+        Long residentId = doseRepository.findResidentId(doseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Prise introuvable"));
-        Resident resident = requireActive(dose.getResident());
+        Resident resident = lockActiveResident(residentId);
+        MedicationDose dose = doseRepository.findByIdForUpdate(doseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Prise introuvable"));
         validate(request, dose.getStatus(), resident.getId());
         requireDoseRiskAck(request, dose);
 
@@ -210,6 +214,9 @@ public class CareService {
         if (request.status() != ServiceStatus.FAIT || card == null) {
             return;
         }
+        if (card.mealTextureConflict()) {
+            throw new ConflictException("Plusieurs textures adaptées se contredisent. Demandez au médecin de corriger les consignes avant de servir.");
+        }
         if ((request.mealRiskVersion() != null || request.riskAcknowledged())
                 && !card.mealRiskVersion().equals(request.mealRiskVersion())) {
             throw new ConflictException("Les consignes du repas ont changé. Vérifiez la fiche actualisée avant de confirmer.");
@@ -229,6 +236,9 @@ public class CareService {
         if (card.restrictions() != null) {
             risks.add("à éviter : " + card.restrictions());
         }
+        if (card.mealInstructionsChangedAt() != null) {
+            risks.add("consignes modifiées aujourd’hui");
+        }
         if (!risks.isEmpty()) {
             throw new ConflictException(
                     "Vérifiez le plateau avant de servir — " + String.join(" · ", risks) + " — puis confirmez.");
@@ -241,6 +251,11 @@ public class CareService {
             throw new ConflictException(
                     "Médicament à risque : vérifiez le résident et la prescription, puis confirmez.");
         }
+    }
+
+    private Resident lockActiveResident(Long residentId) {
+        return requireActive(residentRepository.findByIdForUpdate(residentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Résident introuvable")));
     }
 
     private static Resident requireActive(Resident resident) {

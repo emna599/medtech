@@ -13,7 +13,7 @@ public record CreateUserRequest(
         String username,
 
         @NotBlank(message = "Le mot de passe est obligatoire")
-        @Size(min = 8, max = 100, message = "Le mot de passe doit contenir au moins 8 caractères")
+        @Size(min = 12, max = 72, message = "Le mot de passe doit contenir entre 12 et 72 caractères")
         String password,
 
         @NotBlank(message = "Le nom complet est obligatoire")

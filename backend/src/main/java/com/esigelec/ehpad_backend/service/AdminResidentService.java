@@ -67,9 +67,10 @@ public class AdminResidentService {
     @Transactional
     public ResidentDto update(Long id, ResidentRequest request) {
         validateDates(request);
-        Resident resident = find(id);
-        boolean active = request.active() == null ? resident.isActive() : request.active();
         Room room = loadRoom(request.roomId());
+        Resident resident = residentRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Résident introuvable"));
+        boolean active = request.active() == null ? resident.isActive() : request.active();
         checkCapacity(room, active, resident);
         apply(resident, request, room, active);
         return ResidentMapper.toDto(residentRepository.saveAndFlush(resident));
@@ -94,7 +95,7 @@ public class AdminResidentService {
         if (roomId == null) {
             return null;
         }
-        return roomRepository.findById(roomId)
+        return roomRepository.findByIdForUpdate(roomId)
                 .orElseThrow(() -> new BadRequestException("Chambre introuvable"));
     }
 

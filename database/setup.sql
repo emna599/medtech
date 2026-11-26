@@ -5,5 +5,6 @@ BEGIN;
 \ir medtech_schema.sql
 \ir seed_users.sql
 \ir personnel_additions.sql
+\ir security_and_concurrency.sql
 \ir seed_personnel.sql
 COMMIT;

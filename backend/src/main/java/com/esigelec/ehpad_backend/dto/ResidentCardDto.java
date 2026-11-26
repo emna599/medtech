@@ -9,6 +9,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.List;
+import java.time.OffsetDateTime;
 
 /**
  * Fiche résident pour le PERSONNEL : identité visuelle, allergies, régime.
@@ -30,7 +31,9 @@ public record ResidentCardDto(
         String texture,
         String restrictions,
         String instructions,
-        boolean identityDoubt) {
+        boolean identityDoubt,
+        OffsetDateTime mealInstructionsChangedAt,
+        boolean mealTextureConflict) {
 
     @JsonProperty("mealRiskVersion")
     public String mealRiskVersion() {

@@ -42,7 +42,8 @@ public class IdentityDoubtService {
     @Transactional
     public DoubtDto report(DoubtRequest request, String username) {
         User user = currentUserService.require(username);
-        Resident resident = residentRepository.findActiveById(request.residentId())
+        Resident resident = residentRepository.findByIdForUpdate(request.residentId())
+                .filter(Resident::isActive)
                 .orElseThrow(() -> new ResourceNotFoundException("Résident introuvable"));
 
         // Un seul doute ouvert par résident : on renvoie celui qui existe déjà.
@@ -68,6 +69,10 @@ public class IdentityDoubtService {
     @Transactional
     public DoubtDto resolve(Long id, String username) {
         User user = currentUserService.require(username);
+        Long residentId = doubtRepository.findResidentId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Doute introuvable"));
+        residentRepository.findByIdForUpdate(residentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Résident introuvable"));
         IdentityDoubt doubt = doubtRepository.findWithDetailsById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Doute introuvable"));
         if (doubt.isResolved()) {

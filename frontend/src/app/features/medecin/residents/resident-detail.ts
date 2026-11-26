@@ -145,7 +145,9 @@ export class ResidentDetailPage {
   protected readonly dietaryRegimeSaving = signal(false);
   protected readonly showAllergyForm = signal(false);
   protected readonly showDietaryRegimeForm = signal(false);
+  private allergyVersion: number | undefined;
   protected readonly editingAllergyId = signal<number | null>(null);
+  private dietaryRegimeVersion: number | undefined;
   protected readonly editingDietaryRegimeId = signal<number | null>(null);
   protected readonly allergyForm = this.formBuilder.group({
     name: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)]],
@@ -258,12 +260,14 @@ export class ResidentDetailPage {
 
   protected startNewAllergy(): void {
     this.editingAllergyId.set(null);
+    this.allergyVersion = undefined;
     this.allergyForm.reset({ name: '', severity: '' });
     this.showAllergyForm.set(true);
   }
 
   protected startEditAllergy(allergy: Allergy): void {
     this.editingAllergyId.set(allergy.id);
+    this.allergyVersion = allergy.version;
     this.allergyForm.reset({
       name: allergy.name,
       severity: allergy.severity ?? '',
@@ -274,6 +278,7 @@ export class ResidentDetailPage {
   protected cancelAllergyForm(): void {
     this.showAllergyForm.set(false);
     this.editingAllergyId.set(null);
+    this.allergyVersion = undefined;
     this.allergyForm.reset({ name: '', severity: '' });
   }
 
@@ -293,6 +298,7 @@ export class ResidentDetailPage {
 
     const values = this.allergyForm.getRawValue();
     const request: AllergyRequest = {
+      version: this.allergyVersion,
       name: values.name.trim(),
       severity: values.severity.trim() || null,
     };
@@ -315,6 +321,9 @@ export class ResidentDetailPage {
       error: (error: unknown) => {
         if (this.residentId() !== residentId) return;
         this.allergySaving.set(false);
+        if (error instanceof HttpErrorResponse && error.status === 409) {
+          this.allergies.reload();
+        }
         this.showMutationError(error, "L'enregistrement de l'allergie");
       },
     });
@@ -331,7 +340,7 @@ export class ResidentDetailPage {
     }
 
     this.allergySaving.set(true);
-    this.residentService.deleteAllergy(residentId, allergy.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.residentService.deleteAllergy(residentId, allergy.id, allergy.version).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         if (this.residentId() !== residentId) return;
         this.allergySaving.set(false);
@@ -344,6 +353,9 @@ export class ResidentDetailPage {
       error: (error: unknown) => {
         if (this.residentId() !== residentId) return;
         this.allergySaving.set(false);
+        if (error instanceof HttpErrorResponse && error.status === 409) {
+          this.allergies.reload();
+        }
         this.showMutationError(error, "La suppression de l'allergie");
       },
     });
@@ -351,6 +363,7 @@ export class ResidentDetailPage {
 
   protected startNewDietaryRegime(): void {
     this.editingDietaryRegimeId.set(null);
+    this.dietaryRegimeVersion = undefined;
     this.dietaryRegimeForm.reset({
       type: '',
       texture: '',
@@ -363,6 +376,7 @@ export class ResidentDetailPage {
 
   protected startEditDietaryRegime(regime: DietaryRegime): void {
     this.editingDietaryRegimeId.set(regime.id);
+    this.dietaryRegimeVersion = regime.version;
     this.dietaryRegimeForm.reset({
       type: regime.type,
       texture: regime.texture ?? '',
@@ -376,6 +390,7 @@ export class ResidentDetailPage {
   protected cancelDietaryRegimeForm(): void {
     this.showDietaryRegimeForm.set(false);
     this.editingDietaryRegimeId.set(null);
+    this.dietaryRegimeVersion = undefined;
     this.dietaryRegimeForm.reset({
       type: '',
       texture: '',
@@ -401,6 +416,7 @@ export class ResidentDetailPage {
 
     const values = this.dietaryRegimeForm.getRawValue();
     const request: DietaryRegimeRequest = {
+      version: this.dietaryRegimeVersion,
       type: values.type.trim(),
       texture: values.texture.trim() || null,
       restrictions: values.restrictions.trim() || null,
@@ -428,6 +444,9 @@ export class ResidentDetailPage {
       error: (error: unknown) => {
         if (this.residentId() !== residentId) return;
         this.dietaryRegimeSaving.set(false);
+        if (error instanceof HttpErrorResponse && error.status === 409) {
+          this.dietaryRegimes.reload();
+        }
         this.showMutationError(error, "L'enregistrement du régime alimentaire");
       },
     });
@@ -444,7 +463,7 @@ export class ResidentDetailPage {
     }
 
     this.dietaryRegimeSaving.set(true);
-    this.residentService.deleteDietaryRegime(residentId, regime.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.residentService.deleteDietaryRegime(residentId, regime.id, regime.version).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         if (this.residentId() !== residentId) return;
         this.dietaryRegimeSaving.set(false);
@@ -457,6 +476,9 @@ export class ResidentDetailPage {
       error: (error: unknown) => {
         if (this.residentId() !== residentId) return;
         this.dietaryRegimeSaving.set(false);
+        if (error instanceof HttpErrorResponse && error.status === 409) {
+          this.dietaryRegimes.reload();
+        }
         this.showMutationError(error, 'La suppression du régime alimentaire');
       },
     });

@@ -10,7 +10,7 @@ import { AuthService } from '../auth/auth.service';
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
-  const isBackendCall = req.url.startsWith(environment.apiUrl);
+  const isBackendCall = req.url.startsWith(`${environment.apiUrl}/api/`);
   const token = isBackendCall ? auth.getToken() : null;
 
   const request = token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;

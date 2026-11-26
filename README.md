@@ -138,3 +138,8 @@ $r = Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/auth/login -C
 $h = @{ Authorization = "Bearer $($r.token)" }
 Invoke-RestMethod -Uri http://localhost:8080/api/admin/dashboard -Headers $h
 ```
+
+
+## Exposition publique
+
+Le Compose du dépôt est destiné à la démonstration locale avec des données fictives. Les ports 4200 et 8080 sont publiés sur la boucle locale. Une mise en ligne nécessite un environnement dédié sans comptes de démonstration, des secrets uniques, un accès HTTPS et des origines CORS explicites. Configurer la politique CSP avec les origines réelles du site et de l’API. Si un proxy est utilisé, définir puis tester les adresses clientes de confiance ou limiter les tentatives à la passerelle en complément du quota applicatif. La gestion des données réelles et les procédures d’exploitation restent à valider avant ouverture.

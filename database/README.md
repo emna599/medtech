@@ -10,6 +10,10 @@ Sans Docker, exécuter `./database/setup.ps1` sous PowerShell ou `psql -U postgr
 
 **Attention** : l’initialisation supprime les tables MedTech de la base cible et efface les données qu’elles contiennent. Les évolutions du schéma et des données de démo passent par les fichiers SQL versionnés.
 
+### Mise à jour d’une base existante
+
+`docker compose up --build` exécute automatiquement `security_and_concurrency.sql` avant de démarrer l’API. Pour une installation manuelle existante, appliquer ce fichier avec `psql -v ON_ERROR_STOP=1 -d medtech -f database/security_and_concurrency.sql` avant de relancer le backend. Ce fichier conserve les données et peut être exécuté plusieurs fois. La commande d’initialisation complète reste réservée à une nouvelle base ou à une réinitialisation voulue.
+
 ## Numérotation des chambres
 
 Tout nouveau numéro est composé de l’étage (0 à 20) suivi de deux chiffres (01 à 99). Les anciens numéros sont conservés et peuvent être édités sans les renuméroter si le numéro et l’étage restent identiques.

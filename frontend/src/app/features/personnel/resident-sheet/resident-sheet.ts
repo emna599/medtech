@@ -144,6 +144,9 @@ export class ResidentSheet {
       if (resident.texture && resident.texture.toLowerCase() !== 'normale') {
         risks.push('Texture ' + resident.texture.toLowerCase());
       }
+      if (resident.mealInstructionsChangedAt) {
+        risks.push('Consignes modifiées aujourd’hui : revérifier le plateau');
+      }
       if (resident.restrictions) {
         risks.push('À éviter : ' + resident.restrictions);
       }

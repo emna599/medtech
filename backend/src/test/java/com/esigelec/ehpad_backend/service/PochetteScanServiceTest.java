@@ -40,6 +40,6 @@ class PochetteScanServiceTest {
 
     private static ResidentCardDto resident(Long id, String first, String last) {
         return new ResidentCardDto(id, first, last, 85, "1", 1, null, MealLocation.SALLE, false, null,
-                List.of(), "Normal", "Normale", null, null, false);
+                List.of(), "Normal", "Normale", null, null, false, null, false);
     }
 }

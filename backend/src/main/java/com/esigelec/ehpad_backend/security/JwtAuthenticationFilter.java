@@ -29,10 +29,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final AuthSessionStore sessions;
 
-    public JwtAuthenticationFilter(JwtService jwtService, UserRepository userRepository) {
+    public JwtAuthenticationFilter(JwtService jwtService, UserRepository userRepository, AuthSessionStore sessions) {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
+        this.sessions = sessions;
     }
 
     @Override
@@ -45,9 +47,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
             String token = header.substring(BEARER_PREFIX.length()).trim();
 
-            jwtService.extractUsername(token)
-                    .flatMap(userRepository::findByUsername)
-                    .filter(User::isEnabled)
+            jwtService.extractSession(token)
+                    .flatMap(session -> userRepository.findByUsername(session.username())
+                            .filter(User::isEnabled)
+                            .filter(user -> sessions.isActive(session.id(), user.getId())))
                     .ifPresent(user -> {
                         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                                 user.getUsername(),

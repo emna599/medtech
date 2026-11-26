@@ -64,11 +64,24 @@ describe('AuthService', () => {
     expect(service.getToken()).toBeNull();
   });
 
+  it('ignores a stale unauthorized response after a new login', () => {
+    service.login({ username: 'admin', password: 'Demo1234!' }).subscribe();
+    http.expectOne(LOGIN_URL).flush({ ...response, token: 'nouveau-jeton' });
+
+    service.expireIfCurrent(response.token);
+
+    expect(service.getToken()).toBe('nouveau-jeton');
+    expect(service.logoutNotice()).toBeNull();
+  });
+
   it('clears the session on logout', () => {
     service.login({ username: 'admin', password: 'Demo1234!' }).subscribe();
     http.expectOne(LOGIN_URL).flush(response);
 
     service.logout();
+    const logout = http.expectOne(`${environment.apiUrl}/api/auth/logout`);
+    expect(logout.request.headers.get('Authorization')).toBe('Bearer jeton-de-test');
+    logout.flush(null, { status: 204, statusText: 'No Content' });
 
     expect(service.isSessionValid()).toBe(false);
     expect(service.getToken()).toBeNull();

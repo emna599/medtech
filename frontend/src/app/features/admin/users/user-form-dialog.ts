@@ -49,7 +49,7 @@ export interface UserFormData {
             <mat-label>Mot de passe</mat-label>
             <input matInput type="password" formControlName="password" autocomplete="new-password" />
             @if (form.controls.password.invalid) {
-              <mat-error>8 caractères minimum</mat-error>
+              <mat-error>12 à 72 caractères</mat-error>
             }
           </mat-form-field>
         }
@@ -118,7 +118,7 @@ export class UserFormDialog {
       this.data.user?.username ?? '',
       this.isEdit ? [] : [Validators.required, Validators.minLength(3), Validators.pattern(/^[A-Za-z0-9._-]+$/)],
     ],
-    password: ['', this.isEdit ? [] : [Validators.required, Validators.minLength(8)]],
+    password: ['', this.isEdit ? [] : [Validators.required, Validators.minLength(12), Validators.maxLength(72)]],
     fullName: [this.data.user?.fullName ?? '', [Validators.required, Validators.maxLength(150)]],
     role: [this.data.user?.role ?? ('PERSONNEL' as AdminUser['role']), Validators.required],
     enabled: [this.data.user?.enabled ?? true],

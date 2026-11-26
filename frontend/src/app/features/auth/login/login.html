@@ -46,7 +46,7 @@
         <p class="form-sub">Connectez-vous pour accéder à votre espace</p>
       </div>
 
-      @if (errorMessage(); as message) {
+      @if (errorMessage() ?? logoutNotice(); as message) {
         <p class="error-banner" role="alert">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">error</mat-icon>
           <span>{{ message }}</span>

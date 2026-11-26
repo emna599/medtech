@@ -22,6 +22,17 @@ services:
       timeout: 3s
       retries: 20
 
+  db-migrate:
+    image: postgres:17
+    environment:
+      PGPASSWORD: change_me
+    volumes:
+      - ./database:/sql:ro
+    command: ["psql", "-h", "db", "-U", "postgres", "-d", "medtech", "-v", "ON_ERROR_STOP=1", "-f", "/sql/security_and_concurrency.sql"]
+    depends_on:
+      db:
+        condition: service_healthy
+
   # ---------- Backend Spring Boot ----------
   backend:
     build: ./backend
@@ -30,13 +41,16 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: change_me
       JWT_SECRET: dev_secret_key_please_change_me_32_chars_min_000
-      JWT_EXPIRATION_MINUTES: "60"
+      JWT_EXPIRATION_MINUTES: "30"
+      SERVER_ADDRESS: 0.0.0.0
       CORS_ALLOWED_ORIGINS: http://localhost:4200
     depends_on:
       db:
         condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     restart: on-failure
 
   # ---------- Frontend Angular (servi par nginx) ----------
@@ -45,7 +59,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "4200:80"
+      - "127.0.0.1:4200:80"
 
 volumes:
   medtech_pgdata:

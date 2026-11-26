@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "allergy")
@@ -17,6 +18,9 @@ public class Allergy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private long version;
 
     @Column(nullable = false, length = 100)
     private String name;
@@ -29,6 +33,7 @@ public class Allergy {
     private Resident resident;
 
     public Long getId() { return id; }
+    public long getVersion() { return version; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

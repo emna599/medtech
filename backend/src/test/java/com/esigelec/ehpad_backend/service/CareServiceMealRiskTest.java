@@ -45,7 +45,8 @@ class CareServiceMealRiskTest {
         meal.setResident(resident);
         meal.setStatus(ServiceStatus.A_FAIRE);
 
-        when(meals.findById(42L)).thenReturn(Optional.of(meal));
+        when(meals.findResidentId(42L)).thenReturn(Optional.of(1L));
+        when(meals.findByIdForUpdate(42L)).thenReturn(Optional.of(meal));
         when(residents.findByIdForUpdate(1L)).thenReturn(Optional.of(resident));
         when(assembler.assemble(List.of(resident))).thenReturn(Map.of(1L, card("Poisson")));
 
@@ -61,6 +62,6 @@ class CareServiceMealRiskTest {
 
     private ResidentCardDto card(String allergy) {
         return new ResidentCardDto(1L, "Prénom", "Nom", 85, null, null, null, MealLocation.SALLE, false,
-                null, List.of(new AllergyDto(allergy, null)), null, null, null, null, false);
+                null, List.of(new AllergyDto(allergy, null)), null, null, null, null, false, null, false);
     }
 }

@@ -36,6 +36,8 @@ export class Login {
     password: ['', [Validators.required]],
   });
 
+  protected readonly logoutNotice = this.auth.logoutNotice;
+
   protected readonly hidePassword = signal(true);
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -75,6 +77,9 @@ export class Login {
       }
       if (error.status === 401) {
         return "Nom d'utilisateur ou mot de passe incorrect.";
+      }
+      if (error.status === 429) {
+        return 'Trop de tentatives de connexion. Réessayez dans quelques minutes.';
       }
       if (error.status === 400) {
         return 'Veuillez renseigner le nom d\'utilisateur et le mot de passe.';

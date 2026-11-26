@@ -6,6 +6,7 @@ public record DietaryRegimeDto(
         String texture,
         String restrictions,
         String intolerances,
-        String instructions
+        String instructions,
+        long version
 ) {
 }

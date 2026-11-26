@@ -18,6 +18,9 @@ public interface IdentityDoubtRepository extends JpaRepository<IdentityDoubt, Lo
     @Query("select d from IdentityDoubt d join fetch d.resident join fetch d.reportedBy where d.id = :id")
     java.util.Optional<IdentityDoubt> findWithDetailsById(@org.springframework.data.repository.query.Param("id") Long id);
 
+    @Query("select d.resident.id from IdentityDoubt d where d.id = :id")
+    java.util.Optional<Long> findResidentId(@org.springframework.data.repository.query.Param("id") Long id);
+
     @Query("select d.resident.id from IdentityDoubt d where d.resolved = false and d.resident.id in :ids")
     List<Long> findResidentIdsWithOpenDoubt(@org.springframework.data.repository.query.Param("ids") Collection<Long> ids);
 }

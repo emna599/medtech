@@ -57,7 +57,8 @@ public class RoomService {
 
     @Transactional
     public RoomDto update(Long id, RoomRequest request) {
-        Room room = find(id);
+        Room room = roomRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Chambre introuvable"));
         String number = request.number().trim();
         if (!number.equals(room.getNumber()) || !request.floor().equals(room.getFloor())) {
             checkNumberFormat(number, request.floor());
@@ -80,7 +81,8 @@ public class RoomService {
 
     @Transactional
     public void delete(Long id) {
-        Room room = find(id);
+        Room room = roomRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Chambre introuvable"));
         if (residentRepository.countByRoomIdAndActiveTrue(id) > 0) {
             throw new ConflictException("Cette chambre contient encore des résidents : déplacez-les d'abord");
         }

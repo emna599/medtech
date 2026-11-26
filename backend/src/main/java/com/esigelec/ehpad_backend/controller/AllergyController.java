@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,7 +52,7 @@ public class AllergyController {
     @DeleteMapping("/{allergyId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("residentId") Long residentId,
-                       @PathVariable("allergyId") Long allergyId) {
-        allergyService.delete(residentId, allergyId);
+                       @PathVariable("allergyId") Long allergyId, @RequestParam("version") long version) {
+        allergyService.delete(residentId, allergyId, version);
     }
 }

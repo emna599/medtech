@@ -29,9 +29,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtService jwtService,
                                                    UserRepository userRepository,
+                                                   AuthSessionStore sessions,
                                                    CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
-                // API REST stateless avec JWT : pas de session, pas de cookie => pas de CSRF
+                // Jetons Bearer uniquement, sans cookie d’authentification.
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -41,12 +42,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/personnel/**").hasAnyRole("PERSONNEL", "ADMIN")
-                        // Les règles par rôle seront ajoutées ici au fur et à mesure, par exemple :
-                        // .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        // .requestMatchers("/api/medical-records/**").hasRole("MEDECIN")
-                        .anyRequest().authenticated())
+                        .requestMatchers("/api/residents", "/api/residents/**").hasRole("MEDECIN")
+                        .requestMatchers("/api/auth/me", "/api/auth/logout").authenticated()
+                        .anyRequest().denyAll())
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService, userRepository),
+                .addFilterBefore(new JwtAuthenticationFilter(jwtService, userRepository, sessions),
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

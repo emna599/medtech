@@ -1,14 +1,24 @@
 package com.esigelec.ehpad_backend.repository;
 
 import com.esigelec.ehpad_backend.entity.Meal;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface MealRepository extends JpaRepository<Meal, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select entity from Meal entity where entity.id = :id")
+    Optional<Meal> findByIdForUpdate(@Param("id") Long id);
+
+    @Query("select entity.resident.id from Meal entity where entity.id = :id")
+    Optional<Long> findResidentId(@Param("id") Long id);
 
     @Query("""
             select m from Meal m

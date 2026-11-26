@@ -33,6 +33,13 @@
     </div>
   }
 
+  @if (item().kind === 'REPAS' && resident().mealTextureConflict) {
+    <p class="alert alert-danger" role="alert">Textures contradictoires. Demandez une correction au médecin.</p>
+  }
+  @if (item().kind === 'REPAS' && resident().mealInstructionsChangedAt) {
+    <p class="alert alert-warning" role="status">Consignes modifiées aujourd’hui. Revérifiez le plateau.</p>
+  }
+
   @if (hasDoubt()) {
     <div class="alert alert-warning" role="alert">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon>
@@ -96,7 +103,7 @@
         mat-flat-button
         type="button"
         class="primary"
-        [disabled]="busy() || hasDoubt()"
+        [disabled]="busy() || hasDoubt() || (item().kind === 'REPAS' && !!resident().mealTextureConflict)"
         (click)="done()"
       >
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon>

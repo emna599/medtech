@@ -130,7 +130,7 @@ class AssistantServiceTest {
     private static ResidentCardDto resident(Long id, String first, String last, String room,
                                             List<AllergyDto> allergies, boolean doubt) {
         return new ResidentCardDto(id, first, last, 85, room, 1, null, MealLocation.SALLE, false, null,
-                allergies, "Normal", "Normale", null, null, doubt);
+                allergies, "Normal", "Normale", null, null, doubt, null, false);
     }
 
     private static ServiceItemDto meal(Long id, ResidentCardDto resident, ServiceStatus status) {

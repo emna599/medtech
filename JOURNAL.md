@@ -5,6 +5,18 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — sécurité et opérations concurrentes
+
+- L’API `/api/residents/**` est réservée au médecin. L’administration et le personnel conservent leurs API dédiées et les autorisations existantes. Les routes non déclarées sont refusées par défaut. Les ports Docker de démonstration sont publiés sur la boucle locale. Le frontend sert une CSP qui bloque les scripts intégrés et les sources de script externes.
+- PostgreSQL limite les tentatives à 12 par identifiant et 60 par adresse sur dix minutes. Le serveur renvoie 429 et `Retry-After`. Les quotas persistent entre redémarrages de l’API. L’adresse est celle de la connexion directe. Une configuration de proxy doit traiter ce point avant exposition. Les comptes créés ou réinitialisés demandent 12 caractères au minimum.
+- Les JWT expirent au bout de 30 minutes par défaut et exigent une session serveur active. Une déconnexion révoque la session correspondante. Modifier le mot de passe, le rôle ou l’activation révoque les sessions du compte. Les anciens jetons imposent de se reconnecter lors de la mise à jour. Le navigateur ferme aussi les écrans à l’expiration et affiche un message si le serveur ne confirme pas une déconnexion demandée hors ligne.
+- Verrouillage de la capacité des chambres, des prises, des repas et du signalement des doutes d’identité. Une édition ou une suppression d’allergie ou de régime fondée sur une ancienne version est refusée. Les textures adaptées contradictoires ne peuvent plus être ajoutées. Une contradiction historique bloque « Servi » jusqu’à correction.
+- Le tableau Repas actualise toutes les dix secondes les consignes modifiées du jour et signale les habitants ayant un repas à traiter. La fiche détail demande une nouvelle vérification. Le signalement s’affiche sur un tableau authentifié ouvert. Aucun rôle cuisine ni canal hors application n’a été ajouté.
+- La migration SQL idempotente s’exécute avant le backend sous Docker et conserve les données existantes. Vérifié sur une base neuve et une base existante, avec 26 tests backend et 31 tests frontend. Contrôles API simultanés pour la capacité, la prise, le repas et l’édition médicale, plus les quotas, la révocation et le cloisonnement. Chromium a confirmé l’alerte sur une tournée déjà ouverte, la déconnexion et le parcours sous CSP.
+- L’exposition publique reste hors de ce relais. Restent à valider dans un environnement dédié : HTTPS, secrets et comptes hors démonstration, politique réseau/CORS du déploiement, revue de sécurité indépendante et organisation du signalement à la cuisine si le tableau n’est pas ouvert.
+
+---
+
 ## Relais Codex du 2026-11-26 — administration et codes QR
 
 - Intégré `3fdf4ad` de `feature/admin-users` (identité visuelle, alertes des résidents sans chambre, validation de la numérotation, script commun) et `f37697c` de `feature/medecin` (création, renouvellement, désactivation, téléchargement et impression des QR). Aucun nouveau commit personnel, auth ou initialisation backend. Conservé le thème sobre commun aux trois rôles.
@@ -183,7 +195,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 - **Espace médecin** : ajouter des dossiers de démo fictifs via `database/`, puis cadrer l’écriture du dossier médical.
 - Discuter de `integration` avec l'équipe, puis **ouvrir la pull request vers `main`** (plus tard, pas maintenant).
 - Logique métier EHPAD restante (features) : GIR/AGGIR, entité Prescription, rôles IDE/aide-soignant, motif+date de sortie, alerte dénutrition, relève persistée.
-- Sécurité : rate-limit sur le login, stratégie de révocation JWT, CSP.
+- Sécurité avant exposition : environnement dédié, HTTPS, secrets et comptes hors démonstration, paramètres du proxy et revue indépendante.
 
 ### Décision — base de données & déploiement
 - **Pendant le développement** : chacun sa **base locale identique** (via `docker compose up`, scripts SQL versionnés). Pas de base partagée pour l'instant.

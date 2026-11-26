@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "dietary_regime")
@@ -17,6 +18,9 @@ public class DietaryRegime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private long version;
 
     @Column(nullable = false, length = 100)
     private String type;
@@ -38,6 +42,7 @@ public class DietaryRegime {
     private Resident resident;
 
     public Long getId() { return id; }
+    public long getVersion() { return version; }
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }

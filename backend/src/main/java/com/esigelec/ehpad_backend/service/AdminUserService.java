@@ -7,13 +7,17 @@ import com.esigelec.ehpad_backend.dto.UpdateUserRequest;
 import com.esigelec.ehpad_backend.entity.Role;
 import com.esigelec.ehpad_backend.entity.User;
 import com.esigelec.ehpad_backend.exception.ConflictException;
+import com.esigelec.ehpad_backend.exception.BadRequestException;
 import com.esigelec.ehpad_backend.exception.ResourceNotFoundException;
 import com.esigelec.ehpad_backend.mapper.UserMapper;
 import com.esigelec.ehpad_backend.repository.UserRepository;
+import com.esigelec.ehpad_backend.security.AuthSessionStore;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
@@ -21,10 +25,12 @@ public class AdminUserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthSessionStore sessions;
 
-    public AdminUserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AdminUserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthSessionStore sessions) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.sessions = sessions;
     }
 
     @Transactional(readOnly = true)
@@ -48,7 +54,7 @@ public class AdminUserService {
         }
         User user = new User();
         user.setUsername(username);
-        user.setPasswordHash(passwordEncoder.encode(request.password()));
+        user.setPasswordHash(encodePassword(request.password()));
         user.setFullName(request.fullName().trim());
         user.setRole(request.role());
         user.setEnabled(true);
@@ -58,14 +64,21 @@ public class AdminUserService {
     /** currentUsername = l'administrateur connecté (il ne peut pas se retirer ses propres droits). */
     @Transactional
     public AdminUserDto update(Long id, UpdateUserRequest request, String currentUsername) {
-        User user = find(id);
+        List<User> admins = userRepository.lockEnabledByRole(Role.ADMIN);
+        if (admins.stream().noneMatch(admin -> admin.getUsername().equals(currentUsername))) {
+            throw new AccessDeniedException("Droits administrateur révoqués");
+        }
+        User user = findForUpdate(id);
         boolean isSelf = user.getUsername().equals(currentUsername);
         if (isSelf && (!request.enabled() || request.role() != Role.ADMIN)) {
             throw new ConflictException("Vous ne pouvez pas désactiver votre compte ni retirer votre rôle administrateur");
         }
         if (user.getRole() == Role.ADMIN && (request.role() != Role.ADMIN || !request.enabled())
-                && userRepository.countByRoleAndEnabledTrue(Role.ADMIN) <= 1) {
+                && user.isEnabled() && admins.size() <= 1) {
             throw new ConflictException("Il doit rester au moins un administrateur actif");
+        }
+        if (user.getRole() != request.role() || user.isEnabled() != request.enabled()) {
+            sessions.revokeUser(id);
         }
         user.setFullName(request.fullName().trim());
         user.setRole(request.role());
@@ -75,9 +88,22 @@ public class AdminUserService {
 
     @Transactional
     public void resetPassword(Long id, ResetPasswordRequest request) {
-        User user = find(id);
-        user.setPasswordHash(passwordEncoder.encode(request.password()));
+        User user = findForUpdate(id);
+        sessions.revokeUser(id);
+        user.setPasswordHash(encodePassword(request.password()));
         userRepository.save(user);
+    }
+
+    private String encodePassword(String password) {
+        if (password.getBytes(StandardCharsets.UTF_8).length > 72) {
+            throw new BadRequestException("Le mot de passe ne doit pas dépasser 72 octets");
+        }
+        return passwordEncoder.encode(password);
+    }
+
+    private User findForUpdate(Long id) {
+        return userRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable"));
     }
 
     private User find(Long id) {
