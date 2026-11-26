@@ -47,6 +47,10 @@ export class AdminResidentService {
     return this.http.put<Resident>(`${this.baseUrl}/${id}`, payload);
   }
 
+  deactivate(id: number): Observable<Resident> {
+    return this.http.put<Resident>(`${this.baseUrl}/${id}/deactivate`, {});
+  }
+
   findQrCodesByResidentId(residentId: number): Observable<QrCode[]> {
     return this.http.get<QrCode[]>(`${this.baseUrl}/${residentId}/qr-codes`);
   }

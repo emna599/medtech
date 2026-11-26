@@ -60,10 +60,7 @@ public class QrCodeService {
         if (!matches) {
             throw new ConflictException("Le code QR actif a changé. Vérifiez le code actuel avant de renouveler.");
         }
-        for (QrCode activeQrCode : activeQrCodes) {
-            deactivate(activeQrCode, now);
-            auditService.record(user, "QR_CODE_DESACTIVE", "QrCode", activeQrCode.getId());
-        }
+        revokeCodes(activeQrCodes, now, user);
 
         QrCode qrCode = new QrCode();
         qrCode.setToken(UUID.randomUUID().toString());
@@ -85,6 +82,18 @@ public class QrCodeService {
             auditService.record(currentUserService.require(username), "QR_CODE_DESACTIVE", "QrCode", qrCode.getId());
         }
         return QrCodeMapper.toDto(qrCode);
+    }
+
+    // L’appelant détient déjà le verrou du résident, comme lors d’un renouvellement.
+    void revokeForDeparture(Long residentId, User user) {
+        revokeCodes(qrCodeRepository.findByResidentIdAndActiveTrue(residentId), LocalDateTime.now(), user);
+    }
+
+    private void revokeCodes(List<QrCode> activeQrCodes, LocalDateTime now, User user) {
+        for (QrCode activeQrCode : activeQrCodes) {
+            deactivate(activeQrCode, now);
+            auditService.record(user, "QR_CODE_DESACTIVE", "QrCode", activeQrCode.getId());
+        }
     }
 
     private Resident lockResident(Long residentId) {

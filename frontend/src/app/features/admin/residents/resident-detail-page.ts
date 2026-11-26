@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -8,6 +8,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
+import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { ResidentOverview } from '../../../shared/components/resident-overview/resident-overview';
 import { Resident } from '../../../shared/models/resident.model';
 import { apiErrorMessage } from '../../../shared/utils/api-error';
@@ -31,10 +32,17 @@ import { ResidentFormDialog } from './resident-form-dialog';
     } @else if (resident.hasValue()) {
       @let r = resident.value();
       <app-resident-overview [resident]="r">
-        <button mat-flat-button type="button" (click)="edit(r)">
-          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">edit</mat-icon>
-          Modifier le séjour et l’identité
-        </button>
+        <div class="resident-actions">
+          <button mat-flat-button type="button" [disabled]="deactivating()" (click)="edit(r)">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">edit</mat-icon>
+            Modifier le séjour et l’identité
+          </button>
+          @if (r.active) {
+            <button mat-stroked-button type="button" [disabled]="deactivating()" (click)="deactivate(r)">
+              Désactiver le résident
+            </button>
+          }
+        </div>
       </app-resident-overview>
 
       <mat-card appearance="outlined" class="coordination">
@@ -97,6 +105,7 @@ import { ResidentFormDialog } from './resident-form-dialog';
   `,
   styles: `
     .back { margin-bottom: 8px; }
+    .resident-actions { display: flex; flex-wrap: wrap; gap: 8px; }
     .coordination { margin-top: 16px; }
     .coordination dl { display: flex; flex-wrap: wrap; gap: 12px 32px; }
     .coordination dt { font-weight: 600; }
@@ -114,6 +123,9 @@ export class ResidentDetailPage {
     return Number.isSafeInteger(id) && id > 0 ? id : undefined;
   })), { requireSync: true });
   private editRef?: { id: number; dialog: MatDialogRef<ResidentFormDialog> };
+
+  private readonly deactivatingId = signal<number | null>(null);
+  protected readonly deactivating = computed(() => this.deactivatingId() === this.id());
 
   protected readonly resident = rxResource({
     params: this.id,
@@ -143,6 +155,36 @@ export class ResidentDetailPage {
       if (this.editRef && this.editRef.id !== id) this.editRef.dialog.close();
     });
     this.destroyRef.onDestroy(() => this.editRef?.dialog.close());
+  }
+
+  protected deactivate(resident: Resident): void {
+    if (resident.id !== this.id() || this.deactivatingId() !== null || this.editRef) return;
+
+    const confirmation = this.dialog.open(ConfirmDialog, {
+      autoFocus: 'first-tabbable',
+      data: {
+        title: 'Désactiver le résident ?',
+        message: `${resident.firstName} ${resident.lastName} sera retiré des listes actives. Sa place sera libérée et son bracelet désactivé. Son dossier sera conservé.`,
+        confirmLabel: 'Désactiver le résident',
+      },
+    });
+    confirmation.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(confirmed => {
+      if (!confirmed || resident.id !== this.id()) return;
+      this.deactivatingId.set(resident.id);
+      this.service.deactivate(resident.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: () => {
+          this.deactivatingId.set(null);
+          if (resident.id !== this.id()) return;
+          this.resident.reload();
+          this.snackBar.open('Résident désactivé', 'Fermer', { duration: 3000 });
+        },
+        error: (error: unknown) => {
+          this.deactivatingId.set(null);
+          if (resident.id !== this.id()) return;
+          this.snackBar.open(apiErrorMessage(error, 'Impossible de désactiver le résident.'), 'Fermer');
+        },
+      });
+    });
   }
 
   protected edit(resident: Resident): void {

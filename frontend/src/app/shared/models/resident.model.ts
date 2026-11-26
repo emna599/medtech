@@ -17,7 +17,7 @@ export interface ResidentPayload {
   birthDate: string;
   admissionDate: string;
   roomId: number | null;
-  active: boolean;
+  active?: boolean;
 }
 
 /** Âge en années à partir d'une date AAAA-MM-JJ. */

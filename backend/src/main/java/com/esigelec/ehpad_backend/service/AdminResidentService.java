@@ -6,6 +6,7 @@ import com.esigelec.ehpad_backend.entity.MealLocation;
 import com.esigelec.ehpad_backend.dto.ResidentRequest;
 import com.esigelec.ehpad_backend.entity.Resident;
 import com.esigelec.ehpad_backend.entity.Room;
+import com.esigelec.ehpad_backend.entity.User;
 import com.esigelec.ehpad_backend.exception.BadRequestException;
 import com.esigelec.ehpad_backend.exception.ConflictException;
 import com.esigelec.ehpad_backend.exception.ResourceNotFoundException;
@@ -26,9 +27,18 @@ public class AdminResidentService {
     private final ResidentRepository residentRepository;
     private final RoomRepository roomRepository;
 
-    public AdminResidentService(ResidentRepository residentRepository, RoomRepository roomRepository) {
+    private final QrCodeService qrCodes;
+    private final CurrentUserService currentUserService;
+    private final AuditService auditService;
+
+    public AdminResidentService(ResidentRepository residentRepository, RoomRepository roomRepository,
+                                QrCodeService qrCodes, CurrentUserService currentUserService,
+                                AuditService auditService) {
         this.residentRepository = residentRepository;
         this.roomRepository = roomRepository;
+        this.qrCodes = qrCodes;
+        this.currentUserService = currentUserService;
+        this.auditService = auditService;
     }
 
     /**
@@ -75,15 +85,33 @@ public class AdminResidentService {
     }
 
     @Transactional
-    public ResidentDto update(Long id, ResidentRequest request) {
+    public ResidentDto update(Long id, ResidentRequest request, String username) {
         validateDates(request);
         Room room = loadRoom(request.roomId());
         Resident resident = residentRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Résident introuvable"));
         boolean active = request.active() == null ? resident.isActive() : request.active();
         checkCapacity(room, active, resident);
+        if (resident.isActive() && !active) recordDeparture(resident, username);
         apply(resident, request, room, active);
         return ResidentMapper.toDto(residentRepository.saveAndFlush(resident));
+    }
+
+    @Transactional
+    public ResidentDto deactivate(Long id, String username) {
+        Resident resident = residentRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Résident introuvable"));
+        if (resident.isActive()) {
+            recordDeparture(resident, username);
+            resident.setActive(false);
+        }
+        return ResidentMapper.toDto(resident);
+    }
+
+    private void recordDeparture(Resident resident, String username) {
+        User user = currentUserService.require(username);
+        qrCodes.revokeForDeparture(resident.getId(), user);
+        auditService.record(user, "RESIDENT_DESACTIVE", "Resident", resident.getId());
     }
 
     private void apply(Resident resident, ResidentRequest request, Room room, boolean active) {

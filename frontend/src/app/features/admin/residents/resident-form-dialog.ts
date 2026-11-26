@@ -67,8 +67,8 @@ import { AdminResidentService } from './admin-resident.service';
             }
           </mat-select>
         </mat-form-field>
-        @if (resident) {
-          <mat-slide-toggle formControlName="active">Résident actif</mat-slide-toggle>
+        @if (resident?.active === false) {
+          <mat-slide-toggle formControlName="active">Réactiver le résident</mat-slide-toggle>
         }
         @if (error()) {
           <p class="error" role="alert">{{ error() }}</p>
@@ -135,7 +135,7 @@ export class ResidentFormDialog {
       birthDate: value.birthDate,
       admissionDate: value.admissionDate,
       roomId: value.roomId,
-      active: value.active,
+      active: this.resident?.active === false && value.active ? true : undefined,
     };
     const request$ = this.resident
       ? this.residentService.update(this.resident.id, payload)

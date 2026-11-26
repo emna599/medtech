@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — désactivation d’un résident
+
+- Ajouté « Désactiver le résident » en haut de la fiche admin, avec confirmation distincte de celle du bracelet. La fiche reste consultable, la dernière chambre reste indiquée et le résident est retiré de l’occupation et des listes actives.
+- L’API admin désactive le résident et révoque son QR dans la même transaction, avec audit. L’ancien QR reste révoqué après une éventuelle réactivation depuis le formulaire, qui vérifie de nouveau la capacité de la chambre. Une modification ordinaire de la fiche conserve le statut actuel.
+- Vérifié dans Chromium et via l’API sur une base isolée : annulation, confirmation, rôles, lit libéré, conservation de la fiche, répétition de la désactivation et rejet de l’ancien QR après réactivation. Les 31 tests frontend et 31 tests backend passent. Aucun résident de la base locale habituelle n’a été désactivé pendant les tests.
+
+---
+
 ## Relais Codex du 2026-11-26 — gestion admin du bracelet et coordination du séjour
 
 - La fiche admin place « Coordination du séjour » juste sous l’identité. Elle affiche séparément le service des repas en chambre et le besoin de coordonner l’aide au repas, avec l’état de chargement et un bouton de nouvelle tentative. Ces indicateurs sont en lecture seule et l’API de coordination reste réservée à ADMIN.
@@ -219,7 +227,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 4. **Créer un résident** (« Nouveau résident ») : nom, dates, chambre. Vérifier les garde-fous :
    - date d'admission **antérieure** à la naissance → refus ;
    - affecter à une chambre **déjà pleine** (capacité atteinte) → refus.
-5. **Modifier / désactiver** un résident. Sur sa fiche, vérifier **Coordination du séjour** et **Bracelet d’identification**. Afficher, télécharger, imprimer, renouveler ou désactiver le QR. Après renouvellement, vérifier que le nouveau code identifie le résident et que l’ancien est refusé.
+5. **Modifier / désactiver** un résident. Sur sa fiche, utiliser **Désactiver le résident** pour enregistrer son départ. Vérifier **Coordination du séjour** et **Bracelet d’identification**. Afficher, télécharger, imprimer, renouveler ou désactiver le QR. Après renouvellement, vérifier que le nouveau code identifie le résident et que l’ancien est refusé.
 6. **Chambres et étages** : liste, créer/modifier une chambre (numéro, étage, capacité).
 7. **Comptes** : créer un compte (identifiant, rôle, mot de passe), modifier le rôle, réinitialiser le mot de passe, désactiver. Garde-fous à vérifier :
    - **se désactiver soi-même** ou retirer son propre rôle admin → refus ;
