@@ -104,3 +104,13 @@ export interface DietaryRegimeRequest {
   intolerances: string | null;
   instructions: string | null;
 }
+
+export interface QrCode {
+  id: number;
+  token: string | null;
+  active: boolean;
+  residentId: number;
+  userId: number | null;
+  createdAt: string;
+  deactivatedAt: string | null;
+}

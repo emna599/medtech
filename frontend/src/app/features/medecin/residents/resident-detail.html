@@ -333,5 +333,105 @@
         </div>
       }
     </section>
+
+    <section class="management-section qr-section" aria-labelledby="qr-code-title">
+      <header class="section-header">
+        <div>
+          <h2 id="qr-code-title">QR Code</h2>
+          <p>Code d’identification à scanner depuis l’espace personnel.</p>
+        </div>
+        <button
+          mat-flat-button
+          type="button"
+          [disabled]="!currentResident.active || qrCodes.isLoading() || !!qrCodeError() || qrCodeSaving()"
+          (click)="generateQrCode()"
+        >
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_2</mat-icon>
+          {{ activeQrCode() ? 'Renouveler' : 'Générer' }}
+        </button>
+      </header>
+
+      @if (qrCodes.isLoading()) {
+        <div class="state" role="status">
+          <mat-spinner diameter="32" />
+          <p>Chargement du code QR…</p>
+        </div>
+      } @else if (qrCodeError(); as message) {
+        <section class="state" role="alert">
+          <p>{{ message }}</p>
+          <button mat-flat-button type="button" (click)="qrCodes.reload()">Réessayer</button>
+        </section>
+      } @else if (activeQrCode(); as currentQrCode) {
+        @if (qrImageDataUrl(); as imageUrl) {
+          <div class="qr-layout">
+            <mat-card appearance="outlined" class="qr-image-card">
+              <mat-card-content>
+                <img
+                  class="qr-image"
+                  [src]="imageUrl"
+                  [alt]="'Code QR actif de ' + currentResident.firstName + ' ' + currentResident.lastName"
+                />
+              </mat-card-content>
+            </mat-card>
+            <div class="qr-details">
+              <span class="status">Actif</span>
+              <p>
+                <strong>Créé le :</strong>
+                {{ currentQrCode.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+              </p>
+              @if (currentQrCode.deactivatedAt) {
+                <p>
+                  <strong>Désactivé le :</strong>
+                  {{ currentQrCode.deactivatedAt | date: 'dd/MM/yyyy HH:mm' }}
+                </p>
+              }
+              <div class="qr-actions">
+                <button mat-stroked-button type="button" (click)="downloadQrCode()">
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">download</mat-icon>
+                  Télécharger
+                </button>
+                <button mat-stroked-button type="button" (click)="printQrCode()">
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">print</mat-icon>
+                  Imprimer
+                </button>
+                <button
+                  mat-button
+                  type="button"
+                  [disabled]="qrCodeSaving()"
+                  (click)="deactivateQrCode()"
+                >
+                  Désactiver
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <section class="qr-print-card" aria-hidden="true">
+            <h1>MedTech EHPAD</h1>
+            <img class="qr-print-image" [src]="imageUrl" alt="" />
+          </section>
+        } @else {
+          <p role="status">Ce code ne peut pas être affiché. Renouvelez-le ou désactivez-le.</p>
+          <button mat-button type="button" [disabled]="qrCodeSaving()" (click)="deactivateQrCode()">Désactiver</button>
+        }
+      } @else {
+        <p class="empty-state">Aucun code QR actif pour ce résident.</p>
+        @if (latestQrCode(); as latestQrCode) {
+          <div class="inactive-qr-summary">
+            <span class="status inactive">Inactif</span>
+            <p>
+              <strong>Dernier code créé le :</strong>
+              {{ latestQrCode.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+            </p>
+            @if (latestQrCode.deactivatedAt) {
+              <p>
+                <strong>Désactivé le :</strong>
+                {{ latestQrCode.deactivatedAt | date: 'dd/MM/yyyy HH:mm' }}
+              </p>
+            }
+          </div>
+        }
+      }
+    </section>
   }
 </main>

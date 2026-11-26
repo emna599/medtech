@@ -27,7 +27,10 @@ import {
   AllergyRequest,
   DietaryRegime,
   DietaryRegimeRequest,
+  QrCode,
 } from '../../../shared/models/resident.model';
+
+import { createQrSvgDataUrl } from '../../../shared/utils/qr-code';
 
 @Component({
   selector: 'app-resident-detail',
@@ -83,6 +86,39 @@ export class ResidentDetailPage {
     return error ? this.toMedicalRecordErrorMessage(error) : null;
   });
 
+  protected readonly qrCodes = rxResource({
+    params: this.residentId,
+    stream: ({ params }) => this.residentService.findQrCodesByResidentId(params),
+    defaultValue: [],
+  });
+
+  protected readonly qrCodeError = computed(() => {
+    const error = this.qrCodes.error();
+    return error ? this.toCollectionErrorMessage(error, 'codes QR') : null;
+  });
+
+  protected readonly qrCodeSaving = signal(false);
+  protected readonly activeQrCode = computed(
+    () => (this.qrCodes.hasValue() ? this.qrCodes.value() : []).find((qrCode) => qrCode.active) ?? null,
+  );
+  protected readonly latestQrCode = computed(() =>
+    (this.qrCodes.hasValue() ? this.qrCodes.value() : []).reduce<QrCode | null>(
+      (latest, qrCode) =>
+        latest === null || qrCode.createdAt > latest.createdAt ? qrCode : latest,
+      null,
+    ),
+  );
+  protected readonly qrImageDataUrl = computed(() => {
+    const qrCode = this.activeQrCode();
+    if (!qrCode?.token) return null;
+    try {
+      return createQrSvgDataUrl(qrCode.token);
+    } catch (error) {
+      if (error instanceof RangeError) return null;
+      throw error;
+    }
+  });
+
   protected readonly allergies = rxResource({
     params: this.residentId,
     stream: ({ params }) => this.residentService.findAllergiesByResidentId(params),
@@ -129,10 +165,95 @@ export class ResidentDetailPage {
       untracked(() => {
         this.cancelAllergyForm();
         this.cancelDietaryRegimeForm();
+        this.qrCodeSaving.set(false);
         this.allergySaving.set(false);
         this.dietaryRegimeSaving.set(false);
       });
     });
+  }
+
+  protected generateQrCode(): void {
+    if (this.qrCodeSaving()) {
+      return;
+    }
+
+    const currentQrCode = this.activeQrCode();
+    if (
+      currentQrCode &&
+      !window.confirm('Le code QR actif sera désactivé et remplacé. Continuer ?')
+    ) {
+      return;
+    }
+
+    const residentId = this.residentId();
+    if (residentId === undefined) {
+      return;
+    }
+
+    this.qrCodeSaving.set(true);
+    this.residentService.generateQrCode(residentId, currentQrCode?.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        if (this.residentId() !== residentId) return;
+        this.qrCodeSaving.set(false);
+        this.qrCodes.reload();
+        this.showSuccess(currentQrCode ? 'QR Code renouvelé.' : 'QR Code généré.');
+      },
+      error: (error: unknown) => {
+        if (this.residentId() !== residentId) return;
+        this.qrCodeSaving.set(false);
+        this.qrCodes.reload();
+        this.showMutationError(error, 'La génération du code QR');
+      },
+    });
+  }
+
+  protected deactivateQrCode(): void {
+    const currentQrCode = this.activeQrCode();
+    if (!currentQrCode || this.qrCodeSaving()) {
+      return;
+    }
+    if (!window.confirm('Désactiver ce code QR ?')) {
+      return;
+    }
+
+    const residentId = this.residentId();
+    if (residentId === undefined) {
+      return;
+    }
+
+    this.qrCodeSaving.set(true);
+    this.residentService.deactivateQrCode(residentId, currentQrCode.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        if (this.residentId() !== residentId) return;
+        this.qrCodeSaving.set(false);
+        this.qrCodes.reload();
+        this.showSuccess('QR Code désactivé.');
+      },
+      error: (error: unknown) => {
+        if (this.residentId() !== residentId) return;
+        this.qrCodeSaving.set(false);
+        this.showMutationError(error, 'La désactivation du code QR');
+      },
+    });
+  }
+
+  protected downloadQrCode(): void {
+    const currentQrCode = this.activeQrCode();
+    const imageDataUrl = this.qrImageDataUrl();
+    if (!currentQrCode || !imageDataUrl) {
+      return;
+    }
+
+    const link = document.createElement('a');
+    link.href = imageDataUrl;
+    link.download = `qr-code-resident-${currentQrCode.residentId}.svg`;
+    link.click();
+  }
+
+  protected printQrCode(): void {
+    if (this.activeQrCode()) {
+      window.print();
+    }
   }
 
   protected startNewAllergy(): void {
@@ -361,6 +482,8 @@ export class ResidentDetailPage {
         message = 'Veuillez vérifier les informations saisies.';
       } else if (error.status === 403) {
         message = "Vous n'avez pas l'autorisation d'effectuer cette opération.";
+      } else if (error.status === 409) {
+        message = error.error?.message ?? 'Les données ont changé. Réessayez.';
       } else if (error.status === 404) {
         message = 'Le résident ou l’enregistrement demandé est introuvable.';
       }
