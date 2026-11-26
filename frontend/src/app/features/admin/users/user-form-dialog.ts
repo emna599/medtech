@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { JOB_LABEL, SHIFT_LABEL, Job, Shift } from '../../../shared/models/personnel.model';
 import { ROLE_LABEL } from '../../../shared/models/auth.model';
 import { ALL_ROLES, AdminUser } from '../../../shared/models/user.model';
 import { apiErrorMessage } from '../../../shared/utils/api-error';
@@ -71,6 +72,30 @@ export interface UserFormData {
           </mat-select>
         </mat-form-field>
 
+        @if (form.controls.role.value === 'PERSONNEL') {
+          <mat-form-field appearance="outline">
+            <mat-label>Fonction</mat-label>
+            <mat-select formControlName="job">
+              @if (!data.user?.job) {
+                <mat-option value="">Non renseignée</mat-option>
+              }
+              @for (job of jobs; track job) {
+                <mat-option [value]="job">{{ jobLabel[job] }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          @if (form.controls.job.value) {
+            <mat-form-field appearance="outline">
+              <mat-label>Équipe</mat-label>
+              <mat-select formControlName="shift">
+                @for (shift of shifts; track shift) {
+                  <mat-option [value]="shift">{{ shiftLabel[shift] }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          }
+        }
+
         @if (isEdit) {
           <mat-slide-toggle formControlName="enabled">Compte actif</mat-slide-toggle>
         }
@@ -105,10 +130,14 @@ export class UserFormDialog {
   private readonly fb = inject(FormBuilder).nonNullable;
   private readonly service = inject(AdminUserService);
   private readonly dialogRef = inject(MatDialogRef<UserFormDialog, boolean>);
-  private readonly data = inject<UserFormData>(MAT_DIALOG_DATA);
+  protected readonly data = inject<UserFormData>(MAT_DIALOG_DATA);
 
   protected readonly roles = ALL_ROLES;
   protected readonly roleLabel = ROLE_LABEL;
+  protected readonly jobs: Job[] = ['INFIRMIER', 'AIDE_SOIGNANT', 'SERVICE'];
+  protected readonly shifts: Shift[] = ['JOUR', 'NUIT'];
+  protected readonly jobLabel = JOB_LABEL;
+  protected readonly shiftLabel = SHIFT_LABEL;
   protected readonly isEdit = !!this.data.user;
   protected readonly saving = signal(false);
   protected readonly error = signal('');
@@ -122,6 +151,8 @@ export class UserFormDialog {
     fullName: [this.data.user?.fullName ?? '', [Validators.required, Validators.maxLength(150)]],
     role: [this.data.user?.role ?? ('PERSONNEL' as AdminUser['role']), Validators.required],
     enabled: [this.data.user?.enabled ?? true],
+    job: this.fb.control<Job | ''>(this.data.user?.job ?? ''),
+    shift: this.fb.control<Shift>(this.data.user?.shift ?? 'JOUR'),
   });
 
   constructor() {
@@ -140,11 +171,15 @@ export class UserFormDialog {
     this.saving.set(true);
     this.error.set('');
     const value = this.form.getRawValue();
+    const staffProfile = value.role === 'PERSONNEL' && value.job
+      ? { job: value.job, shift: value.shift }
+      : {};
 
     const request$ = this.data.user
       ? this.service.update(this.data.user.id, {
           fullName: value.fullName,
           role: value.role,
+          ...staffProfile,
           enabled: value.enabled,
         })
       : this.service.create({
@@ -152,6 +187,7 @@ export class UserFormDialog {
           password: value.password,
           fullName: value.fullName,
           role: value.role,
+          ...staffProfile,
         });
 
     request$.subscribe({

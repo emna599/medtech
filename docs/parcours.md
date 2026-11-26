@@ -15,6 +15,8 @@ Les actions principales sont pleines, les actions secondaires ont un contour fin
 3. Dans **Bracelet d’identification**, l’admin affiche, imprime, renouvelle ou désactive le QR.
 4. Ouvrez **Chambres** pour vérifier l’occupation. La désactivation d’un résident libère sa place et son chevalet, puis révoque son QR.
 
+Dans **Administration → Comptes**, créez ou modifiez un compte **Personnel** pour lui attribuer une fonction et une équipe de jour ou de nuit. La fonction **Service en salle** ouvre le parcours Tables. Un changement de fonction ou d’équipe ferme les sessions du compte concerné. Demandez à l’agent de se reconnecter.
+
 ## Médecin
 
 1. Ouvrez **Résidents**, recherchez par nom ou chambre, puis ouvrez la fiche.

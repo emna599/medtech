@@ -24,6 +24,18 @@ public class StaffProfile {
     @Column(nullable = false, length = 10)
     private Shift shift;
 
+    protected StaffProfile() {}
+
+    public StaffProfile(Long userId, Job job, Shift shift) {
+        this.userId = userId;
+        assign(job, shift);
+    }
+
+    public void assign(Job job, Shift shift) {
+        this.job = job;
+        this.shift = shift;
+    }
+
     public Long getUserId() { return userId; }
     public Job getJob() { return job; }
     public Shift getShift() { return shift; }

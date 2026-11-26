@@ -1,3 +1,4 @@
+import { JOB_LABEL, SHIFT_LABEL } from '../../../shared/models/personnel.model';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -92,6 +93,10 @@ import { UserFormDialog } from './user-form-dialog';
               </div>
               <p><strong>Identifiant</strong> · {{ u.username }}</p>
               <p><strong>Rôle</strong> · {{ labelOf(u) }}</p>
+              @if (u.role === 'PERSONNEL') {
+                <p><strong>Fonction</strong> · {{ u.job ? jobLabel[u.job] : 'Non renseignée' }}</p>
+                @if (u.shift) { <p>{{ shiftLabel[u.shift] }}</p> }
+              }
               <p><strong>Créé le</strong> · {{ u.createdAt | date:'dd/MM/yyyy' }}</p>
             </mat-card-content>
             <mat-card-actions align="end">
@@ -116,6 +121,8 @@ export class UsersPage {
   private readonly snackBar = inject(MatSnackBar);
   private readonly auth = inject(AuthService);
 
+  protected readonly jobLabel = JOB_LABEL;
+  protected readonly shiftLabel = SHIFT_LABEL;
   protected readonly roles = ALL_ROLES.map((value) => ({ value, label: ROLE_LABEL[value] }));
   protected readonly dataSource = new MatTableDataSource<AdminUser>([]);
   protected readonly displayed = toSignal(this.dataSource.connect(), { initialValue: [] });

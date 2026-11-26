@@ -1,6 +1,8 @@
 package com.esigelec.ehpad_backend.dto;
 
+import com.esigelec.ehpad_backend.entity.Job;
 import com.esigelec.ehpad_backend.entity.Role;
+import com.esigelec.ehpad_backend.entity.Shift;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -21,5 +23,7 @@ public record CreateUserRequest(
         String fullName,
 
         @NotNull(message = "Le rôle est obligatoire")
-        Role role) {
+        Role role,
+        Job job,
+        Shift shift) {
 }

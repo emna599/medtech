@@ -1,6 +1,8 @@
 package com.esigelec.ehpad_backend.dto;
 
+import com.esigelec.ehpad_backend.entity.Job;
 import com.esigelec.ehpad_backend.entity.Role;
+import com.esigelec.ehpad_backend.entity.Shift;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,5 +16,7 @@ public record UpdateUserRequest(
         Role role,
 
         @NotNull(message = "L'état du compte est obligatoire")
-        Boolean enabled) {
+        Boolean enabled,
+        Job job,
+        Shift shift) {
 }

@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — fonctions et équipes dans l’administration
+
+- Le formulaire Comptes attribue les fonctions infirmier, aide-soignant et service en salle et l’équipe de jour ou de nuit. La liste distingue rôle, fonction et équipe. Les comptes historiques sans profil restent utilisables.
+- L’API réserve le profil au rôle PERSONNEL, enregistre fonction et équipe ensemble et révoque les sessions quand l’affectation change. Un changement vers un autre rôle retire le profil. Les clients qui omettent les champs conservent le profil d’un compte Personnel existant.
+- Vérifié sur PostgreSQL isolé : création Service, modification vers infirmier de nuit, révocation, refus hors admin, validation des champs et compatibilité des mises à jour sans profil. Chromium a vérifié la modification de l’équipe depuis le formulaire. 35 tests backend et 33 tests frontend passent. Les droits par action des IDE et aides-soignants et par secteur restent à valider.
+
+---
+
 ## Relais Codex du 2026-11-27 — accès Service en salle
 
 - Un compte PERSONNEL avec la fonction SERVICE reçoit une autorité serveur propre au service en salle. Accès aux tables, au menu, aux lectures de présence, aux chevalets et à l’identification limitée. Les tournées, les médicaments, les dossiers, les notes et la relève sont refusés. Un changement de profil ferme aussi les abonnements aux tournées.

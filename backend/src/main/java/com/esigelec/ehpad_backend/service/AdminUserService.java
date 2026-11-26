@@ -4,12 +4,16 @@ import com.esigelec.ehpad_backend.dto.AdminUserDto;
 import com.esigelec.ehpad_backend.dto.CreateUserRequest;
 import com.esigelec.ehpad_backend.dto.ResetPasswordRequest;
 import com.esigelec.ehpad_backend.dto.UpdateUserRequest;
+import com.esigelec.ehpad_backend.entity.Job;
 import com.esigelec.ehpad_backend.entity.Role;
+import com.esigelec.ehpad_backend.entity.Shift;
+import com.esigelec.ehpad_backend.entity.StaffProfile;
 import com.esigelec.ehpad_backend.entity.User;
 import com.esigelec.ehpad_backend.exception.ConflictException;
 import com.esigelec.ehpad_backend.exception.BadRequestException;
 import com.esigelec.ehpad_backend.exception.ResourceNotFoundException;
 import com.esigelec.ehpad_backend.mapper.UserMapper;
+import com.esigelec.ehpad_backend.repository.StaffProfileRepository;
 import com.esigelec.ehpad_backend.repository.UserRepository;
 import com.esigelec.ehpad_backend.security.AuthSessionStore;
 import org.springframework.security.access.AccessDeniedException;
@@ -18,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AdminUserService {
@@ -26,28 +32,35 @@ public class AdminUserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthSessionStore sessions;
+    private final StaffProfileRepository profiles;
 
-    public AdminUserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthSessionStore sessions) {
+    public AdminUserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthSessionStore sessions,
+                            StaffProfileRepository profiles) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.sessions = sessions;
+        this.profiles = profiles;
     }
 
     @Transactional(readOnly = true)
     public List<AdminUserDto> list() {
+        Map<Long, StaffProfile> byUser = new HashMap<>();
+        profiles.findAll().forEach(profile -> byUser.put(profile.getUserId(), profile));
         return userRepository.findAll().stream()
                 .sorted((a, b) -> a.getUsername().compareToIgnoreCase(b.getUsername()))
-                .map(UserMapper::toAdmin)
+                .map(user -> UserMapper.toAdmin(user, user.getRole() == Role.PERSONNEL ? byUser.get(user.getId()) : null))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public AdminUserDto get(Long id) {
-        return UserMapper.toAdmin(find(id));
+        User user = find(id);
+        return UserMapper.toAdmin(user, user.getRole() == Role.PERSONNEL ? profiles.findById(id).orElse(null) : null);
     }
 
     @Transactional
     public AdminUserDto create(CreateUserRequest request) {
+        validateProfile(request.role(), request.job(), request.shift());
         String username = request.username().trim();
         if (userRepository.findByUsername(username).isPresent()) {
             throw new ConflictException("Cet identifiant est déjà utilisé");
@@ -58,12 +71,16 @@ public class AdminUserService {
         user.setFullName(request.fullName().trim());
         user.setRole(request.role());
         user.setEnabled(true);
-        return UserMapper.toAdmin(userRepository.saveAndFlush(user));
+        userRepository.saveAndFlush(user);
+        StaffProfile profile = request.job() == null ? null
+                : profiles.save(new StaffProfile(user.getId(), request.job(), request.shift()));
+        return UserMapper.toAdmin(user, profile);
     }
 
     /** currentUsername = l'administrateur connecté (il ne peut pas se retirer ses propres droits). */
     @Transactional
     public AdminUserDto update(Long id, UpdateUserRequest request, String currentUsername) {
+        validateProfile(request.role(), request.job(), request.shift());
         List<User> admins = userRepository.lockEnabledByRole(Role.ADMIN);
         if (admins.stream().noneMatch(admin -> admin.getUsername().equals(currentUsername))) {
             throw new AccessDeniedException("Droits administrateur révoqués");
@@ -77,13 +94,25 @@ public class AdminUserService {
                 && user.isEnabled() && admins.size() <= 1) {
             throw new ConflictException("Il doit rester au moins un administrateur actif");
         }
-        if (user.getRole() != request.role() || user.isEnabled() != request.enabled()) {
+        StaffProfile profile = profiles.findById(id).orElse(null);
+        boolean profileChanged = request.job() != null
+                && (profile == null || profile.getJob() != request.job() || profile.getShift() != request.shift());
+        if (user.getRole() != request.role() || user.isEnabled() != request.enabled() || profileChanged) {
             sessions.revokeUser(id);
         }
         user.setFullName(request.fullName().trim());
         user.setRole(request.role());
         user.setEnabled(request.enabled());
-        return UserMapper.toAdmin(userRepository.saveAndFlush(user));
+        userRepository.saveAndFlush(user);
+        if (request.role() != Role.PERSONNEL && profile != null) {
+            profiles.delete(profile);
+            profile = null;
+        } else if (profileChanged && profile == null) {
+            profile = profiles.save(new StaffProfile(id, request.job(), request.shift()));
+        } else if (profileChanged) {
+            profile.assign(request.job(), request.shift());
+        }
+        return UserMapper.toAdmin(user, profile);
     }
 
     @Transactional
@@ -92,6 +121,15 @@ public class AdminUserService {
         sessions.revokeUser(id);
         user.setPasswordHash(encodePassword(request.password()));
         userRepository.save(user);
+    }
+
+    private void validateProfile(Role role, Job job, Shift shift) {
+        if ((job != null || shift != null) && role != Role.PERSONNEL) {
+            throw new BadRequestException("La fonction et l’équipe sont réservées aux comptes Personnel");
+        }
+        if ((job == null) != (shift == null)) {
+            throw new BadRequestException("Renseignez la fonction et l’équipe ensemble");
+        }
     }
 
     private String encodePassword(String password) {
