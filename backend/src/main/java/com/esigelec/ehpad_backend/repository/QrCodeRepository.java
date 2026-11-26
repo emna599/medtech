@@ -12,5 +12,7 @@ public interface QrCodeRepository extends JpaRepository<QrCode, Long> {
 
     List<QrCode> findByResidentIdAndActiveTrue(Long residentId);
 
+    Optional<QrCode> findByToken(String token);
+
     Optional<QrCode> findByIdAndResidentId(Long id, Long residentId);
 }

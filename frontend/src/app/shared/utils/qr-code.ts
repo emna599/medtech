@@ -1,7 +1,7 @@
-const QR_SIZE = 29;
-const DATA_CODEWORDS = 55;
-const ERROR_CORRECTION_CODEWORDS = 15;
-const MAX_BYTE_LENGTH = 53;
+const QR_SIZE = 33;
+const DATA_CODEWORDS = 80;
+const ERROR_CORRECTION_CODEWORDS = 20;
+const MAX_BYTE_LENGTH = 78;
 const MASK_PATTERN = 0;
 
 const gfExponent = new Uint8Array(512);

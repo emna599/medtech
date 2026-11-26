@@ -10,6 +10,13 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
   },
   {
+    path: 'qr/:token',
+    title: 'Informations du résident',
+    canActivate: [roleGuard(['ADMIN', 'PERSONNEL', 'MEDECIN'])],
+    loadComponent: () =>
+      import('./features/qr-resident/qr-resident-page').then((m) => m.QrResidentPage),
+  },
+  {
     path: 'admin',
     canActivate: [roleGuard(['ADMIN'])],
     loadComponent: () => import('./features/admin/admin-shell').then((m) => m.AdminShell),

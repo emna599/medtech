@@ -12,19 +12,19 @@ describe('QR Code renderer', () => {
     [true, true, true, true, true, true, true],
   ];
 
-  it('renders UUID-sized data as a standard version 3 QR matrix', () => {
+  it('renders UUID-sized data as a standard version 4 QR matrix', () => {
     const matrix = createQrMatrix('550e8400-e29b-41d4-a716-446655440000');
 
-    expect(matrix).toHaveLength(29);
-    expect(matrix.every((row) => row.length === 29)).toBe(true);
+    expect(matrix).toHaveLength(33);
+    expect(matrix.every((row) => row.length === 33)).toBe(true);
     expect(matrix.slice(0, 7).map((row) => row.slice(0, 7))).toEqual(finderPattern);
-    expect(matrix.slice(0, 7).map((row) => row.slice(22))).toEqual(finderPattern);
-    expect(matrix.slice(22).map((row) => row.slice(0, 7))).toEqual(finderPattern);
+    expect(matrix.slice(0, 7).map((row) => row.slice(26))).toEqual(finderPattern);
+    expect(matrix.slice(26).map((row) => row.slice(0, 7))).toEqual(finderPattern);
   });
 
-  it('can be read by the scanner used in the personnel space', () => {
-    const token = '550e8400-e29b-41d4-a716-446655440000';
-    const matrix = createQrMatrix(token);
+  it('encodes a resident URL that can be read by the personnel scanner', () => {
+    const url = 'http://localhost:4200/qr/550e8400-e29b-41d4-a716-446655440000';
+    const matrix = createQrMatrix(url);
     const scale = 6;
     const quietZone = 4;
     const size = (matrix.length + 2 * quietZone) * scale;
@@ -38,20 +38,20 @@ describe('QR Code renderer', () => {
         }
       }
     }
-    expect(jsQR(pixels, size, size)?.data).toBe(token);
+    expect(jsQR(pixels, size, size)?.data).toBe(url);
   });
 
   it('renders SVG with a quiet zone and a data URL for display and download', () => {
     const svg = createQrSvg('550e8400-e29b-41d4-a716-446655440000');
 
-    expect(svg).toContain('viewBox="0 0 37 37"');
-    expect(svg).toContain('<rect width="37" height="37" fill="#fff"/>');
+    expect(svg).toContain('viewBox="0 0 41 41"');
+    expect(svg).toContain('<rect width="41" height="41" fill="#fff"/>');
     expect(createQrSvgDataUrl('550e8400-e29b-41d4-a716-446655440000')).toMatch(
       /^data:image\/svg\+xml;charset=utf-8,/,
     );
   });
 
   it('rejects values that exceed the QR version capacity', () => {
-    expect(() => createQrMatrix('x'.repeat(54))).toThrow(RangeError);
+    expect(() => createQrMatrix('x'.repeat(79))).toThrow(RangeError);
   });
 });

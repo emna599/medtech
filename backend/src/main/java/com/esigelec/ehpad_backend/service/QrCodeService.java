@@ -1,12 +1,20 @@
 package com.esigelec.ehpad_backend.service;
 
 import com.esigelec.ehpad_backend.dto.QrCodeDto;
+import com.esigelec.ehpad_backend.dto.QrCodeResidentInfoDto;
+import com.esigelec.ehpad_backend.dto.DietaryRegimeDto;
+import com.esigelec.ehpad_backend.dto.MedicalAllergyDto;
 import com.esigelec.ehpad_backend.entity.QrCode;
 import com.esigelec.ehpad_backend.entity.Resident;
 import com.esigelec.ehpad_backend.entity.User;
 import com.esigelec.ehpad_backend.exception.ConflictException;
 import com.esigelec.ehpad_backend.exception.ResourceNotFoundException;
+import com.esigelec.ehpad_backend.mapper.AllergyMapper;
+import com.esigelec.ehpad_backend.mapper.DietaryRegimeMapper;
 import com.esigelec.ehpad_backend.mapper.QrCodeMapper;
+import com.esigelec.ehpad_backend.mapper.QrCodeResidentInfoMapper;
+import com.esigelec.ehpad_backend.repository.AllergyRepository;
+import com.esigelec.ehpad_backend.repository.DietaryRegimeRepository;
 import com.esigelec.ehpad_backend.repository.QrCodeRepository;
 import com.esigelec.ehpad_backend.repository.ResidentRepository;
 import org.springframework.stereotype.Service;
@@ -23,16 +31,43 @@ public class QrCodeService {
 
     private final QrCodeRepository qrCodeRepository;
     private final ResidentRepository residentRepository;
+    private final AllergyRepository allergyRepository;
+    private final DietaryRegimeRepository dietaryRegimeRepository;
     private final CurrentUserService currentUserService;
     private final AuditService auditService;
 
     public QrCodeService(QrCodeRepository qrCodeRepository,
                          ResidentRepository residentRepository,
-                         CurrentUserService currentUserService, AuditService auditService) {
+                         AllergyRepository allergyRepository,
+                         DietaryRegimeRepository dietaryRegimeRepository,
+                         CurrentUserService currentUserService,
+                         AuditService auditService) {
         this.qrCodeRepository = qrCodeRepository;
         this.residentRepository = residentRepository;
+        this.allergyRepository = allergyRepository;
+        this.dietaryRegimeRepository = dietaryRegimeRepository;
         this.currentUserService = currentUserService;
         this.auditService = auditService;
+    }
+
+    @Transactional(readOnly = true)
+    public QrCodeResidentInfoDto findResidentInfoByToken(String token) {
+        QrCode qrCode = qrCodeRepository.findByToken(token)
+                .filter(QrCode::isActive)
+                .orElseThrow(() -> new ResourceNotFoundException("Code QR invalide ou désactivé"));
+
+        Resident resident = qrCode.getResident();
+        List<MedicalAllergyDto> allergies = allergyRepository.findByResidentId(resident.getId())
+                .stream()
+                .map(AllergyMapper::toDto)
+                .toList();
+        List<DietaryRegimeDto> dietaryRegimes =
+                dietaryRegimeRepository.findByResidentId(resident.getId())
+                        .stream()
+                        .map(DietaryRegimeMapper::toDto)
+                        .toList();
+
+        return QrCodeResidentInfoMapper.toDto(resident, allergies, dietaryRegimes);
     }
 
     @Transactional(readOnly = true)

@@ -151,7 +151,8 @@ export class ResidentDetailPage {
     const qrCode = this.activeQrCode();
     if (!qrCode?.token) return null;
     try {
-      return createQrSvgDataUrl(qrCode.token);
+      const qrUrl = `${window.location.origin}/qr/${encodeURIComponent(qrCode.token)}`;
+      return createQrSvgDataUrl(qrUrl);
     } catch (error) {
       if (error instanceof RangeError) return null;
       throw error;

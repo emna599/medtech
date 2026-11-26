@@ -9,6 +9,7 @@ import {
   DietaryRegimeRequest,
   MedicalRecord,
   QrCode,
+  QrResidentInfo,
   ResidentDetail,
   ResidentSummary,
 } from '../../shared/models/resident.model';
@@ -91,6 +92,12 @@ export class ResidentService {
 
   findQrCodesByResidentId(residentId: number): Observable<QrCode[]> {
     return this.http.get<QrCode[]>(`${this.residentsUrl}/${residentId}/qr-codes`);
+  }
+
+  findResidentByQrToken(token: string): Observable<QrResidentInfo> {
+    return this.http.get<QrResidentInfo>(
+      `${environment.apiUrl}/api/qr-codes/${encodeURIComponent(token)}`,
+    );
   }
 
   generateQrCode(residentId: number, activeQrCodeId?: number): Observable<QrCode> {

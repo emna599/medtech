@@ -1,0 +1,99 @@
+<app-toolbar />
+
+<main class="page">
+  @if (!token()) {
+    <section class="state" role="alert">
+      <h1>QR code invalide ou désactivé</h1>
+      <p>Ce code QR ne permet pas de consulter les informations du résident.</p>
+    </section>
+  } @else if (residentInfo.isLoading()) {
+    <div class="state" role="status">
+      <mat-spinner diameter="40" />
+      <p>Chargement des informations du résident…</p>
+    </div>
+  } @else if (errorMessage(); as message) {
+    <section class="state" role="alert">
+      <h1>{{ message }}</h1>
+      @if (canRetry()) {
+        <button mat-flat-button type="button" (click)="residentInfo.reload()">Réessayer</button>
+      }
+    </section>
+  } @else if (residentInfo.hasValue()) {
+    @let resident = residentInfo.value();
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">Fiche d’identification</p>
+        <h1>{{ resident.firstName }} {{ resident.lastName }}</h1>
+      </div>
+      <span class="status" [class.inactive]="!resident.active">
+        {{ resident.active ? 'Actif' : 'Inactif' }}
+      </span>
+    </header>
+
+    <mat-card appearance="outlined" class="resident-card">
+      <mat-card-content class="resident-content">
+        @if (resident.photoUrl) {
+          <img
+            class="resident-photo"
+            [src]="resident.photoUrl"
+            [alt]="'Photo de ' + resident.firstName + ' ' + resident.lastName"
+          />
+        }
+        <div class="resident-facts">
+          <p>
+            <strong>Date de naissance :</strong>
+            {{ resident.birthDate | date: 'dd/MM/yyyy' }}
+          </p>
+          <p>
+            <strong>Chambre :</strong>
+            {{ resident.roomNumber ?? 'Non renseignée' }}
+            @if (resident.floor !== null) {
+              <span> · Étage {{ resident.floor }}</span>
+            }
+          </p>
+          @if (resident.distinguishingFeatures) {
+            <p>
+              <strong>Signes distinctifs :</strong>
+              {{ resident.distinguishingFeatures }}
+            </p>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <section class="info-section" aria-labelledby="allergies-title">
+      <h2 id="allergies-title">Allergies</h2>
+      <div class="item-grid">
+        @for (allergy of resident.allergies; track allergy.id) {
+          <mat-card appearance="outlined">
+            <mat-card-content>
+              <h3>{{ allergy.name }}</h3>
+              <p><strong>Gravité :</strong> {{ allergy.severity || 'Non renseignée' }}</p>
+            </mat-card-content>
+          </mat-card>
+        } @empty {
+          <p class="empty-state">Aucune allergie enregistrée.</p>
+        }
+      </div>
+    </section>
+
+    <section class="info-section" aria-labelledby="dietary-regimes-title">
+      <h2 id="dietary-regimes-title">Régimes alimentaires</h2>
+      <div class="item-grid">
+        @for (regime of resident.dietaryRegimes; track regime.id) {
+          <mat-card appearance="outlined">
+            <mat-card-content>
+              <h3>{{ regime.type }}</h3>
+              <p><strong>Texture :</strong> {{ regime.texture || 'Non renseignée' }}</p>
+              <p><strong>Restrictions :</strong> {{ regime.restrictions || 'Aucune' }}</p>
+              <p><strong>Intolérances :</strong> {{ regime.intolerances || 'Aucune' }}</p>
+              <p><strong>Consignes :</strong> {{ regime.instructions || 'Aucune' }}</p>
+            </mat-card-content>
+          </mat-card>
+        } @empty {
+          <p class="empty-state">Aucun régime alimentaire enregistré.</p>
+        }
+      </div>
+    </section>
+  }
+</main>

@@ -419,6 +419,10 @@
               </mat-card>
               <div class="qr-details">
                 <p>Imprimez le code pour le bracelet. En cas de perte, renouvelez-le.</p>
+                <p class="qr-token"><strong>Token :</strong> <code>{{ currentQrCode.token }}</code></p>
+                <a mat-button [routerLink]="['/qr', currentQrCode.token]" target="_blank">
+                  Prévisualiser la page de scan
+                </a>
                 <div class="qr-actions">
                   <button mat-stroked-button type="button" (click)="downloadQrCode()">
                     <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">download</mat-icon>
@@ -433,6 +437,11 @@
             </div>
             <section class="qr-print-card" aria-hidden="true">
               <h1>MedTech EHPAD</h1>
+              <h2>{{ resident.value()?.firstName }} {{ resident.value()?.lastName }}</h2>
+              <p>
+                Chambre :
+                {{ resident.value()?.roomNumber ?? 'Non renseignée' }}
+              </p>
               <img class="qr-print-image" [src]="imageUrl" alt="" />
             </section>
           } @else {

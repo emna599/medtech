@@ -119,3 +119,17 @@ export interface QrCode {
   createdAt: string;
   deactivatedAt: string | null;
 }
+
+export interface QrResidentInfo {
+  id: number;
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  roomNumber: string | null;
+  floor: number | null;
+  active: boolean;
+  photoUrl: string | null;
+  distinguishingFeatures: string | null;
+  allergies: Allergy[];
+  dietaryRegimes: DietaryRegime[];
+}
