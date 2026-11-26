@@ -5,6 +5,15 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — fiches résident et aide à la saisie
+
+- Aligné l’identité et le séjour sur les fiches admin et médecin. L’admin modifie les informations administratives et conserve la vue des occupants. Le lien d’un occupant recharge la fiche, les occupants et les actions du bon résident.
+- Ajouté un résumé admin « Coordination du séjour » en lecture seule. Il indique le service en chambre et le besoin de coordonner l’aide au repas, sans exposer les notes, allergies, régimes, poids, traitements ou QR. Les protections des API existantes sont conservées.
+- Ajouté des suggestions filtrables pour allergie, gravité, régime et texture. La saisie libre reste possible. Les champs médico-alimentaires affichent des exemples ou des indications, sans préremplir les décisions du médecin.
+- Vérifié dans Chromium : changement de résident depuis un occupant, formulaire correspondant, bloc commun identique pour un même ID, accès à l’API de coordination, refus du dossier à l’admin, choix et saisie libre sur mobile. Les 31 tests backend et les 31 tests frontend réussissent.
+
+---
+
 ## Relais Codex du 2026-11-26 — assistant, attribution et dossier médical
 
 - Étendu l’assistant du personnel : absences au repas, reports, refus par créneau, plateaux à revérifier, doutes d’identité, prises à risque en attente et aide pour le QR, le poids et la relève. Le serveur répond à partir des données de service et de règles locales. Une question clinique est réorientée vers l’équipe. En cas de plusieurs prises possibles ou de vérification à risque, l’assistant renvoie vers la fiche.

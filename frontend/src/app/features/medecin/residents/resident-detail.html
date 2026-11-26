@@ -19,42 +19,7 @@
       }
     </section>
   } @else if (resident.value(); as currentResident) {
-    <header class="page-header">
-      <div>
-        <h1>{{ currentResident.firstName }} {{ currentResident.lastName }}</h1>
-        <p>Fiche du résident</p>
-      </div>
-      <span class="status" [class.inactive]="!currentResident.active">
-        {{ currentResident.active ? 'Actif' : 'Inactif' }}
-      </span>
-    </header>
-
-    <section aria-labelledby="resident-info-title">
-      <h2 id="resident-info-title">Informations du résident</h2>
-      <mat-card appearance="outlined">
-        <mat-card-content class="resident-info">
-          <p>
-            <strong>Date de naissance :</strong>
-            {{ currentResident.birthDate | date: 'dd/MM/yyyy' }}
-          </p>
-          <p>
-            <strong>Date d'admission :</strong>
-            @if (currentResident.admissionDate) {
-              {{ currentResident.admissionDate | date: 'dd/MM/yyyy' }}
-            } @else {
-              Non renseignée
-            }
-          </p>
-          <p>
-            <strong>Chambre :</strong>
-            {{ currentResident.roomNumber ?? 'Non renseignée' }}
-            @if (currentResident.floor !== null) {
-              <span> · Étage {{ currentResident.floor }}</span>
-            }
-          </p>
-        </mat-card-content>
-      </mat-card>
-    </section>
+    <app-resident-overview [resident]="currentResident" />
 
     <section aria-labelledby="daily-title">
       <h2 id="daily-title">Suivi quotidien</h2>
@@ -68,13 +33,15 @@
       @if (medicalEditing()) {
         <mat-card appearance="outlined"><mat-card-content>
           <form [formGroup]="medicalForm" (ngSubmit)="saveMedicalRecord()" class="medical-form">
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Antécédents</mat-label>
-              <textarea matInput formControlName="history" maxlength="8000" rows="4" [readonly]="medicalSaving()"></textarea>
+              <textarea matInput formControlName="history" maxlength="8000" rows="4" [readonly]="medicalSaving()" placeholder="Ex. événement observé et date connue"></textarea>
+              <mat-hint>Ajoutez le contexte et la date si elle est connue.</mat-hint>
             </mat-form-field>
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Traitements documentés</mat-label>
-              <textarea matInput formControlName="treatments" maxlength="8000" rows="4" [readonly]="medicalSaving()"></textarea>
+              <textarea matInput formControlName="treatments" maxlength="8000" rows="4" [readonly]="medicalSaving()" placeholder="Ex. traitement documenté, date et référence"></textarea>
+              <mat-hint>Notez les informations vérifiées dans le dossier.</mat-hint>
             </mat-form-field>
             @if (medicalSaveError(); as error) { <p role="alert">{{ error }}</p> }
             <div class="form-actions">
@@ -157,9 +124,15 @@
           </mat-card-header>
           <mat-card-content>
             <form [formGroup]="allergyForm" (ngSubmit)="saveAllergy()" class="form-grid">
-              <mat-form-field appearance="outline">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Allergie</mat-label>
-                <input matInput formControlName="name" maxlength="100" />
+                <input matInput formControlName="name" maxlength="100" placeholder="Ex. arachides" [matAutocomplete]="allergySuggestions" />
+                <mat-autocomplete #allergySuggestions="matAutocomplete">
+                  @for (option of matchingOptions(allergyOptions, allergyForm.controls.name.value); track option) {
+                    <mat-option [value]="option">{{ option }}</mat-option>
+                  }
+                </mat-autocomplete>
+                <mat-hint>Choisissez une suggestion ou saisissez l’allergie connue.</mat-hint>
                 @if (
                   allergyForm.controls.name.hasError('required')
                   || allergyForm.controls.name.hasError('pattern')
@@ -170,9 +143,15 @@
                 }
               </mat-form-field>
 
-              <mat-form-field appearance="outline">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Gravité (facultatif)</mat-label>
-                <input matInput formControlName="severity" maxlength="50" />
+                <input matInput formControlName="severity" maxlength="50" placeholder="Ex. modérée" [matAutocomplete]="severitySuggestions" />
+                <mat-autocomplete #severitySuggestions="matAutocomplete">
+                  @for (option of matchingOptions(severityOptions, allergyForm.controls.severity.value); track option) {
+                    <mat-option [value]="option">{{ option }}</mat-option>
+                  }
+                </mat-autocomplete>
+                <mat-hint>Laissez vide si la gravité est inconnue.</mat-hint>
                 @if (allergyForm.controls.severity.hasError('maxlength')) {
                   <mat-error>50 caractères maximum.</mat-error>
                 }
@@ -270,9 +249,15 @@
               (ngSubmit)="saveDietaryRegime()"
               class="form-grid"
             >
-              <mat-form-field appearance="outline">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Type de régime</mat-label>
-                <input matInput formControlName="type" maxlength="100" />
+                <input matInput formControlName="type" maxlength="100" placeholder="Ex. sans sel" [matAutocomplete]="dietSuggestions" />
+                <mat-autocomplete #dietSuggestions="matAutocomplete">
+                  @for (option of matchingOptions(dietOptions, dietaryRegimeForm.controls.type.value); track option) {
+                    <mat-option [value]="option">{{ option }}</mat-option>
+                  }
+                </mat-autocomplete>
+                <mat-hint>Choisissez une suggestion ou renseignez le régime documenté.</mat-hint>
                 @if (
                   dietaryRegimeForm.controls.type.hasError('required')
                   || dietaryRegimeForm.controls.type.hasError('pattern')
@@ -283,27 +268,36 @@
                 }
               </mat-form-field>
 
-              <mat-form-field appearance="outline">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Texture (facultatif)</mat-label>
-                <input matInput formControlName="texture" maxlength="50" />
+                <input matInput formControlName="texture" maxlength="50" placeholder="Ex. hachée" [matAutocomplete]="textureSuggestions" />
+                <mat-autocomplete #textureSuggestions="matAutocomplete">
+                  @for (option of matchingOptions(textureOptions, dietaryRegimeForm.controls.texture.value); track option) {
+                    <mat-option [value]="option">{{ option }}</mat-option>
+                  }
+                </mat-autocomplete>
+                <mat-hint>Sélectionnez ou saisissez la texture documentée.</mat-hint>
                 @if (dietaryRegimeForm.controls.texture.hasError('maxlength')) {
                   <mat-error>50 caractères maximum.</mat-error>
                 }
               </mat-form-field>
 
-              <mat-form-field appearance="outline">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Restrictions (facultatif)</mat-label>
-                <textarea matInput formControlName="restrictions" rows="2"></textarea>
+                <textarea matInput formControlName="restrictions" rows="2" placeholder="Ex. ingrédient ou aliment à éviter"></textarea>
+              <mat-hint>Indiquez ce qui doit être évité lors de la préparation.</mat-hint>
               </mat-form-field>
 
-              <mat-form-field appearance="outline">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
                 <mat-label>Intolérances (facultatif)</mat-label>
-                <textarea matInput formControlName="intolerances" rows="2"></textarea>
+                <textarea matInput formControlName="intolerances" rows="2" placeholder="Ex. aliment mal toléré"></textarea>
+              <mat-hint>Précisez les intolérances connues.</mat-hint>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" class="full-width">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
                 <mat-label>Consignes (facultatif)</mat-label>
-                <textarea matInput formControlName="instructions" rows="3"></textarea>
+                <textarea matInput formControlName="instructions" rows="3" placeholder="Ex. aide à apporter pendant le repas"></textarea>
+              <mat-hint>Décrivez les consignes utiles à la préparation ou au service.</mat-hint>
               </mat-form-field>
 
               <div class="form-actions full-width">
@@ -409,7 +403,7 @@
               </mat-card-content>
             </mat-card>
             <div class="qr-details">
-              <span class="status">Actif</span>
+              <span class="work-status">Actif</span>
               <p>
                 <strong>Créé le :</strong>
                 {{ currentQrCode.createdAt | date: 'dd/MM/yyyy HH:mm' }}
@@ -453,7 +447,7 @@
         <p class="empty-state">Aucun code QR actif pour ce résident.</p>
         @if (latestQrCode(); as latestQrCode) {
           <div class="inactive-qr-summary">
-            <span class="status inactive">Inactif</span>
+            <span class="work-status inactive">Inactif</span>
             <p>
               <strong>Dernier code créé le :</strong>
               {{ latestQrCode.createdAt | date: 'dd/MM/yyyy HH:mm' }}

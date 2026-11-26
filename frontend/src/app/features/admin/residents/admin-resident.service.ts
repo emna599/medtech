@@ -4,6 +4,11 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { Resident, ResidentPayload } from '../../../shared/models/resident.model';
 
+export interface ResidentCoordination {
+  roomMealService: boolean;
+  assistanceCoordination: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminResidentService {
   private readonly http = inject(HttpClient);
@@ -22,6 +27,10 @@ export class AdminResidentService {
 
   get(id: number): Observable<Resident> {
     return this.http.get<Resident>(`${this.baseUrl}/${id}`);
+  }
+
+  coordination(id: number): Observable<ResidentCoordination> {
+    return this.http.get<ResidentCoordination>(`${this.baseUrl}/${id}/coordination`);
   }
 
   /** Résidents actifs d'une chambre. */

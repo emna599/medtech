@@ -1,6 +1,7 @@
 package com.esigelec.ehpad_backend.controller;
 
 import com.esigelec.ehpad_backend.dto.ResidentDto;
+import com.esigelec.ehpad_backend.dto.ResidentCoordinationDto;
 import com.esigelec.ehpad_backend.dto.ResidentRequest;
 import com.esigelec.ehpad_backend.service.AdminResidentService;
 import jakarta.validation.Valid;
@@ -39,6 +40,11 @@ public class AdminResidentController {
     @GetMapping("/{id}")
     public ResidentDto get(@PathVariable Long id) {
         return service.get(id);
+    }
+
+    @GetMapping("/{id}/coordination")
+    public ResidentCoordinationDto coordination(@PathVariable Long id) {
+        return service.coordination(id);
     }
 
     @PostMapping

@@ -1,184 +1,144 @@
-import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject } from '@angular/core';
+import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Resident, ageFrom, stayDuration } from '../../../shared/models/resident.model';
+import { map } from 'rxjs';
+import { ResidentOverview } from '../../../shared/components/resident-overview/resident-overview';
+import { Resident } from '../../../shared/models/resident.model';
 import { apiErrorMessage } from '../../../shared/utils/api-error';
 import { AdminResidentService } from './admin-resident.service';
 import { ResidentFormDialog } from './resident-form-dialog';
 
-/** Fiche détaillée d'un résident : identité, séjour, chambre et voisins de chambre. */
 @Component({
   selector: 'app-resident-detail-page',
-  imports: [DatePipe, RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatProgressBarModule],
+  imports: [ResidentOverview, RouterLink, MatCardModule, MatButtonModule, MatIconModule, MatProgressBarModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <a mat-button routerLink="/admin/residents" class="back">
       <mat-icon fontSet="material-symbols-outlined">arrow_back</mat-icon> Résidents
     </a>
 
-    @if (loading()) {
+    @if (resident.isLoading()) {
       <mat-progress-bar mode="indeterminate" />
-    }
-    @if (error()) {
-      <p class="error" role="alert">{{ error() }}</p>
-    }
-
-    @if (resident(); as r) {
-      <header class="page-head">
-        <div class="identity">
-          <span class="avatar" aria-hidden="true">{{ initials() }}</span>
-          <div>
-            <h1>{{ r.firstName }} {{ r.lastName }}</h1>
-            <p>
-              <span class="badge" [class.off]="!r.active">{{ r.active ? 'Résident actif' : 'Résident inactif' }}</span>
-            </p>
-          </div>
-        </div>
+    } @else if (error(); as message) {
+      <p class="error" role="alert">{{ message }}</p>
+    } @else if (resident.hasValue()) {
+      @let r = resident.value();
+      <app-resident-overview [resident]="r">
         <button mat-flat-button type="button" (click)="edit(r)">
-          <mat-icon fontSet="material-symbols-outlined">edit</mat-icon> Modifier
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">edit</mat-icon>
+          Modifier le séjour et l’identité
         </button>
-      </header>
+      </app-resident-overview>
 
-      <section class="grid">
+      <div class="grid">
         <mat-card appearance="outlined">
-          <mat-card-header><mat-card-title>Identité</mat-card-title></mat-card-header>
+          <mat-card-header><mat-card-title>Occupants de la chambre</mat-card-title></mat-card-header>
           <mat-card-content>
-            <dl>
-              <dt>Nom</dt><dd>{{ r.lastName }}</dd>
-              <dt>Prénom</dt><dd>{{ r.firstName }}</dd>
-              <dt>Date de naissance</dt><dd>{{ r.birthDate | date: 'dd/MM/yyyy' }}</dd>
-              <dt>Âge</dt><dd>{{ age() }} ans</dd>
-            </dl>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card appearance="outlined">
-          <mat-card-header><mat-card-title>Séjour</mat-card-title></mat-card-header>
-          <mat-card-content>
-            <dl>
-              <dt>Date d'admission</dt><dd>{{ r.admissionDate | date: 'dd/MM/yyyy' }}</dd>
-              <dt>Durée du séjour</dt><dd>{{ stay() }}</dd>
-              <dt>État</dt><dd>{{ r.active ? 'Actif' : 'Inactif' }}</dd>
-            </dl>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card appearance="outlined" [class.card-alert]="r.active && !r.roomNumber">
-          <mat-card-header><mat-card-title>Chambre</mat-card-title></mat-card-header>
-          <mat-card-content>
-            @if (r.roomNumber) {
-              <dl>
-                <dt>Chambre</dt><dd>{{ r.roomNumber }}</dd>
-                <dt>Étage</dt><dd>{{ r.floor }}</dd>
-              </dl>
-              <h3>Occupants de la chambre</h3>
-              @for (mate of roommates(); track mate.id) {
-                <p class="mate">
-                  <mat-icon fontSet="material-symbols-outlined">person</mat-icon>
-                  <a class="link" [routerLink]="['/admin/residents', mate.id]">{{ mate.firstName }} {{ mate.lastName }}</a>
-                </p>
-              } @empty {
-                <p class="muted">Seul(e) dans la chambre.</p>
-              }
-            } @else {
-              <p class="alert">
-                <mat-icon fontSet="material-symbols-outlined">warning</mat-icon>
-                {{ r.active ? 'Aucune chambre attribuée.' : 'Pas de chambre (résident inactif).' }}
-              </p>
+            @if (r.roomId === null) {
+              <p>Aucune chambre attribuée.</p>
               @if (r.active) {
-                <button mat-flat-button type="button" (click)="edit(r)">Attribuer une chambre</button>
+                <button mat-button type="button" (click)="edit(r)">Attribuer une chambre</button>
+              }
+            } @else if (roommates.error()) {
+              <p role="alert">Impossible de charger les occupants.</p>
+            } @else if (roommates.isLoading()) {
+              <p role="status">Chargement des occupants…</p>
+            } @else if (roommates.hasValue()) {
+              @for (mate of roommates.value(); track mate.id) {
+                <p><a class="link" [routerLink]="['/admin/residents', mate.id]">{{ mate.firstName }} {{ mate.lastName }}</a></p>
+              } @empty {
+                <p>Aucun autre occupant actif.</p>
               }
             }
           </mat-card-content>
         </mat-card>
-      </section>
+
+        @if (r.active) {
+          <mat-card appearance="outlined">
+            <mat-card-header><mat-card-title>Coordination du séjour</mat-card-title></mat-card-header>
+            <mat-card-content>
+              @if (coordination.error()) {
+                <p role="alert">Coordination indisponible.</p>
+              } @else if (coordination.isLoading()) {
+                <p role="status">Chargement de la coordination…</p>
+              } @else if (coordination.hasValue()) {
+                @let info = coordination.value();
+                @if (info.roomMealService) { <p>Un service en chambre est prévu.</p> }
+                @if (info.assistanceCoordination) { <p>Coordonner l’aide au repas avec l’équipe de soins.</p> }
+                @if (info.roomMealService || info.assistanceCoordination) {
+                  <p>Prévenir l’équipe si le résident change de chambre.</p>
+                } @else {
+                  <p>Aucun besoin de coordination signalé pour le service des repas.</p>
+                }
+              }
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
     }
   `,
   styles: `
     .back { margin-bottom: 8px; }
-    .identity { display: flex; align-items: center; gap: 16px; }
-    .avatar { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--mat-sys-primary-container); color: var(--mat-sys-on-primary-container); font: var(--mat-sys-title-large); }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-    dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 12px 0 0; }
-    dt { color: var(--mat-sys-on-surface-variant); }
-    dd { margin: 0; font-weight: 500; text-align: right; }
-    h3 { font: var(--mat-sys-title-small); margin: 20px 0 4px; }
-    .mate { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
-    .alert { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 12px; background: var(--mat-sys-error-container); color: var(--mat-sys-on-error-container); }
-    .card-alert { border-color: var(--mat-sys-error); }
-    .muted { color: var(--mat-sys-on-surface-variant); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; margin-top: 16px; }
   `,
 })
 export class ResidentDetailPage {
   private readonly service = inject(AdminResidentService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly id = Number(inject(ActivatedRoute).snapshot.paramMap.get('id'));
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly id = toSignal(inject(ActivatedRoute).paramMap.pipe(map(params => {
+    const id = Number(params.get('id'));
+    return Number.isSafeInteger(id) && id > 0 ? id : undefined;
+  })), { requireSync: true });
+  private editRef?: { id: number; dialog: MatDialogRef<ResidentFormDialog> };
 
-  protected readonly resident = signal<Resident | null>(null);
-  protected readonly roommates = signal<Resident[]>([]);
-  protected readonly loading = signal(true);
-  protected readonly error = signal('');
+  protected readonly resident = rxResource({
+    params: this.id,
+    stream: ({ params }) => this.service.get(params),
+  });
+  protected readonly coordination = rxResource({
+    params: () => this.resident.hasValue() && this.resident.value().active ? this.resident.value().id : undefined,
+    stream: ({ params }) => this.service.coordination(params),
+  });
+  protected readonly roommates = rxResource({
+    params: () => {
+      const resident = this.resident.hasValue() ? this.resident.value() : undefined;
+      return resident?.roomId != null ? { room: resident.roomId, exclude: resident.id } : undefined;
+    },
+    stream: ({ params }) => this.service.byRoom(params.room)
+      .pipe(map(list => list.filter(resident => resident.id !== params.exclude))),
+  });
 
-  protected readonly age = computed(() => {
-    const r = this.resident();
-    return r ? ageFrom(r.birthDate) : 0;
-  });
-  protected readonly stay = computed(() => {
-    const r = this.resident();
-    return r ? stayDuration(r.admissionDate) : '';
-  });
-  protected readonly initials = computed(() => {
-    const r = this.resident();
-    return r ? `${r.firstName[0] ?? ''}${r.lastName[0] ?? ''}`.toUpperCase() : '';
+  protected readonly error = computed(() => {
+    if (this.id() === undefined) return 'Identifiant de résident invalide.';
+    return this.resident.error() ? apiErrorMessage(this.resident.error(), 'Résident introuvable') : null;
   });
 
   constructor() {
-    this.load();
+    effect(() => {
+      const id = this.id();
+      if (this.editRef && this.editRef.id !== id) this.editRef.dialog.close();
+    });
+    this.destroyRef.onDestroy(() => this.editRef?.dialog.close());
   }
 
   protected edit(resident: Resident): void {
-    this.dialog
-      .open(ResidentFormDialog, { data: resident })
-      .afterClosed()
-      .subscribe((saved) => {
-        if (saved) {
-          this.snackBar.open('Résident modifié', 'OK', { duration: 3000 });
-          this.load();
-        }
-      });
-  }
-
-  private load(): void {
-    this.loading.set(true);
-    this.error.set('');
-    this.service.get(this.id).subscribe({
-      next: (resident) => {
-        this.resident.set(resident);
-        this.loading.set(false);
-        this.loadRoommates(resident);
-      },
-      error: (err) => {
-        this.error.set(apiErrorMessage(err, 'Résident introuvable'));
-        this.loading.set(false);
-      },
-    });
-  }
-
-  private loadRoommates(resident: Resident): void {
-    if (resident.roomId === null) {
-      this.roommates.set([]);
-      return;
-    }
-    this.service.byRoom(resident.roomId).subscribe({
-      next: (list) => this.roommates.set(list.filter((r) => r.id !== resident.id)),
-      error: () => this.roommates.set([]),
+    if (this.editRef || resident.id !== this.id()) return;
+    const dialog = this.dialog.open(ResidentFormDialog, { data: resident });
+    this.editRef = { id: resident.id, dialog };
+    dialog.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(saved => {
+      if (this.editRef?.dialog === dialog) this.editRef = undefined;
+      if (saved && resident.id === this.id()) {
+        this.snackBar.open('Résident modifié', 'Fermer', { duration: 3000 });
+        this.resident.reload();
+      }
     });
   }
 }

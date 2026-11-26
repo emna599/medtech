@@ -1,6 +1,8 @@
 package com.esigelec.ehpad_backend.service;
 
 import com.esigelec.ehpad_backend.dto.ResidentDto;
+import com.esigelec.ehpad_backend.dto.ResidentCoordinationDto;
+import com.esigelec.ehpad_backend.entity.MealLocation;
 import com.esigelec.ehpad_backend.dto.ResidentRequest;
 import com.esigelec.ehpad_backend.entity.Resident;
 import com.esigelec.ehpad_backend.entity.Room;
@@ -51,6 +53,14 @@ public class AdminResidentService {
     @Transactional(readOnly = true)
     public ResidentDto get(Long id) {
         return ResidentMapper.toDto(find(id));
+    }
+
+    @Transactional(readOnly = true)
+    public ResidentCoordinationDto coordination(Long id) {
+        Resident resident = find(id);
+        return new ResidentCoordinationDto(
+                resident.isActive() && resident.getMealLocation() == MealLocation.CHAMBRE,
+                resident.isActive() && resident.isNeedsHelp());
     }
 
     @Transactional

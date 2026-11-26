@@ -2,45 +2,14 @@
   margin-bottom: 16px;
 }
 
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin: 8px 0 24px;
-}
-
 h1 {
   margin: 0;
   font: var(--mat-sys-headline-medium);
 }
 
-.page-header p {
-  margin: 8px 0 0;
-  color: var(--mat-sys-on-surface-variant);
-}
-
 h2 {
   margin: 24px 0 12px;
   font: var(--mat-sys-title-large);
-}
-
-.status {
-  flex: 0 0 auto;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: var(--mat-sys-primary-container);
-  color: var(--mat-sys-on-primary-container);
-  font: var(--mat-sys-label-medium);
-}
-
-.status.inactive {
-  background: var(--mat-sys-surface-container-high);
-  color: var(--mat-sys-on-surface-variant);
-}
-
-.resident-info p {
-  margin: 8px 0;
 }
 
 .medical-record {
@@ -285,3 +254,5 @@ h2 {
 
 .medical-form { display: grid; gap: 8px; }
 .medical-form mat-form-field { width: 100%; }
+
+app-resident-overview + section { margin-top: 24px; }

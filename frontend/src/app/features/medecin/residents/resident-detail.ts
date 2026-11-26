@@ -12,6 +12,8 @@ import {
 } from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { normalize } from '../../../shared/utils/text';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -21,6 +23,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ResidentService } from '../../../core/services/resident.service';
+import { ResidentOverview } from '../../../shared/components/resident-overview/resident-overview';
 import { Toolbar } from '../../../shared/components/toolbar/toolbar';
 import {
   Allergy,
@@ -38,6 +41,8 @@ import { ResidentDaily } from '../../../shared/components/resident-daily/residen
 @Component({
   selector: 'app-resident-detail',
   imports: [
+    MatAutocompleteModule,
+    ResidentOverview,
     ResidentDaily,
     DatePipe,
     MatButtonModule,
@@ -84,6 +89,16 @@ export class ResidentDetailPage {
     const error = this.resident.error();
     return error ? this.toResidentErrorMessage(error) : null;
   });
+
+  protected readonly allergyOptions = ['Arachides', 'Fruits de mer', 'Poisson'];
+  protected readonly severityOptions = ['Légère', 'Modérée', 'Grave'];
+  protected readonly dietOptions = ['Normal', 'Sans sel', 'Diabétique', 'Végétarien'];
+  protected readonly textureOptions = ['Normale', 'Hachée', 'Mixée'];
+
+  protected matchingOptions(options: readonly string[], value: string): string[] {
+    const query = normalize(value);
+    return options.filter(option => normalize(option).includes(query));
+  }
 
   protected readonly medicalRecordMissing = computed(() => {
     const error = this.medicalRecord.error();
