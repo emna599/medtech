@@ -155,19 +155,19 @@ export function createQrMatrix(text: string): boolean[][] {
 
   const formatBits = getFormatBits();
   for (let index = 0; index <= 5; index++) {
-    setFunctionModule(8, index, ((formatBits >>> index) & 1) !== 0);
+    setFunctionModule(index, 8, ((formatBits >>> index) & 1) !== 0);
   }
-  setFunctionModule(8, 7, ((formatBits >>> 6) & 1) !== 0);
+  setFunctionModule(7, 8, ((formatBits >>> 6) & 1) !== 0);
   setFunctionModule(8, 8, ((formatBits >>> 7) & 1) !== 0);
-  setFunctionModule(7, 8, ((formatBits >>> 8) & 1) !== 0);
+  setFunctionModule(8, 7, ((formatBits >>> 8) & 1) !== 0);
   for (let index = 9; index < 15; index++) {
-    setFunctionModule(14 - index, 8, ((formatBits >>> index) & 1) !== 0);
+    setFunctionModule(8, 14 - index, ((formatBits >>> index) & 1) !== 0);
   }
   for (let index = 0; index < 8; index++) {
-    setFunctionModule(QR_SIZE - 1 - index, 8, ((formatBits >>> index) & 1) !== 0);
+    setFunctionModule(8, QR_SIZE - 1 - index, ((formatBits >>> index) & 1) !== 0);
   }
   for (let index = 8; index < 15; index++) {
-    setFunctionModule(8, QR_SIZE - 15 + index, ((formatBits >>> index) & 1) !== 0);
+    setFunctionModule(QR_SIZE - 15 + index, 8, ((formatBits >>> index) & 1) !== 0);
   }
   setFunctionModule(QR_SIZE - 8, 8, true);
 

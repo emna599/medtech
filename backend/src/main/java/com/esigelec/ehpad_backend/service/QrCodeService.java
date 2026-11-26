@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -100,7 +101,7 @@ public class QrCodeService {
     private void deactivate(QrCode qrCode, LocalDateTime deactivatedAt) {
         if (qrCode.isActive()) {
             qrCode.setActive(false);
-            qrCode.setDeactivatedAt(deactivatedAt);
+            qrCode.setDeactivatedAt(deactivatedAt.truncatedTo(ChronoUnit.MICROS));
         }
     }
 }

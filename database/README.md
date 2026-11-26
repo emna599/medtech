@@ -51,12 +51,7 @@ Sur `resident(room_id)`, `allergy(resident_id)`, `dietary_regime(resident_id)`, 
 
 ## Données de démonstration
 
-`seed_demo.sql` crée :
-
-- 6 chambres : 101, 102, 103 (étage 1) et 201, 202, 203 (étage 2), soit 10 lits ;
-- 8 résidents fictifs dont 1 inactif (Henri Ancien) et 1 actif sans chambre (Simone Inventee).
-
-Résultat attendu dans le tableau de bord : 7 résidents actifs, 6 lits occupés sur 10, taux d'occupation 60 %.
+Le jeu commun de `seed_personnel.sql` contient 12 résidents fictifs, des chambres, ainsi que les repas, prises et codes QR de démo. `seed_demo.sql` est l’ancien jeu limité à l’administration.
 
 Toutes ces données sont fictives. Ne mets jamais de vraies données de résidents dans le dépôt.
 

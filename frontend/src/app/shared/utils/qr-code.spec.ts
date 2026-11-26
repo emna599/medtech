@@ -1,3 +1,4 @@
+import jsQR from 'jsqr';
 import { createQrMatrix, createQrSvg, createQrSvgDataUrl } from './qr-code';
 
 describe('QR Code renderer', () => {
@@ -19,6 +20,25 @@ describe('QR Code renderer', () => {
     expect(matrix.slice(0, 7).map((row) => row.slice(0, 7))).toEqual(finderPattern);
     expect(matrix.slice(0, 7).map((row) => row.slice(22))).toEqual(finderPattern);
     expect(matrix.slice(22).map((row) => row.slice(0, 7))).toEqual(finderPattern);
+  });
+
+  it('can be read by the scanner used in the personnel space', () => {
+    const token = '550e8400-e29b-41d4-a716-446655440000';
+    const matrix = createQrMatrix(token);
+    const scale = 6;
+    const quietZone = 4;
+    const size = (matrix.length + 2 * quietZone) * scale;
+    const pixels = new Uint8ClampedArray(size * size * 4).fill(255);
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const dark = matrix[Math.floor(y / scale) - quietZone]?.[Math.floor(x / scale) - quietZone];
+        if (dark) {
+          const offset = (y * size + x) * 4;
+          pixels.fill(0, offset, offset + 3);
+        }
+      }
+    }
+    expect(jsQR(pixels, size, size)?.data).toBe(token);
   });
 
   it('renders SVG with a quiet zone and a data URL for display and download', () => {

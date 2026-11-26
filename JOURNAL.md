@@ -5,6 +5,15 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — administration et codes QR
+
+- Intégré `3fdf4ad` de `feature/admin-users` (identité visuelle, alertes des résidents sans chambre, validation de la numérotation, script commun) et `f37697c` de `feature/medecin` (création, renouvellement, désactivation, téléchargement et impression des QR). Aucun nouveau commit personnel, auth ou initialisation backend. Conservé le thème sobre commun aux trois rôles.
+- Chambre nouvelle ou renumérotée : étage 0 à 20 et suffixe 01 à 99, contrôlés dans le formulaire et l’API. Une chambre historique reste modifiable lorsque son numéro et son étage sont conservés. Les nouvelles bases de démo utilisent des numéros conformes. Docker et l’installation manuelle utilisent le même `database/setup.sql` transactionnel, qui charge aussi les extensions et le jeu du personnel. Aucune réinitialisation de la base de travail.
+- Réservé les API QR au médecin. Un QR actif identifie le résident via l’API authentifiée du personnel. Un renouvellement concurrent fondé sur un ancien code reçoit 409 et l’ancien QR devient inutilisable dès la validation du remplacement. Générations et révocations sont auditées. Les jetons révoqués ne sont plus retournés. L’impression isole le QR du reste de la fiche et l’encodage a été corrigé après échec du décodage avec le scanner du personnel.
+- Vérifié : Docker sur volumes neuf et existant, 24 tests backend et 30 tests frontend, rôles et cycle QR via l’API, renouvellements simultanés (201 et 409), lecture par le décodeur du personnel, numérotation et édition de chambre historique. Chromium : renouvellement, téléchargement, aperçu d’impression isolé et validation du formulaire de chambre. La caméra physique et le lanceur PowerShell sous Windows restent à essayer.
+
+---
+
 ## Relais Codex du 2026-11-26 — allergies, régimes et service des repas
 
 - Intégré `da16ab8` de Ran depuis `feature/medecin`. Le médecin peut consulter, créer, modifier et supprimer les allergies et régimes depuis la fiche résident. Les nouveaux endpoints de lecture et d’écriture sont réservés à MEDECIN. L’administration conserve ses fonctions existantes. Le personnel consulte les consignes dans son espace repas, issu des mêmes tables PostgreSQL.
@@ -104,7 +113,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 > **Si l’espace médecin affiche encore l’ancien écran** : vérifier que la copie utilisée par Docker est sur `integration` et à jour, puis reconstruire les services avec `docker compose up -d --build backend frontend`. Le commit Git seul ne met pas à jour les conteneurs déjà démarrés. Vérifié le 2026-11-26 : après reconstruction du frontend et de l’API sur le site local, le compte médecin ouvre l’annuaire puis les sections Allergies et Régimes alimentaires. Le conteneur et le volume PostgreSQL existants ont été conservés.
 
 ### Option 2 — Manuel (développement)
-1. Base : créer une base `medtech` puis exécuter dans l'ordre `database/medtech_schema.sql`, `seed_users.sql`, `personnel_additions.sql`, `seed_personnel.sql`.
+1. Base : créer une base locale `medtech` puis exécuter `database/setup.sql`, également utilisé par Docker.
 2. Copier `.env.example` → `.env` (à la racine) et renseigner les valeurs.
 3. Backend : `cd backend && ./mvnw spring-boot:run` (JDK 21).
 4. Frontend : `cd frontend && npm install && npx ng serve`.
@@ -141,7 +150,8 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 2. Ouvrir **Consulter les résidents**, rechercher un nom ou un numéro de chambre, puis ouvrir une fiche.
 3. Vérifier l’identité, la chambre et la section **Dossier médical**. Le jeu de démo actuel ne contient aucun dossier médical. L’interface affiche un message d’absence de dossier.
 4. Vérifier l’ajout, la modification et la suppression d’une allergie ou d’un régime avec des données fictives. L’ouverture de la fiche repas du même résident côté personnel doit afficher les consignes actualisées.
-5. Vérifier que le retour à la liste et la déconnexion fonctionnent.
+5. Dans **QR Code**, vérifier le téléchargement et l’impression. Après renouvellement, vérifier côté personnel que le nouveau code identifie le résident et que l’ancien est refusé.
+6. Vérifier que le retour à la liste et la déconnexion fonctionnent.
 - API : `GET /api/residents` (liste), `GET /api/residents/{id}` (détail), `GET /api/residents/{id}/medical-record` (dossier réservé à MEDECIN). Le dernier endpoint répond **403** avec un jeton personnel ou admin.
 
 ### 🧑‍⚕️ PERSONNEL / SOIGNANT (`personnel` / Demo1234!)
@@ -170,7 +180,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 ---
 
 ## À venir
-- **Espace médecin** : ajouter des dossiers de démo fictifs via `database/`, puis cadrer l’écriture du dossier médical et les QR codes.
+- **Espace médecin** : ajouter des dossiers de démo fictifs via `database/`, puis cadrer l’écriture du dossier médical.
 - Discuter de `integration` avec l'équipe, puis **ouvrir la pull request vers `main`** (plus tard, pas maintenant).
 - Logique métier EHPAD restante (features) : GIR/AGGIR, entité Prescription, rôles IDE/aide-soignant, motif+date de sortie, alerte dénutrition, relève persistée.
 - Sécurité : rate-limit sur le login, stratégie de révocation JWT, CSP.

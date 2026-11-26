@@ -89,7 +89,7 @@ export class ResidentService {
   }
 
   generateQrCode(residentId: number, activeQrCodeId?: number): Observable<QrCode> {
-    const params = activeQrCodeId === undefined ? {} : { activeQrCodeId };
+    const params: Record<string, number> = activeQrCodeId === undefined ? {} : { activeQrCodeId };
     return this.http.post<QrCode>(`${this.residentsUrl}/${residentId}/qr-codes`, {}, { params });
   }
 
