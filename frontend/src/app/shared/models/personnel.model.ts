@@ -1,6 +1,6 @@
 export type MealLocation = 'SALLE' | 'CHAMBRE';
 export type ServiceKind = 'REPAS' | 'MEDICAMENT';
-export type ServiceStatus = 'A_FAIRE' | 'FAIT' | 'REFUSE' | 'PLUS_TARD';
+export type ServiceStatus = 'A_FAIRE' | 'FAIT' | 'REFUSE' | 'ABSENT' | 'PLUS_TARD';
 export type QuantityEaten = 'RIEN' | 'QUART' | 'MOITIE' | 'TROIS_QUARTS' | 'TOUT';
 
 export interface Allergy {

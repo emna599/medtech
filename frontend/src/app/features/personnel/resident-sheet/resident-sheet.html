@@ -111,6 +111,9 @@
       </button>
 
       <div class="secondary">
+        @if (item().kind === 'REPAS') {
+          <button mat-stroked-button type="button" [disabled]="busy()" (click)="absent()">Absent</button>
+        }
         <button mat-stroked-button type="button" [disabled]="busy()" (click)="toggleRefusal()">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">block</mat-icon>
           Refusé

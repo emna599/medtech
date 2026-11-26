@@ -142,7 +142,7 @@ public class CareService {
         }
 
         auditService.record(user, "REPAS_" + request.status().name(), "Meal", meal.getId());
-        if (request.riskAcknowledged()) {
+        if (request.status() == ServiceStatus.FAIT && request.riskAcknowledged()) {
             auditService.record(user, "REPAS_RISQUE_CONFIRME", "Meal", meal.getId());
         }
         return toMealItem(meal, card, distribution);
@@ -167,6 +167,9 @@ public class CareService {
 
     @Transactional
     public ServiceItemDto completeDose(Long doseId, CompleteRequest request, String username) {
+        if (request.status() == ServiceStatus.ABSENT) {
+            throw new BadRequestException("Ce statut est réservé aux repas.");
+        }
         User user = currentUserService.require(username);
         Long residentId = doseRepository.findResidentId(doseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Prise introuvable"));
@@ -194,7 +197,7 @@ public class CareService {
         if (request.status() == ServiceStatus.A_FAIRE) {
             throw new BadRequestException("Statut invalide");
         }
-        if (current == ServiceStatus.FAIT || current == ServiceStatus.REFUSE) {
+        if (current == ServiceStatus.FAIT || current == ServiceStatus.REFUSE || current == ServiceStatus.ABSENT) {
             throw new ConflictException("Déjà enregistré");
         }
         if (request.status() == ServiceStatus.REFUSE && clean(request.comment()) == null) {

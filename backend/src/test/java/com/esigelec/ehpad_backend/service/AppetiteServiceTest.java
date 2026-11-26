@@ -78,6 +78,18 @@ class AppetiteServiceTest {
     }
 
     @Test
+    void doesNotCountAnAbsentResidentAsHavingEatenNothing() {
+        Meal absent = meal(1L, LocalDate.now(), ServiceStatus.ABSENT);
+        when(mealRepository.findByResidentBetween(eq(1L), any(), any())).thenReturn(List.of(absent));
+        when(distributionRepository.findByMealIdIn(anyCollection())).thenReturn(List.of());
+
+        AppetiteDto.Day today = service.forResident(1L, 7).days().getLast();
+
+        assertThat(today.score()).isNull();
+        assertThat(today.refused()).isZero();
+    }
+
+    @Test
     void leavesDaysWithoutMealsEmpty() {
         when(mealRepository.findByResidentBetween(eq(1L), any(), any())).thenReturn(List.of());
 

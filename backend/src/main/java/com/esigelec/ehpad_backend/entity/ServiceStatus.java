@@ -5,5 +5,6 @@ public enum ServiceStatus {
     A_FAIRE,
     FAIT,
     REFUSE,
+    ABSENT,
     PLUS_TARD
 }

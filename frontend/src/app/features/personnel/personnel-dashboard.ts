@@ -32,7 +32,7 @@ import { ResidentSheet, ResidentSheetData, ResidentSheetResult } from './residen
 type StatusFilter = 'A_FAIRE' | 'FAIT' | 'TOUS';
 
 const PENDING: readonly ServiceStatus[] = ['A_FAIRE', 'PLUS_TARD'];
-const FINISHED: readonly ServiceStatus[] = ['FAIT', 'REFUSE'];
+const FINISHED: readonly ServiceStatus[] = ['FAIT', 'REFUSE', 'ABSENT'];
 
 function normalize(text: string): string {
   return text
@@ -334,6 +334,8 @@ export class PersonnelDashboard {
     switch (item.status) {
       case 'FAIT':
         return doneLabel(item.kind);
+      case 'ABSENT':
+        return 'Absent';
       case 'REFUSE':
         return 'Refusé';
       case 'PLUS_TARD':
@@ -347,6 +349,8 @@ export class PersonnelDashboard {
     switch (item.status) {
       case 'FAIT':
         return 'is-done';
+      case 'ABSENT':
+        return 'is-absent';
       case 'REFUSE':
         return 'is-refused';
       case 'PLUS_TARD':

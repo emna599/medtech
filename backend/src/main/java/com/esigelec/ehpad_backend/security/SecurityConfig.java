@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/personnel/**").hasAnyRole("PERSONNEL", "ADMIN")
+                        .requestMatchers("/api/suivi-resident/**").hasAnyRole("PERSONNEL", "MEDECIN")
                         .requestMatchers("/api/releve", "/api/releve/**").hasRole("PERSONNEL")
                         .requestMatchers("/api/residents", "/api/residents/**").hasRole("MEDECIN")
                         .requestMatchers("/api/auth/me", "/api/auth/logout").authenticated()

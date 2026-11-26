@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
+import { ResidentDaily } from '../../../shared/components/resident-daily/resident-daily';
 import { fullName, ResidentCard } from '../../../shared/models/personnel.model';
 import { AppetiteChart } from '../components/appetite-chart';
 import { ResidentAvatar } from '../components/resident-avatar';
@@ -26,11 +27,12 @@ function normalize(text: string): string {
 
 /**
  * Consulter et rechercher les résidents (tous, pas seulement ceux du service en cours).
- * Lecture seule : fiche du personnel, sans historique médical.
+ * Fiche du personnel et suivi quotidien du résident.
  */
 @Component({
   selector: 'app-residents-dialog',
   imports: [
+    ResidentDaily,
     FormsModule,
     MatButtonModule,
     MatFormFieldModule,

@@ -32,9 +32,12 @@ import {
 
 import { createQrSvgDataUrl } from '../../../shared/utils/qr-code';
 
+import { ResidentDaily } from '../../../shared/components/resident-daily/resident-daily';
+
 @Component({
   selector: 'app-resident-detail',
   imports: [
+    ResidentDaily,
     DatePipe,
     MatButtonModule,
     MatCardModule,

@@ -1,6 +1,6 @@
 <app-toolbar />
 
-<main class="work-page">
+<main class="work-page service-page">
   <header class="page-head"><h1>{{ kind() === 'REPAS' ? 'Repas' : 'Médicaments' }}</h1></header>
   <section class="top">
     <mat-button-toggle-group
@@ -20,20 +20,26 @@
       </mat-button-toggle>
     </mat-button-toggle-group>
 
-    <button mat-stroked-button type="button" class="releve residents" (click)="openResidents()">
+    <div class="tools">
+    <button mat-stroked-button type="button" (click)="openResidents()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
       Résidents
     </button>
 
-    <button mat-stroked-button type="button" class="releve" (click)="openReleve()">
+    <button mat-stroked-button type="button" (click)="openReleve()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
       Relève
     </button>
 
-    <button mat-stroked-button type="button" class="unknown" (click)="openIdentify()">
+    <button mat-stroked-button type="button" (click)="openIdentify()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon>
-      Je ne le connais pas
+      Identifier un résident
     </button>
+    <button mat-stroked-button type="button" (click)="openAssistant()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">support_agent</mat-icon>
+      Assistant
+    </button>
+    </div>
   </section>
 
   @if (kind() === 'REPAS' && refreshUnavailable()) {
@@ -69,7 +75,7 @@
     <div class="progress">
       <div class="progress-text">
         <strong>{{ finished() }} / {{ total() }}</strong>
-        {{ kind() === 'REPAS' ? 'repas faits' : 'prises faites' }}
+        {{ kind() === 'REPAS' ? 'repas traités' : 'prises traitées' }}
       </div>
       <mat-progress-bar mode="determinate" [value]="progress()" aria-label="Avancement du service" />
     </div>
@@ -101,7 +107,7 @@
       (change)="setStatusFilter($event.value)"
     >
       <mat-button-toggle value="A_FAIRE">À faire</mat-button-toggle>
-      <mat-button-toggle value="FAIT">Faits</mat-button-toggle>
+      <mat-button-toggle value="FAIT">Traités</mat-button-toggle>
       <mat-button-toggle value="TOUS">Tous</mat-button-toggle>
     </mat-button-toggle-group>
 
@@ -154,7 +160,7 @@
               [photoUrl]="item.resident.photoUrl"
               [firstName]="item.resident.firstName"
               [lastName]="item.resident.lastName"
-              [size]="104"
+              [size]="48"
             />
             <span class="tile-name">{{ name(item) }}</span>
             <span class="tile-meta">
@@ -212,8 +218,3 @@
     </ul>
   }
 </main>
-
-<button type="button" class="assistant-fab" aria-label="Ouvrir l'assistant" (click)="openAssistant()">
-  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">support_agent</mat-icon>
-  Assistant
-</button>

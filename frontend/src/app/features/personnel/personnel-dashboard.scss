@@ -8,8 +8,8 @@
 
 // Groupes de boutons : grandes pastilles arrondies, bien tactiles.
 mat-button-toggle-group {
-  --mat-button-toggle-shape: 28px;
-  --mat-button-toggle-height: 52px;
+  --mat-button-toggle-shape: 8px;
+  --mat-button-toggle-height: 44px;
   --mat-button-toggle-selected-state-background-color: var(--app-ok);
   --mat-button-toggle-selected-state-text-color: var(--app-on-ok);
   --mat-button-toggle-background-color: var(--app-surface);
@@ -20,29 +20,9 @@ mat-button-toggle-group {
   font-weight: 700;
 }
 
-.releve {
-  height: 52px;
-  padding: 0 22px;
-  font-size: 16px;
-  font-weight: 700;
-  border-radius: 26px;
-  background: var(--app-surface);
-  border-color: var(--brand-teal);
-  color: var(--brand-teal);
-  box-shadow: none;
-}
-
-.unknown {
-  height: 52px;
-  padding: 0 22px;
-  font-size: 16px;
-  font-weight: 700;
-  border-radius: 26px;
-  background: var(--app-surface);
-  border-color: var(--app-warn);
-  color: var(--app-warn);
-  box-shadow: none;
-}
+.service-page { display: grid; gap: 16px; min-width: 0; }
+.service-page > .page-head { margin: 0; }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .slots {
   display: flex;
@@ -51,10 +31,10 @@ mat-button-toggle-group {
 }
 
 .slot {
-  min-height: 48px;
+  min-height: 40px;
   padding: 0 24px;
-  border-radius: 26px;
-  border: 2px solid var(--app-line);
+  border-radius: 8px;
+  border: 1px solid var(--app-line);
   background: var(--app-surface);
   color: var(--app-ink);
   font: inherit;
@@ -64,9 +44,9 @@ mat-button-toggle-group {
 }
 
 .slot-on {
-  background: var(--app-warn);
-  color: #fff;
-  border-color: var(--app-warn);
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  border-color: transparent;
 }
 
 .only-slot {
@@ -83,8 +63,9 @@ mat-button-toggle-group {
   border-radius: var(--app-radius);
   background: var(--app-surface);
   box-shadow: none;
-  --mat-progress-bar-active-indicator-height: 12px;
-  --mat-progress-bar-track-height: 12px;
+  border: 1px solid var(--app-line);
+  --mat-progress-bar-active-indicator-height: 5px;
+  --mat-progress-bar-track-height: 5px;
   --mat-progress-bar-active-indicator-color: var(--app-ok);
   --mat-progress-bar-track-color: var(--app-line);
   --mat-progress-bar-track-shape: 8px;
@@ -108,9 +89,9 @@ mat-button-toggle-group {
 
 .search {
   flex: 1 1 220px;
-  min-width: 200px;
-  --mat-form-field-container-shape: 26px;
-  --mat-form-field-outlined-container-shape: 26px;
+  min-width: min(100%, 200px);
+  --mat-form-field-container-shape: 8px;
+  --mat-form-field-outlined-container-shape: 8px;
 }
 
 .start {
@@ -153,7 +134,7 @@ ul.rows {
 
 ul.grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
   gap: 14px;
 }
 
@@ -196,15 +177,18 @@ ul.rows {
 
 .tile {
   width: 100%;
-  min-height: 230px;
+  height: 100%;
+  min-height: 155px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
-  padding: 16px 10px 12px;
+  padding: 14px 16px;
   border-radius: var(--app-radius);
-  text-align: center;
+  text-align: left;
 }
+
+.tile-name, .tile-meta, .row-name, .row-meta { overflow-wrap: anywhere; }
 
 .tile-name {
   font: var(--mat-sys-title-medium);
@@ -332,9 +316,11 @@ ul.rows {
   .work-page {
     padding: 12px;
   }
-  .row .badge {
-    display: none;
-  }
+  .row { flex-wrap: wrap; }
+  .row-main { flex-basis: 120px; }
+  .controls mat-button-toggle-group { max-width: 100%; }
+  .controls .search { flex-basis: 100%; }
+  .tools button { flex: 1 1 auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -342,36 +328,6 @@ ul.rows {
   .row {
     transition: none;
   }
-}
-
-.assistant-fab {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 10;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 60px;
-  padding: 0 24px;
-  border: 0;
-  border-radius: 30px;
-  background: var(--brand-navy);
-  color: #fff;
-  font: inherit;
-  font-size: 17px;
-  font-weight: 800;
-  cursor: pointer;
-  box-shadow: 0 8px 24px rgb(18 54 92 / 40%);
-}
-
-.assistant-fab:focus-visible {
-  outline: 3px solid var(--brand-coral);
-  outline-offset: 3px;
-}
-
-.residents {
-  margin-left: auto;
 }
 
 .meal-change {

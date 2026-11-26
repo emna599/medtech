@@ -56,6 +56,13 @@
       </mat-card>
     </section>
 
+    <section aria-labelledby="daily-title">
+      <h2 id="daily-title">Suivi quotidien</h2>
+      <mat-card appearance="outlined"><mat-card-content>
+        <app-resident-daily [residentId]="currentResident.id" />
+      </mat-card-content></mat-card>
+    </section>
+
     <section class="medical-record" aria-labelledby="medical-record-title">
       <h2 id="medical-record-title">Dossier médical</h2>
       @if (medicalRecord.isLoading()) {

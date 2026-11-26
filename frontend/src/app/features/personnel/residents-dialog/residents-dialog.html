@@ -78,6 +78,11 @@
 
       <app-appetite-chart [residentId]="resident.id" />
 
+      <details class="daily-details">
+        <summary>Suivi quotidien</summary>
+        <app-resident-daily [residentId]="resident.id" [editable]="true" />
+      </details>
+
       <button mat-flat-button type="button" class="service" (click)="openService(resident)">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
         Voir son service du jour

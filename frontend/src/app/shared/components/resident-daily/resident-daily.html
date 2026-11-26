@@ -1,0 +1,63 @@
+@if (summary.error()) {
+  <p role="alert">Le suivi quotidien est indisponible.</p>
+  <button mat-button type="button" (click)="summary.reload()">Réessayer</button>
+} @else if (summary.hasValue()) {
+  @let data = summary.value();
+  <section>
+    <h3>Préférences</h3>
+    <p class="notes">{{ data.preferences.text || 'Aucune préférence renseignée.' }}</p>
+    @if (editable() && !editing()) {
+      <button mat-button type="button" [disabled]="summary.isLoading()" (click)="editPreferences(data.preferences)">Modifier les préférences</button>
+    }
+    @if (editing() === 'preferences') {
+      <form (submit)="$event.preventDefault(); savePreferences()">
+        <mat-form-field appearance="outline">
+          <mat-label>Préférences du résident</mat-label>
+          <textarea matInput [formControl]="preferences" [readonly]="busy()" maxlength="600" rows="3"></textarea>
+        </mat-form-field>
+        <div class="actions">
+          <button mat-button type="button" [disabled]="busy()" (click)="cancel()">Annuler</button>
+          <button mat-flat-button type="submit" [disabled]="busy() || preferences.invalid">Enregistrer les préférences</button>
+        </div>
+      </form>
+    }
+  </section>
+
+  <section>
+    <h3>Poids et observations</h3>
+    @if (editable() && !editing()) {
+      <button mat-button type="button" [disabled]="summary.isLoading()" (click)="newEntry()">Ajouter au suivi</button>
+    }
+    @if (editing() === 'entry') {
+      <form [formGroup]="entry" (ngSubmit)="saveEntry()">
+        <mat-form-field appearance="outline">
+          <mat-label>Poids mesuré (kg)</mat-label>
+          <input matInput type="number" formControlName="weightKg" [readonly]="busy()" step="0.01" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Observation</mat-label>
+          <textarea matInput formControlName="observation" [readonly]="busy()" maxlength="1000" rows="3"></textarea>
+        </mat-form-field>
+        <div class="actions">
+          <button mat-button type="button" [disabled]="busy()" (click)="cancel()">Annuler</button>
+          <button mat-flat-button type="submit" [disabled]="busy() || entry.invalid">Enregistrer le suivi</button>
+        </div>
+      </form>
+    }
+    @if (formError(); as error) { <p role="alert">{{ error }}</p> }
+    @if (notice(); as message) { <p role="status">{{ message }}</p> }
+    <ul class="history">
+      @for (event of data.history; track event.id) {
+        <li>
+          <div class="meta">{{ event.recordedAt | date: 'dd/MM/yyyy HH:mm' }} · {{ event.author }}</div>
+          @if (event.weightKg !== null) { <p><strong>{{ weightFormat.format(event.weightKg) }} kg</strong></p> }
+          @if (event.observation) { <p class="notes">{{ event.observation }}</p> }
+        </li>
+      } @empty {
+        <li>Aucun relevé pour ce résident.</li>
+      }
+    </ul>
+  </section>
+} @else {
+  <p role="status">Chargement du suivi quotidien…</p>
+}

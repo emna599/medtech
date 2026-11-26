@@ -94,6 +94,8 @@ export class ResidentSheet {
     switch (this.item().status) {
       case 'FAIT':
         return this.doneText();
+      case 'ABSENT':
+        return 'Absent';
       case 'REFUSE':
         return 'Refusé';
       case 'PLUS_TARD':
@@ -155,6 +157,19 @@ export class ResidentSheet {
       risks.push('Médicament à risque');
     }
     return risks;
+  }
+
+  protected absent(): void {
+    if (this.busy() || this.item().kind !== 'REPAS') return;
+    this.dialog.open(ConfirmDialog, {
+      data: {
+        title: 'Signaler une absence au repas',
+        message: `${this.name()} sera signalé comme absent pour ce repas.`,
+        confirmLabel: 'Confirmer l’absence',
+      },
+    }).afterClosed().subscribe(confirmed => {
+      if (confirmed) this.complete({ status: 'ABSENT' });
+    });
   }
 
   protected later(): void {

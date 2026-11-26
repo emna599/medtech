@@ -13,6 +13,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { createRequestId } from '../../../shared/utils/request-id';
 import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
 import { Doubt, HandoverBoard, HandoverRequest, ResidentCard, fullName, ServiceItem, slotLabel } from '../../../shared/models/personnel.model';
 
@@ -27,14 +28,6 @@ interface Alert {
   residentName: string;
   room: string | null;
   text: string;
-}
-
-function createRequestId(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(16));
-  bytes[6] = (bytes[6] & 0x0f) | 0x40;
-  bytes[8] = (bytes[8] & 0x3f) | 0x80;
-  const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
-  return [hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20)].join('-');
 }
 
 @Component({
@@ -94,6 +87,8 @@ export class ReleveDialog {
     for (const item of this.meals()) {
       if (item.status === 'REFUSE') {
         add(item, `a refusé le repas (${slotLabel(item.slot)})`);
+      } else if (item.status === 'ABSENT') {
+        add(item, `était absent au repas (${slotLabel(item.slot)})`);
       } else if (item.status === 'FAIT' && (item.quantityEaten === 'RIEN' || item.quantityEaten === 'QUART')) {
         add(item, `a très peu mangé (${slotLabel(item.slot)})`);
       }
@@ -247,7 +242,7 @@ export class ReleveDialog {
       const inSlot = items.filter((i) => i.slot === slot);
       return {
         slot,
-        done: inSlot.filter((i) => i.status === 'FAIT' || i.status === 'REFUSE').length,
+        done: inSlot.filter((i) => i.status === 'FAIT' || i.status === 'REFUSE' || i.status === 'ABSENT').length,
         total: inSlot.length,
       };
     });

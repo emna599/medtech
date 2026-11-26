@@ -30,7 +30,8 @@ ALTER TABLE dietary_regime ADD COLUMN IF NOT EXISTS texture VARCHAR(50);
 ALTER TABLE meal ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'A_FAIRE';
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'meal_status_chk') THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid = 'meal'::regclass
+                   AND conname IN ('meal_status_chk', 'meal_service_status_v2')) THEN
         ALTER TABLE meal ADD CONSTRAINT meal_status_chk
             CHECK (status IN ('A_FAIRE', 'FAIT', 'REFUSE', 'PLUS_TARD'));
     END IF;

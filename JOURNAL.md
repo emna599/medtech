@@ -5,6 +5,17 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — écran personnel et suivi quotidien
+
+- Corrigé la disposition du tableau personnel : outils, créneau, progression, filtres et résultats ont chacun leur espace. Les cartes ont une hauteur cohérente par rangée et des avatars plus petits. L’assistant est avec les outils, sans bouton flottant au-dessus du contenu. Les alertes et les actions de service restent visibles.
+- Ajouté **Suivi quotidien** à la fiche consultée depuis **Personnel → Résidents** et en lecture au médecin. Préférences modifiables, relevés de poids et observations datés et associés à l’auteur, historique des 30 derniers relevés. La courbe de consommation existante reste dans la fiche personnel. Pas de seuil ni de diagnostic automatique ajouté.
+- Le personnel peut modifier les préférences et saisir les relevés. Le médecin peut consulter et l’administration ne peut pas accéder à la nouvelle API. Écriture limitée aux résidents actifs, textes et poids contrôlés côté serveur, requêtes paramétrées et rendu texte. Les préférences obsolètes reçoivent 409 et la répétition d’une même saisie ne rajoute pas de relevé.
+- Au repas, **Absent**, **Refusé** et **Plus tard** restent distincts. Une absence clôt le repas sélectionné et ne compte pas dans l’appétit. Elle ne modifie pas les médicaments ni les autres repas. Pour un retour pendant le service, conserver le repas en « Plus tard » tant que l’absence définitive n’est pas établie.
+- [Cadrage du circuit des prescriptions](docs/prescriptions.md) préparé pour l’atelier IDE/médecin. Restent à valider la source de référence, les responsabilités, les transitions lorsqu’une prescription est arrêtée ou suspendue et la reprise des prises historiques. Le circuit actuel de la tournée médicaments n’a pas été modifié.
+- Migration versionnée `resident_daily.sql`. Vérifications sur base neuve et existante : 27 tests backend, 31 tests frontend, droits de lecture et d’écriture, limites de saisie, conflits de préférences, reprises de requête, refus de la double clôture du repas et parcours Chromium sur ordinateur et mobile.
+
+---
+
 ## Relais Codex du 2026-11-26 — relève persistée et interface commune
 
 - Première priorité fonctionnelle : la relève conserve les observations et actions à poursuivre avec leur auteur et leur heure. Les actions ouvertes restent affichées aux relèves suivantes. La clôture enregistre le compte et l’heure et déplace l’action dans les 30 dernières clôtures visibles. Le résumé du service reste disponible séparément et les transmissions enregistrées ne font pas partie du contenu copié.
@@ -184,7 +195,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
    - résident **sans** allergie → « Servi » direct ;
    - résident **avec** allergie/texture (ex. **Lucien ROUX · Arachides · Hachée**) → « Servi » ouvre un **dialogue de confirmation** (vérifier le plateau) ; tester *Annuler* puis *J'ai vérifié, valider* ;
    - **Refusé** → le **motif** est obligatoire ;
-   - **Plus tard** ;
+   - **Plus tard** laisse le repas à traiter ; **Absent** clôt ce repas sans quantité consommée ;
    - après « servi », saisir la **quantité mangée**.
    - si le médecin modifie une consigne alors que la fiche repas est ouverte, la validation doit être refusée et la fiche actualisée. Relire les nouvelles consignes puis relancer « Servi » ;
 5. **Doute d'identité** : « J'ai un doute sur l'identité » → signaler. Essayer de servir → **bloqué** tant que le doute n'est pas levé. Lever le doute (⚠️ un **autre** soignant doit le faire : le backend refuse la même personne).
