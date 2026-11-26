@@ -1,8 +1,8 @@
 // =============================================================================
-//  MedTech EHPAD — Design system
-//  Inspirations : Cazam (chaleur, corail, éditorial, humain)
-//                 + clarté « SaaS premium » (cartes nettes, hiérarchie forte).
-//  Typo : Fraunces (serif éditorial, titres) + Plus Jakarta Sans (UI, data).
+//  MedTech EHPAD — Design system SOBRE
+//  Neutre, à plat, angles discrets, une seule couleur d'accent (teal sobre).
+//  Pas de dégradé, pas de serif éditorial, ombres minimales, bordures nettes.
+//  Typo : Inter.
 // =============================================================================
 @use '@angular/material' as mat;
 
@@ -12,11 +12,11 @@ html {
     (
       color: (
         primary: mat.$cyan-palette,
-        tertiary: mat.$orange-palette,
+        tertiary: mat.$blue-palette,
       ),
       typography: (
-        plain-family: '"Plus Jakarta Sans", "Nunito", system-ui, sans-serif',
-        brand-family: '"Plus Jakarta Sans", "Nunito", system-ui, sans-serif',
+        plain-family: 'Inter, system-ui, sans-serif',
+        brand-family: 'Inter, system-ui, sans-serif',
       ),
       density: 0,
     )
@@ -25,132 +25,128 @@ html {
 
 body {
   color-scheme: light;
-  background: var(--app-bg) fixed;
+  background: var(--app-bg);
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
   margin: 0;
   height: 100%;
 }
 /* You can add global styles to this file, and also import other style files */
 
 // -----------------------------------------------------------------------------
-//  Jetons de marque — chaleureux, premium.  Vert soin + corail humain + crème.
+//  Jetons — neutres, sobres. Un seul accent (teal) utilisé avec parcimonie.
 // -----------------------------------------------------------------------------
 :root {
-  // Palette de marque
-  --brand-teal: #0e7a70;
-  --brand-navy: #173a52;
-  --brand-coral: #ef6b45;
-  --brand-teal-text: #0a6056;
+  --brand-teal: #0f6b63;
+  --brand-navy: #1f2b38;
+  --brand-coral: #b4532e; // accent chaud discret, pour alertes uniquement
+  --brand-teal-text: #0f6b63;
 
-  // Mapping Material 3 (couleurs système)
-  --mat-sys-primary: #0e7a70;
+  // Mapping Material (couleurs système) — sobre
+  --mat-sys-primary: #0f6b63;
   --mat-sys-on-primary: #ffffff;
-  --mat-sys-primary-container: #cdece7;
-  --mat-sys-on-primary-container: #063029;
-  --mat-sys-secondary: #173a52;
-  --mat-sys-secondary-container: #dbe7f1;
-  --mat-sys-on-secondary-container: #0c2437;
-  --mat-sys-tertiary: #e05a37;
-  --mat-sys-tertiary-container: #ffdccf;
-  --mat-sys-on-tertiary-container: #45160a;
-  --mat-sys-surface-tint: #0e7a70;
+  --mat-sys-primary-container: #d7e8e5;
+  --mat-sys-on-primary-container: #0a3b36;
+  --mat-sys-secondary: #42505f;
+  --mat-sys-secondary-container: #e7eaee;
+  --mat-sys-on-secondary-container: #27313c;
+  --mat-sys-tertiary: #8a5a1c;
+  --mat-sys-tertiary-container: #f1e6d4;
+  --mat-sys-on-tertiary-container: #4a2f08;
+  --mat-sys-surface-tint: #0f6b63;
 
-  // Surfaces chaudes (crème) + lignes douces
+  // Surfaces neutres (gris froid), bordures nettes
   --mat-sys-surface: #ffffff;
   --mat-sys-surface-container-lowest: #ffffff;
-  --mat-sys-surface-container-low: #faf5ee;
-  --mat-sys-surface-container: #f6efe5;
-  --mat-sys-surface-container-high: #f1e8da;
-  --mat-sys-on-surface: #2a2824;
-  --mat-sys-on-surface-variant: #726a5f;
-  --mat-sys-outline: #cdb9a0;
-  --mat-sys-outline-variant: #ece2d4;
+  --mat-sys-surface-container-low: #f7f8fa;
+  --mat-sys-surface-container: #f1f3f5;
+  --mat-sys-surface-container-high: #eceef1;
+  --mat-sys-on-surface: #1f2730;
+  --mat-sys-on-surface-variant: #5c6773;
+  --mat-sys-outline: #c3c9d0;
+  --mat-sys-outline-variant: #e3e6ea;
 
-  // Jetons applicatifs (utilisés par les écrans soignant/admin)
-  --app-bg: radial-gradient(1200px 600px at 85% -10%, #eef6f4 0%, rgba(238, 246, 244, 0) 60%),
-    linear-gradient(176deg, #fbf8f3 0%, #f5ede2 100%);
+  // Jetons applicatifs
+  --app-bg: #f5f6f8;
   --app-surface: #ffffff;
-  --app-surface-2: #fbf6ef;
-  --app-line: #e9ddcb;
-  --app-line-soft: #f0e8da;
-  --app-ink: #233243;
-  --app-teal-tint: #e4f3f0;
-  --app-chip-bg: #eef1f0;
-  --app-chip-ink: #334a5f;
+  --app-surface-2: #f3f4f6;
+  --app-line: #e3e6ea;
+  --app-line-soft: #eceef1;
+  --app-ink: #1f2730;
+  --app-teal-tint: #eaf2f1;
+  --app-chip-bg: #eef0f2;
+  --app-chip-ink: #3a4654;
   --app-on-ok: #ffffff;
-  --app-radius: 22px;
-  --app-shadow: 0 1px 2px rgb(42 40 36 / 6%), 0 10px 30px -10px rgb(42 40 36 / 14%);
-  --app-shadow-lg: 0 2px 6px rgb(42 40 36 / 7%), 0 24px 60px -22px rgb(23 58 82 / 24%);
-  --app-ok: #0e7a70;
-  --app-ok-bg: #e4f3f0;
-  --app-warn: #c9563e;
-  --app-warn-bg: #fff1ec;
+  --app-radius: 8px;
+  --app-shadow: 0 1px 2px rgb(16 24 40 / 5%);
+  --app-shadow-lg: 0 2px 8px rgb(16 24 40 / 8%);
+  --app-ok: #0f6b63;
+  --app-ok-bg: #eaf2f1;
+  --app-warn: #a9552a;
+  --app-warn-bg: #f7ece4;
   --app-danger: #b3261e;
-  --app-danger-bg: #fdeceb;
+  --app-danger-bg: #fbeae9;
 
-  // Rayons Material plus doux
-  --mat-sys-corner-small: 12px;
-  --mat-sys-corner-medium: 16px;
-  --mat-sys-corner-large: 22px;
+  // Rayons Material — discrets
+  --mat-sys-corner-small: 6px;
+  --mat-sys-corner-medium: 8px;
+  --mat-sys-corner-large: 10px;
 }
 
 .mat-mdc-snack-bar-container {
-  --mat-snack-bar-container-shape: 14px;
+  --mat-snack-bar-container-shape: 8px;
 }
 
 .mat-mdc-dialog-container {
-  --mat-dialog-container-shape: 26px;
+  --mat-dialog-container-shape: 12px;
 }
 
 // -----------------------------------------------------------------------------
-//  Mode sombre
+//  Mode sombre — sobre
 // -----------------------------------------------------------------------------
 :root[data-theme='dark'] {
-  --brand-teal: #11857a;
-  --brand-teal-text: #68dccb;
-  --mat-sys-primary: #68dccb;
-  --mat-sys-on-primary: #00302c;
-  --mat-sys-primary-container: #0a5049;
-  --mat-sys-on-primary-container: #b4f1e9;
-  --mat-sys-secondary: #a9c8ea;
-  --mat-sys-secondary-container: #284a6b;
-  --mat-sys-on-secondary-container: #dbe7f3;
-  --mat-sys-tertiary: #ffb49e;
-  --mat-sys-tertiary-container: #6b2a1a;
-  --mat-sys-on-tertiary-container: #ffdccf;
-  --mat-sys-surface-tint: #68dccb;
-  --mat-sys-surface: #141c20;
-  --mat-sys-surface-container-lowest: #0f161a;
-  --mat-sys-surface-container-low: #182227;
-  --mat-sys-surface-container: #1d282d;
-  --mat-sys-surface-container-high: #243036;
-  --mat-sys-on-surface: #e7eef0;
-  --mat-sys-on-surface-variant: #b9c3c2;
-  --mat-sys-outline: #4a5b5a;
-  --mat-sys-outline-variant: #2c3d40;
-  --app-bg: radial-gradient(1200px 600px at 85% -10%, #10302c 0%, rgba(16, 48, 44, 0) 60%),
-    linear-gradient(176deg, #0e1519 0%, #121a1f 100%);
-  --app-surface: #1b262d;
-  --app-surface-2: #141d22;
-  --app-line: #35504f;
-  --app-line-soft: #2a3d40;
-  --app-ink: #e6eef0;
-  --app-teal-tint: #17403c;
-  --app-chip-bg: #2a3a44;
-  --app-chip-ink: #cfe0e6;
-  --app-on-ok: #00302c;
-  --app-ok: #4fd1b8;
-  --app-ok-bg: #123a35;
-  --app-warn: #ff9a85;
-  --app-warn-bg: #3d2520;
+  --brand-teal: #3fb9ac;
+  --brand-teal-text: #58c7ba;
+  --mat-sys-primary: #58c7ba;
+  --mat-sys-on-primary: #003732;
+  --mat-sys-primary-container: #0b4b45;
+  --mat-sys-on-primary-container: #cdeae5;
+  --mat-sys-secondary: #aeb8c4;
+  --mat-sys-secondary-container: #333d48;
+  --mat-sys-on-secondary-container: #dde3ea;
+  --mat-sys-tertiary: #e0b070;
+  --mat-sys-tertiary-container: #4a330f;
+  --mat-sys-on-tertiary-container: #f3e6d0;
+  --mat-sys-surface-tint: #58c7ba;
+  --mat-sys-surface: #161b21;
+  --mat-sys-surface-container-lowest: #11161b;
+  --mat-sys-surface-container-low: #1b2127;
+  --mat-sys-surface-container: #1f262d;
+  --mat-sys-surface-container-high: #272f37;
+  --mat-sys-on-surface: #e4e8ec;
+  --mat-sys-on-surface-variant: #aab4bf;
+  --mat-sys-outline: #495058;
+  --mat-sys-outline-variant: #2b323a;
+  --app-bg: #0f1419;
+  --app-surface: #161b21;
+  --app-surface-2: #11161b;
+  --app-line: #2b323a;
+  --app-line-soft: #232a31;
+  --app-ink: #e4e8ec;
+  --app-teal-tint: #123a36;
+  --app-chip-bg: #242c34;
+  --app-chip-ink: #c7d0da;
+  --app-on-ok: #003732;
+  --app-ok: #58c7ba;
+  --app-ok-bg: #123a36;
+  --app-warn: #e0a06a;
+  --app-warn-bg: #352616;
   --app-danger: #ff8a80;
-  --app-danger-bg: #3d1f1d;
-  --app-shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 12px 30px -12px rgb(0 0 0 / 55%);
-  --app-shadow-lg: 0 2px 6px rgb(0 0 0 / 45%), 0 28px 64px -24px rgb(0 0 0 / 60%);
+  --app-danger-bg: #3a1f1d;
+  --app-shadow: 0 1px 2px rgb(0 0 0 / 35%);
+  --app-shadow-lg: 0 2px 10px rgb(0 0 0 / 45%);
 }
 
 :root[data-theme='dark'] body {
@@ -158,41 +154,33 @@ body {
 }
 
 // -----------------------------------------------------------------------------
-//  Typo éditoriale — Fraunces pour les grands titres (toute l'app).
+//  Titres — sans-serif, sobres (pas de serif).
 // -----------------------------------------------------------------------------
 .display,
 .page-head h1 {
-  font-family: 'Fraunces', 'Times New Roman', serif;
-  font-optical-sizing: auto;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 650;
   letter-spacing: -0.01em;
 }
 
 // -----------------------------------------------------------------------------
-//  Polish global — boutons, cartes, champs, scrollbar.
+//  Polish global — discret.
 // -----------------------------------------------------------------------------
-// Boutons pleins (CTA) : plus hauts, arrondis, ombre tactile douce.
 .mat-mdc-unelevated-button.mat-mdc-button-base,
-.mat-mdc-raised-button.mat-mdc-button-base {
-  --mdc-filled-button-container-shape: 12px;
-  height: 46px;
-  padding: 0 22px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
 .mat-mdc-outlined-button.mat-mdc-button-base {
-  --mdc-outlined-button-container-shape: 12px;
-  height: 46px;
-  font-weight: 700;
+  --mdc-filled-button-container-shape: 7px;
+  --mdc-outlined-button-container-shape: 7px;
+  height: 42px;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
-// Cartes Material : rayon + ombre douce cohérents.
 .mat-mdc-card.mat-mdc-card {
   border-radius: var(--app-radius);
   border: 1px solid var(--mat-sys-outline-variant);
-  box-shadow: var(--app-shadow);
+  box-shadow: none;
 }
 
-// Barre de défilement discrète.
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--mat-sys-outline) transparent;
@@ -203,30 +191,30 @@ body {
 }
 *::-webkit-scrollbar-thumb {
   background: var(--mat-sys-outline);
-  border-radius: 999px;
+  border-radius: 4px;
   border: 3px solid transparent;
   background-clip: content-box;
 }
 
-// ==== Utilitaires des pages ADMIN (repris de feature/admin-users, modernisés) ====
+// ==== Utilitaires des pages ADMIN ====
 .page-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 
   h1 {
-    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.1rem);
-    font-weight: 600;
-    line-height: 1.1;
+    font-size: 1.5rem;
+    font-weight: 650;
+    line-height: 1.2;
     margin: 0;
     color: var(--mat-sys-on-surface);
   }
 
   p {
-    margin: 6px 0 0;
+    margin: 4px 0 0;
     color: var(--mat-sys-on-surface-variant);
   }
 }
@@ -236,7 +224,7 @@ body {
   border: 1px solid var(--mat-sys-outline-variant);
   border-radius: var(--app-radius);
   padding: 8px 16px;
-  box-shadow: var(--app-shadow);
+  box-shadow: none;
 
   table {
     width: 100%;
@@ -278,8 +266,8 @@ tr.clickable {
 
 .badge {
   display: inline-block;
-  padding: 3px 11px;
-  border-radius: 999px;
+  padding: 2px 9px;
+  border-radius: 5px;
   font-size: 12px;
   font-weight: 600;
   background: var(--mat-sys-secondary-container);

@@ -5,64 +5,60 @@
 .auth {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 1.05fr 1fr;
+  grid-template-columns: 1fr 1fr;
 }
 
 // ---------------------------------------------------------------- Brand panel
 .auth__brand {
-  position: relative;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 32px;
-  padding: 44px 52px;
-  color: #fff;
-  background:
-    radial-gradient(900px 500px at 12% 8%, rgba(239, 107, 69, 0.42) 0%, rgba(239, 107, 69, 0) 55%),
-    linear-gradient(158deg, #0e7a70 0%, #0b5f58 46%, #123a52 100%);
+  padding: 48px 56px;
+  color: #e9edf1;
+  background: var(--brand-navy);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .brand-chrome .logo {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-weight: 800;
-  font-size: 1.3rem;
-  letter-spacing: 0.01em;
+  font-weight: 700;
+  font-size: 1.15rem;
 
   mat-icon {
-    color: #ffd9cc;
+    color: var(--brand-teal);
   }
 }
 
 .brand-hero {
-  position: relative;
-  z-index: 2;
-  max-width: 30rem;
+  max-width: 28rem;
 }
 
 .eyebrow {
   margin: 0 0 14px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(233, 237, 241, 0.55);
 }
 
 .brand-title {
-  margin: 0 0 18px;
-  font-size: clamp(2.4rem, 1.6rem + 3vw, 3.5rem);
-  font-weight: 600;
-  line-height: 1.04;
+  margin: 0 0 16px;
+  font-size: clamp(1.8rem, 1.3rem + 1.8vw, 2.4rem);
+  font-weight: 650;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  color: #fff;
 }
 
 .brand-lead {
   margin: 0 0 30px;
-  font-size: 1.06rem;
+  font-size: 0.98rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.86);
+  color: rgba(233, 237, 241, 0.72);
 }
 
 .brand-points {
@@ -70,59 +66,29 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 14px;
+  gap: 12px;
 
   li {
     display: flex;
     align-items: center;
-    gap: 13px;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.95);
+    gap: 11px;
+    font-size: 0.92rem;
+    color: rgba(233, 237, 241, 0.9);
   }
 
   mat-icon {
     flex: none;
-    display: grid;
-    place-items: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 11px;
-    background: rgba(255, 255, 255, 0.14);
-    color: #ffd9cc;
-    backdrop-filter: blur(2px);
+    font-size: 19px;
+    width: 19px;
+    height: 19px;
+    color: var(--brand-teal);
   }
 }
 
 .brand-foot {
-  position: relative;
-  z-index: 2;
   margin: 0;
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(2px);
-  opacity: 0.5;
-  z-index: 1;
-
-  &--1 {
-    right: -120px;
-    bottom: -120px;
-    width: 360px;
-    height: 360px;
-    background: radial-gradient(circle, rgba(239, 107, 69, 0.55) 0%, rgba(239, 107, 69, 0) 70%);
-  }
-
-  &--2 {
-    right: 8%;
-    top: -80px;
-    width: 220px;
-    height: 220px;
-    background: radial-gradient(circle, rgba(104, 220, 203, 0.45) 0%, rgba(104, 220, 203, 0) 70%);
-  }
+  font-size: 0.78rem;
+  color: rgba(233, 237, 241, 0.4);
 }
 
 // ----------------------------------------------------------------- Form panel
@@ -130,41 +96,40 @@
   display: grid;
   place-items: center;
   padding: 40px 24px;
-  background: var(--app-bg);
+  background: var(--app-surface);
 }
 
 .form-wrap {
   width: 100%;
-  max-width: 404px;
+  max-width: 380px;
 }
 
 .form-head {
-  text-align: center;
   margin-bottom: 26px;
 }
 
 .form-mark {
   display: inline-grid;
   place-items: center;
-  width: 60px;
-  height: 60px;
-  margin-bottom: 14px;
-  border-radius: 18px;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 16px;
+  border-radius: 9px;
   color: #fff;
-  background: linear-gradient(145deg, #0e7a70, #0b5f58);
-  box-shadow: 0 10px 24px -8px rgba(14, 122, 112, 0.6);
+  background: var(--brand-teal);
 
   mat-icon {
-    font-size: 30px;
-    width: 30px;
-    height: 30px;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
   }
 }
 
 .form-title {
   margin: 0 0 4px;
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
   color: var(--mat-sys-on-surface);
 }
 
@@ -178,10 +143,10 @@
   align-items: center;
   gap: 10px;
   margin: 0 0 18px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: var(--app-warn-bg);
-  color: var(--app-warn);
+  padding: 11px 13px;
+  border-radius: 7px;
+  background: var(--app-danger-bg);
+  color: var(--app-danger);
   font-weight: 500;
 
   mat-icon {
@@ -198,26 +163,20 @@
 
 .submit-button.mat-mdc-unelevated-button.mat-mdc-button-base {
   width: 100%;
-  height: 52px;
+  height: 46px;
   margin-top: 6px;
-  font-size: 1rem;
-  font-weight: 700;
-  --mdc-filled-button-container-color: var(--brand-coral);
+  font-size: 0.95rem;
+  font-weight: 600;
+  --mdc-filled-button-container-color: var(--brand-teal);
   --mdc-filled-button-label-text-color: #fff;
-  --mdc-filled-button-container-shape: 14px;
-  background-color: var(--brand-coral);
+  --mdc-filled-button-container-shape: 7px;
+  background-color: var(--brand-teal);
   color: #fff;
-  box-shadow: 0 10px 22px -10px rgba(239, 107, 69, 0.7);
-
-  &:hover {
-    background-color: #e4572f;
-  }
 }
 
 .form-legal {
-  margin: 22px 0 0;
-  text-align: center;
-  font-size: 0.8rem;
+  margin: 20px 0 0;
+  font-size: 0.78rem;
   color: var(--mat-sys-on-surface-variant);
 }
 
@@ -228,13 +187,10 @@
   }
 
   .auth__brand {
-    padding: 30px 28px;
-    gap: 20px;
-  }
-
-  .brand-title {
-    font-size: clamp(2rem, 1.4rem + 4vw, 2.6rem);
-    margin-bottom: 10px;
+    padding: 28px 28px;
+    gap: 16px;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
 
   .brand-lead,
