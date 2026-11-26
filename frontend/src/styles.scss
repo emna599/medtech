@@ -473,3 +473,33 @@ tr.clickable {
 .service-page .tool-group h2 {
   font-size: 1.1rem;
 }
+
+.cue-title {
+  display: flex;
+  align-items: center;
+  gap: .65em;
+  min-width: 0;
+}
+
+.cue-title > :last-child { min-width: 0; overflow-wrap: anywhere; }
+
+.visual-cue {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.65em;
+  height: 1.65em;
+  border-radius: .46em;
+  font-size: 1em;
+  color: var(--mat-sys-on-primary-container);
+  background: var(--mat-sys-primary-container);
+}
+
+.visual-cue.cue--blue { background: #dbeafb; color: #173f71; }
+.visual-cue.cue--violet { background: #eee5fa; color: #49267d; }
+.visual-cue.cue--amber { background: var(--app-warn-bg); color: var(--app-warn); }
+
+[data-theme='dark'] .visual-cue.cue--blue { background: #263f5b; color: #d1e7ff; }
+[data-theme='dark'] .visual-cue.cue--violet { background: #453052; color: #f3ddff; }
+
+h2.cue-title > .visual-cue { width: 1.9em; height: 1.9em; }

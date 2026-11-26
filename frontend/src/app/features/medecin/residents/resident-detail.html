@@ -22,14 +22,14 @@
     <app-resident-overview [resident]="currentResident" />
 
     <section aria-labelledby="daily-title">
-      <h2 id="daily-title">Suivi quotidien</h2>
+      <h2 id="daily-title" class="cue-title"><span class="material-symbols-outlined visual-cue" aria-hidden="true">monitor_heart</span><span>Suivi quotidien</span></h2>
       <mat-card appearance="outlined"><mat-card-content>
         <app-resident-daily [residentId]="currentResident.id" />
       </mat-card-content></mat-card>
     </section>
 
     <section class="medical-record" aria-labelledby="medical-record-title">
-      <h2 id="medical-record-title">Dossier médical</h2>
+      <h2 id="medical-record-title" class="cue-title"><span class="material-symbols-outlined visual-cue cue--blue" aria-hidden="true">medical_information</span><span>Dossier médical</span></h2>
       @if (medicalEditing()) {
         <mat-card appearance="outlined"><mat-card-content>
           <form [formGroup]="medicalForm" (ngSubmit)="saveMedicalRecord()" class="medical-form">
@@ -101,7 +101,7 @@
     <section class="management-section" aria-labelledby="allergies-title">
       <header class="section-header">
         <div>
-          <h2 id="allergies-title">Allergies</h2>
+          <h2 id="allergies-title" class="cue-title"><span class="material-symbols-outlined visual-cue cue--amber" aria-hidden="true">warning</span><span>Allergies</span></h2>
           <p>Allergies connues du résident.</p>
         </div>
         <button
@@ -220,7 +220,7 @@
     <section class="management-section" aria-labelledby="dietary-regimes-title">
       <header class="section-header">
         <div>
-          <h2 id="dietary-regimes-title">Régimes alimentaires</h2>
+          <h2 id="dietary-regimes-title" class="cue-title"><span class="material-symbols-outlined visual-cue" aria-hidden="true">restaurant_menu</span><span>Régimes alimentaires</span></h2>
           <p>Consignes et adaptations alimentaires du résident.</p>
         </div>
         <button

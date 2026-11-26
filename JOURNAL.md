@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — repères visuels et pied de page
+
+- Ajouté des repères Material Symbols aux écrans principaux et aux sections de soin, à la tournée et aux panneaux d’équipe. Les pictogrammes accompagnent le libellé. La tournée donne une consigne de départ et met en évidence les changements de consignes par une icône et du texte.
+- Retiré le motif de plan du pied de page. Les raccourcis existants ont leur pictogramme et une destination par rôle. Le guide des parcours est à jour.
+- Build et 33 tests frontend réussis. Vérifié dans Chromium en clair et en sombre pour les trois rôles, de 320 à 1 920 px, avec ouverture du service en salle et navigation depuis le pied de page.
+
+---
+
 ## Relais Codex du 2026-11-26 — identité visuelle du site
 
 - Harmonisé l’en-tête, les boutons et les liens avec le vert du logo MedTech. Le logo de l’en-tête ramène à l’accueil du rôle. Le pied de page regroupe les raccourcis utiles en colonnes, séparés du retour en haut. Le motif de plan, de repère et de conversation est décoratif.

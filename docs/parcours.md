@@ -4,7 +4,7 @@
 
 - Connectez-vous avec un compte de démonstration du rôle à présenter, sur une base fictive.
 - Les titres, les cartes et les commandes sont lisibles dès l’ouverture, avec une taille adaptée à la largeur de l’écran. Dans l’en-tête, le logo ramène à l’accueil de votre rôle et le bouton lune ou soleil règle le thème. Le pied de page propose les raccourcis du rôle et **Haut de page**.
-- Côté personnel, cherchez les actions sous **Résidents et repas**, **Équipe et transmissions** ou **Assistance**. Les statuts et alertes associent texte et icône.
+- Côté personnel, cherchez les actions sous **Résidents et repas**, **Équipe et transmissions** ou **Assistance**. Les pictogrammes indiquent les sections et les commandes. Les statuts et alertes associent texte et icône.
 
 ## Administration
 

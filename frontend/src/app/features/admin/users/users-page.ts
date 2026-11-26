@@ -40,7 +40,7 @@ import { UserFormDialog } from './user-form-dialog';
   template: `
     <header class="page-head">
       <div>
-        <h1>Comptes utilisateurs</h1>
+        <h1 class="cue-title"><span class="material-symbols-outlined visual-cue cue--violet" aria-hidden="true">manage_accounts</span><span>Comptes utilisateurs</span></h1>
         <p>{{ filtered().length }} compte(s) affiché(s) sur {{ users().length }}</p>
       </div>
       <button mat-flat-button type="button" (click)="openForm()">

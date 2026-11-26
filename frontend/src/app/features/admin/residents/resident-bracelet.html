@@ -1,7 +1,7 @@
 <section class="management-section qr-section" aria-labelledby="qr-code-title">
   <header class="section-header">
     <div>
-      <h2 id="qr-code-title">Bracelet d’identification</h2>
+      <h2 id="qr-code-title" class="cue-title"><span class="material-symbols-outlined visual-cue cue--blue" aria-hidden="true">qr_code_2</span><span>Bracelet d’identification</span></h2>
       <p>Les équipes autorisées utilisent ce code pour vérifier l’identité du résident.</p>
     </div>
     <button
@@ -27,7 +27,7 @@
     </section>
   } @else if (activeQrCode(); as currentQrCode) {
     <div class="qr-details">
-      <span class="work-status">Actif</span>
+      <span class="work-status"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon> Actif</span>
       <p>Créé le {{ currentQrCode.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
       <div class="qr-actions">
         <button mat-stroked-button type="button" [disabled]="qrCodeSaving()"
@@ -74,7 +74,7 @@
     <p class="empty-state">Aucun code QR actif pour ce résident.</p>
     @if (latestQrCode(); as latestQrCode) {
       <div class="inactive-qr-summary">
-        <span class="work-status inactive">Inactif</span>
+        <span class="work-status inactive"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">block</mat-icon> Inactif</span>
         <p>
           <strong>Dernier code créé le :</strong>
           {{ latestQrCode.createdAt | date: 'dd/MM/yyyy HH:mm' }}

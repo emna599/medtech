@@ -18,7 +18,7 @@ import { AdminDashboardService } from './admin-dashboard.service';
   template: `
     <header class="page-head">
       <div>
-        <h1>Tableau de bord</h1>
+        <h1 class="cue-title"><span class="material-symbols-outlined visual-cue" aria-hidden="true">dashboard</span><span>Tableau de bord</span></h1>
         <p>Vue d'ensemble de l'établissement</p>
       </div>
     </header>

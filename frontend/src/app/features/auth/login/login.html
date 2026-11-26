@@ -1,7 +1,9 @@
 <main class="auth">
   <section class="form-wrap work-card" aria-labelledby="sign-in-title">
     <div class="login-brand"><app-logo [size]="36" /> <span>MedTech EHPAD</span></div>
-    <h1 id="sign-in-title">Connexion</h1>
+    <h1 id="sign-in-title" class="cue-title">
+      <span class="material-symbols-outlined visual-cue" aria-hidden="true">lock</span><span>Connexion</span>
+    </h1>
       @if (errorMessage() ?? logoutNotice(); as message) {
         <p class="error-banner" role="alert">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">error</mat-icon>

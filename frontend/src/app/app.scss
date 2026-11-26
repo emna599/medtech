@@ -27,7 +27,7 @@
 
 .footer-inner {
   display: grid;
-  grid-template-columns: minmax(10rem, 1fr) minmax(0, 1.6fr) minmax(7rem, .75fr);
+  grid-template-columns: minmax(10rem, 1fr) minmax(0, 1.35fr);
   gap: 1rem 2rem;
   padding-block: clamp(24px, 3.5vw, 48px);
 }
@@ -62,58 +62,6 @@
   color: var(--site-footer-link);
 }
 
-.footer-map {
-  position: relative;
-  min-height: 100px;
-  overflow: hidden;
-  border-radius: 10px;
-  border: 1px solid #52786c;
-  background-color: #193f36;
-  background-image:
-    repeating-linear-gradient(0deg, transparent 0 19px, #315c50 19px 20px),
-    repeating-linear-gradient(90deg, transparent 0 25px, #315c50 25px 26px);
-}
-
-.map-route {
-  position: absolute;
-  inset: 34% 25% 32% 22%;
-  border-left: 1px solid #9dc1af;
-  border-bottom: 1px solid #9dc1af;
-  border-bottom-left-radius: 8px;
-  transform: skewX(-20deg);
-}
-
-.map-pin,
-.map-message {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-}
-
-.map-pin {
-  top: 15%;
-  left: 15%;
-  background: #dbeee6;
-  color: #143f35;
-}
-
-.map-message {
-  right: 15%;
-  bottom: 15%;
-  background: #28594c;
-  color: #ecf8f3;
-  border: 1px solid #9dc1af;
-}
-
-.footer-map .material-symbols-outlined {
-  width: 17px;
-  height: 17px;
-  font-size: 17px;
-}
-
 .footer-nav--admin {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -139,7 +87,8 @@
   text-underline-offset: 4px;
 }
 
-.footer-inner a { display: inline-block; padding-block: 6px; }
+.footer-inner a { display: inline-flex; align-items: center; gap: 8px; padding-block: 6px; }
+.footer-inner a .material-symbols-outlined { font-size: 19px; flex-shrink: 0; }
 .site-footer :is(a, button):hover { text-decoration: underline; }
 
 .footer-utilities {
@@ -159,14 +108,12 @@
 }
 
 .footer-utilities button { font-size: .9rem; }
-.footer-utilities button span { font-size: 1.2rem; text-decoration: none; }
 .site-footer:has(.footer-utilities) .footer-inner { border-bottom: 1px solid var(--site-footer-rule); }
 .site-footer--guest .footer-inner { display: block; padding-block: 14px; }
 .site-footer :is(a, button):focus-visible { outline: 2px solid var(--site-footer-link); outline-offset: 3px; }
 
 @media (max-width: 900px) {
   .footer-inner { grid-template-columns: minmax(10rem, 1fr) minmax(0, 1.5fr); }
-  .footer-map { display: none; }
 }
 
 @media (max-width: 650px) {

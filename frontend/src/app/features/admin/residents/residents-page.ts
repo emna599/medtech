@@ -40,7 +40,7 @@ import { ResidentFormDialog } from './resident-form-dialog';
   template: `
     <header class="page-head">
       <div>
-        <h1>Résidents</h1>
+        <h1 class="cue-title"><span class="material-symbols-outlined visual-cue" aria-hidden="true">groups</span><span>Résidents</span></h1>
         <p>{{ dataSource.data.length }} résultat(s)</p>
       </div>
       <button mat-flat-button type="button" (click)="openForm()">

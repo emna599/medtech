@@ -1,7 +1,18 @@
 <app-toolbar />
 
 <main class="work-page service-page">
-  <header class="page-head"><h1>{{ kind() === 'REPAS' ? 'Repas' : 'Médicaments' }}</h1></header>
+  <header class="page-head">
+    <div>
+      <h1 class="cue-title">
+        <span class="material-symbols-outlined visual-cue" [class.cue--blue]="kind() === 'MEDICAMENT'"
+          aria-hidden="true">{{ kind() === 'REPAS' ? 'restaurant' : 'medication' }}</span>
+        <span>{{ kind() === 'REPAS' ? 'Repas' : 'Médicaments' }}</span>
+      </h1>
+      <p>{{ kind() === 'REPAS'
+        ? 'Choisissez un créneau et un lieu, puis ouvrez la fiche du résident pour servir.'
+        : 'Choisissez un créneau, puis ouvrez la fiche du résident pour vérifier la prise.' }}</p>
+    </div>
+  </header>
   <section class="top">
     <mat-button-toggle-group
       class="kind"
@@ -22,7 +33,7 @@
 
     <div class="tools">
       <div class="tool-group" role="group" aria-label="Résidents et repas">
-        <h2>Résidents et repas</h2>
+        <h2 class="cue-title"><span class="material-symbols-outlined visual-cue" aria-hidden="true">room_service</span><span>Résidents et repas</span></h2>
         <div class="tool-buttons">
           <button mat-stroked-button type="button" (click)="openResidents()">
             <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
@@ -39,7 +50,7 @@
         </div>
       </div>
       <div class="tool-group" role="group" aria-label="Équipe et transmissions">
-        <h2>Équipe et transmissions</h2>
+        <h2 class="cue-title"><span class="material-symbols-outlined visual-cue cue--blue" aria-hidden="true">diversity_3</span><span>Équipe et transmissions</span></h2>
         <div class="tool-buttons">
           <button mat-stroked-button type="button" (click)="openReleve()">
             <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
@@ -60,7 +71,7 @@
         </div>
       </div>
       <div class="tool-group" role="group" aria-label="Assistance">
-        <h2>Assistance</h2>
+        <h2 class="cue-title"><span class="material-symbols-outlined visual-cue cue--violet" aria-hidden="true">support_agent</span><span>Assistance</span></h2>
         <div class="tool-buttons">
           <button mat-stroked-button type="button" (click)="openAssistant()">
             <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">support_agent</mat-icon>
@@ -72,12 +83,18 @@
   </section>
 
   @if (kind() === 'REPAS' && refreshUnavailable()) {
-    <p role="status">Actualisation des consignes indisponible. Réessayez avant de préparer ou servir.</p>
+    <p class="meal-change" role="status">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">sync_problem</mat-icon>
+      <span>Actualisation des consignes indisponible. Réessayez avant de préparer ou servir.</span>
+    </p>
   }
   @if (changedMealResidents().length) {
     <aside class="meal-change" role="status">
-      <strong>Consignes de repas modifiées aujourd’hui</strong>
-      <p>{{ changedMealResidents().join(', ') }}. Revérifiez les plateaux déjà préparés.</p>
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">assignment_late</mat-icon>
+      <div>
+        <strong>Consignes de repas modifiées aujourd’hui</strong>
+        <p>{{ changedMealResidents().join(', ') }}. Revérifiez les plateaux déjà préparés.</p>
+      </div>
     </aside>
   }
 

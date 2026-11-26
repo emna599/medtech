@@ -45,6 +45,14 @@ export class DiningDialog {
     A_FAIRE: 'À faire', FAIT: 'Servi', ABSENT: 'Absent', REFUSE: 'Refusé', PLUS_TARD: 'Plus tard',
   };
 
+  protected readonly statusIcons: Readonly<Record<ServiceStatus, string>> = {
+    A_FAIRE: 'pending_actions',
+    FAIT: 'check_circle',
+    ABSENT: 'person_off',
+    REFUSE: 'block',
+    PLUS_TARD: 'schedule',
+  };
+
   constructor() {
     this.load();
   }

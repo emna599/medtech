@@ -14,39 +14,34 @@
             <div>
               <strong>Établissement</strong>
               <ul>
-                <li><a routerLink="/admin/residents">Résidents</a></li>
-                <li><a routerLink="/admin/rooms">Chambres et étages</a></li>
+                <li><a routerLink="/admin/residents"><span class="material-symbols-outlined" aria-hidden="true">groups</span><span>Résidents</span></a></li>
+                <li><a routerLink="/admin/rooms"><span class="material-symbols-outlined" aria-hidden="true">bed</span><span>Chambres et étages</span></a></li>
               </ul>
             </div>
             <div>
               <strong>Administration</strong>
               <ul>
-                <li><a routerLink="/admin">Tableau de bord</a></li>
-                <li><a routerLink="/admin/users">Comptes</a></li>
+                <li><a routerLink="/admin"><span class="material-symbols-outlined" aria-hidden="true">dashboard</span><span>Tableau de bord</span></a></li>
+                <li><a routerLink="/admin/users"><span class="material-symbols-outlined" aria-hidden="true">manage_accounts</span><span>Comptes</span></a></li>
               </ul>
             </div>
           }
           @case ('PERSONNEL') {
             <strong>Personnel</strong>
-            <ul><li><a routerLink="/personnel">Tournées et service</a></li></ul>
+            <ul><li><a routerLink="/personnel"><span class="material-symbols-outlined" aria-hidden="true">room_service</span><span>Tournées et service</span></a></li></ul>
           }
           @case ('MEDECIN') {
             <strong>Médecin</strong>
-            <ul><li><a routerLink="/medecin/residents">Annuaire des résidents</a></li></ul>
+            <ul><li><a routerLink="/medecin/residents"><span class="material-symbols-outlined" aria-hidden="true">clinical_notes</span><span>Annuaire des résidents</span></a></li></ul>
           }
         }
       </nav>
-      <div class="footer-map" aria-hidden="true">
-        <span class="map-route"></span>
-        <span class="map-pin"><span class="material-symbols-outlined">location_on</span></span>
-        <span class="map-message"><span class="material-symbols-outlined">chat_bubble</span></span>
-      </div>
     }
   </div>
   @if (role()) {
     <div class="footer-utilities">
       <button type="button" (click)="backToTop(pageStart)">
-        <span aria-hidden="true">↑</span> Haut de page
+        Haut de page
       </button>
     </div>
   }

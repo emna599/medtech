@@ -41,7 +41,7 @@ type Availability = 'all' | 'free' | 'full';
   template: `
     <header class="page-head">
       <div>
-        <h1>Chambres et étages</h1>
+        <h1 class="cue-title"><span class="material-symbols-outlined visual-cue cue--blue" aria-hidden="true">bed</span><span>Chambres et étages</span></h1>
         <p>{{ filtered().length }} chambre(s) affichée(s) sur {{ rooms().length }}</p>
       </div>
       <button mat-flat-button type="button" (click)="openForm()">

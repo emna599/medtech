@@ -224,10 +224,15 @@ ul.grid {
 }
 
 .meal-change {
-  margin-block: 12px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  margin: 0;
   padding: 12px 16px;
-  background: var(--mat-sys-tertiary-container);
-  color: var(--mat-sys-on-tertiary-container);
+  border-inline-start: 4px solid var(--app-warn);
+  background: var(--app-warn-bg);
+  color: var(--app-warn);
   border-radius: 8px;
 }
 
