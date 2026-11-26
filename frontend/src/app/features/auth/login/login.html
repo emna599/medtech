@@ -1,14 +1,59 @@
-<main class="login-page">
-  <mat-card class="login-card" appearance="outlined">
-    <mat-card-content>
-      <div class="brand">
-        <mat-icon class="brand-icon" fontSet="material-symbols-outlined" aria-hidden="true">medical_services</mat-icon>
-        <h1 class="brand-title">MedTech EHPAD</h1>
-        <p class="brand-subtitle">Connectez-vous pour accéder à votre espace</p>
+<main class="auth">
+  <!-- Panneau de marque (gauche) -->
+  <section class="auth__brand">
+    <div class="brand-chrome">
+      <span class="logo">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">health_and_safety</mat-icon>
+        MedTech
+      </span>
+    </div>
+
+    <div class="brand-hero">
+      <p class="eyebrow">Plateforme de soin en EHPAD</p>
+      <h2 class="display brand-title">Prendre soin,<br />avec justesse.</h2>
+      <p class="brand-lead">
+        Identification des résidents, repas, traitements et dossier médical — réunis dans une
+        interface claire, sûre et profondément humaine.
+      </p>
+
+      <ul class="brand-points">
+        <li>
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">verified_user</mat-icon>
+          <span>Identification sécurisée par QR code</span>
+        </li>
+        <li>
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
+          <span>Le bon repas, au bon résident</span>
+        </li>
+        <li>
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">clinical_notes</mat-icon>
+          <span>Dossier médical toujours à jour</span>
+        </li>
+      </ul>
+    </div>
+
+    <p class="brand-foot">© MedTech — Résidences & EHPAD</p>
+
+    <span class="blob blob--1" aria-hidden="true"></span>
+    <span class="blob blob--2" aria-hidden="true"></span>
+  </section>
+
+  <!-- Formulaire (droite) -->
+  <section class="auth__form">
+    <div class="form-wrap">
+      <div class="form-head">
+        <span class="form-mark">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">health_and_safety</mat-icon>
+        </span>
+        <h1 class="display form-title">Bienvenue</h1>
+        <p class="form-sub">Connectez-vous pour accéder à votre espace</p>
       </div>
 
       @if (errorMessage(); as message) {
-        <p class="error-banner" role="alert">{{ message }}</p>
+        <p class="error-banner" role="alert">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">error</mat-icon>
+          <span>{{ message }}</span>
+        </p>
       }
 
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
@@ -52,6 +97,8 @@
           }
         </button>
       </form>
-    </mat-card-content>
-  </mat-card>
+
+      <p class="form-legal">Accès réservé au personnel autorisé · Données protégées</p>
+    </div>
+  </section>
 </main>

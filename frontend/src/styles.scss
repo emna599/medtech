@@ -1,8 +1,9 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
+// =============================================================================
+//  MedTech EHPAD — Design system
+//  Inspirations : Cazam (chaleur, corail, éditorial, humain)
+//                 + clarté « SaaS premium » (cartes nettes, hiérarchie forte).
+//  Typo : Fraunces (serif éditorial, titres) + Plus Jakarta Sans (UI, data).
+// =============================================================================
 @use '@angular/material' as mat;
 
 html {
@@ -14,8 +15,8 @@ html {
         tertiary: mat.$orange-palette,
       ),
       typography: (
-        plain-family: 'Nunito, Roboto, sans-serif',
-        brand-family: 'Nunito, Roboto, sans-serif',
+        plain-family: '"Plus Jakarta Sans", "Nunito", system-ui, sans-serif',
+        brand-family: '"Plus Jakarta Sans", "Nunito", system-ui, sans-serif',
       ),
       density: 0,
     )
@@ -23,60 +24,78 @@ html {
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
   color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
   background: var(--app-bg) fixed;
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   margin: 0;
   height: 100%;
 }
 /* You can add global styles to this file, and also import other style files */
 
-// Thème « santé et repas » : vert apaisant, touches chaudes, grandes zones tactiles.
+// -----------------------------------------------------------------------------
+//  Jetons de marque — chaleureux, premium.  Vert soin + corail humain + crème.
+// -----------------------------------------------------------------------------
 :root {
-  // Palette du logo MedTech : vert-bleu, bleu nuit, corail.
-  --brand-teal: #0f766e;
-  --brand-navy: #12365c;
-  --brand-coral: #e8715a;
-  --mat-sys-primary: #0f766e;
-  --mat-sys-on-primary: #fff;
-  --mat-sys-primary-container: #cdeeea;
-  --mat-sys-on-primary-container: #00302c;
-  --mat-sys-secondary: #12365c;
-  --mat-sys-secondary-container: #dbe7f3;
-  --mat-sys-on-secondary-container: #0b2540;
-  --mat-sys-tertiary: #b9472f;
-  --mat-sys-tertiary-container: #ffdcd3;
-  --mat-sys-on-tertiary-container: #3d0e03;
-  --mat-sys-surface-tint: #0f766e;
-  --brand-teal-text: #0f766e;
-  --app-bg: linear-gradient(180deg, #eff7f6 0%, #f8f6f3 100%);
-  --app-surface: #fff;
-  --app-surface-2: #f4f8f8;
-  --app-line: #c3dedb;
-  --app-line-soft: #dbe9e7;
-  --app-ink: #12365c;
-  --app-teal-tint: #e3f4f1;
-  --app-chip-bg: #e9eff2;
-  --app-chip-ink: #2f4560;
-  --app-on-ok: #fff;
-  --app-radius: 20px;
-  --app-shadow: 0 1px 2px rgb(18 54 92 / 8%), 0 4px 14px rgb(18 54 92 / 8%);
-  --app-ok: #0f766e;
-  --app-ok-bg: #e3f4f1;
+  // Palette de marque
+  --brand-teal: #0e7a70;
+  --brand-navy: #173a52;
+  --brand-coral: #ef6b45;
+  --brand-teal-text: #0a6056;
+
+  // Mapping Material 3 (couleurs système)
+  --mat-sys-primary: #0e7a70;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #cdece7;
+  --mat-sys-on-primary-container: #063029;
+  --mat-sys-secondary: #173a52;
+  --mat-sys-secondary-container: #dbe7f1;
+  --mat-sys-on-secondary-container: #0c2437;
+  --mat-sys-tertiary: #e05a37;
+  --mat-sys-tertiary-container: #ffdccf;
+  --mat-sys-on-tertiary-container: #45160a;
+  --mat-sys-surface-tint: #0e7a70;
+
+  // Surfaces chaudes (crème) + lignes douces
+  --mat-sys-surface: #ffffff;
+  --mat-sys-surface-container-lowest: #ffffff;
+  --mat-sys-surface-container-low: #faf5ee;
+  --mat-sys-surface-container: #f6efe5;
+  --mat-sys-surface-container-high: #f1e8da;
+  --mat-sys-on-surface: #2a2824;
+  --mat-sys-on-surface-variant: #726a5f;
+  --mat-sys-outline: #cdb9a0;
+  --mat-sys-outline-variant: #ece2d4;
+
+  // Jetons applicatifs (utilisés par les écrans soignant/admin)
+  --app-bg: radial-gradient(1200px 600px at 85% -10%, #eef6f4 0%, rgba(238, 246, 244, 0) 60%),
+    linear-gradient(176deg, #fbf8f3 0%, #f5ede2 100%);
+  --app-surface: #ffffff;
+  --app-surface-2: #fbf6ef;
+  --app-line: #e9ddcb;
+  --app-line-soft: #f0e8da;
+  --app-ink: #233243;
+  --app-teal-tint: #e4f3f0;
+  --app-chip-bg: #eef1f0;
+  --app-chip-ink: #334a5f;
+  --app-on-ok: #ffffff;
+  --app-radius: 22px;
+  --app-shadow: 0 1px 2px rgb(42 40 36 / 6%), 0 10px 30px -10px rgb(42 40 36 / 14%);
+  --app-shadow-lg: 0 2px 6px rgb(42 40 36 / 7%), 0 24px 60px -22px rgb(23 58 82 / 24%);
+  --app-ok: #0e7a70;
+  --app-ok-bg: #e4f3f0;
   --app-warn: #c9563e;
-  --app-warn-bg: #fff0ec;
+  --app-warn-bg: #fff1ec;
   --app-danger: #b3261e;
   --app-danger-bg: #fdeceb;
+
+  // Rayons Material plus doux
+  --mat-sys-corner-small: 12px;
+  --mat-sys-corner-medium: 16px;
+  --mat-sys-corner-large: 22px;
 }
 
 .mat-mdc-snack-bar-container {
@@ -84,25 +103,37 @@ body {
 }
 
 .mat-mdc-dialog-container {
-  --mat-dialog-container-shape: 24px;
+  --mat-dialog-container-shape: 26px;
 }
 
-// Mode sombre : activé par le bouton du bandeau ou, par défaut, par le réglage du système.
+// -----------------------------------------------------------------------------
+//  Mode sombre
+// -----------------------------------------------------------------------------
 :root[data-theme='dark'] {
   --brand-teal: #11857a;
-  --brand-teal-text: #5fd8c8;
-  --mat-sys-primary: #5fd8c8;
+  --brand-teal-text: #68dccb;
+  --mat-sys-primary: #68dccb;
   --mat-sys-on-primary: #00302c;
-  --mat-sys-primary-container: #00504a;
+  --mat-sys-primary-container: #0a5049;
   --mat-sys-on-primary-container: #b4f1e9;
   --mat-sys-secondary: #a9c8ea;
   --mat-sys-secondary-container: #284a6b;
   --mat-sys-on-secondary-container: #dbe7f3;
-  --mat-sys-tertiary: #ffb4a3;
+  --mat-sys-tertiary: #ffb49e;
   --mat-sys-tertiary-container: #6b2a1a;
-  --mat-sys-on-tertiary-container: #ffdcd3;
-  --mat-sys-surface-tint: #5fd8c8;
-  --app-bg: linear-gradient(180deg, #0e1519 0%, #121a1f 100%);
+  --mat-sys-on-tertiary-container: #ffdccf;
+  --mat-sys-surface-tint: #68dccb;
+  --mat-sys-surface: #141c20;
+  --mat-sys-surface-container-lowest: #0f161a;
+  --mat-sys-surface-container-low: #182227;
+  --mat-sys-surface-container: #1d282d;
+  --mat-sys-surface-container-high: #243036;
+  --mat-sys-on-surface: #e7eef0;
+  --mat-sys-on-surface-variant: #b9c3c2;
+  --mat-sys-outline: #4a5b5a;
+  --mat-sys-outline-variant: #2c3d40;
+  --app-bg: radial-gradient(1200px 600px at 85% -10%, #10302c 0%, rgba(16, 48, 44, 0) 60%),
+    linear-gradient(176deg, #0e1519 0%, #121a1f 100%);
   --app-surface: #1b262d;
   --app-surface-2: #141d22;
   --app-line: #35504f;
@@ -118,30 +149,84 @@ body {
   --app-warn-bg: #3d2520;
   --app-danger: #ff8a80;
   --app-danger-bg: #3d1f1d;
-  --app-shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 4px 14px rgb(0 0 0 / 35%);
+  --app-shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 12px 30px -12px rgb(0 0 0 / 55%);
+  --app-shadow-lg: 0 2px 6px rgb(0 0 0 / 45%), 0 28px 64px -24px rgb(0 0 0 / 60%);
 }
 
 :root[data-theme='dark'] body {
   color-scheme: dark;
 }
 
+// -----------------------------------------------------------------------------
+//  Typo éditoriale — Fraunces pour les grands titres (toute l'app).
+// -----------------------------------------------------------------------------
+.display,
+.page-head h1 {
+  font-family: 'Fraunces', 'Times New Roman', serif;
+  font-optical-sizing: auto;
+  letter-spacing: -0.01em;
+}
 
-// ==== Utilitaires des pages ADMIN (repris de feature/admin-users) ====
+// -----------------------------------------------------------------------------
+//  Polish global — boutons, cartes, champs, scrollbar.
+// -----------------------------------------------------------------------------
+// Boutons pleins (CTA) : plus hauts, arrondis, ombre tactile douce.
+.mat-mdc-unelevated-button.mat-mdc-button-base,
+.mat-mdc-raised-button.mat-mdc-button-base {
+  --mdc-filled-button-container-shape: 12px;
+  height: 46px;
+  padding: 0 22px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.mat-mdc-outlined-button.mat-mdc-button-base {
+  --mdc-outlined-button-container-shape: 12px;
+  height: 46px;
+  font-weight: 700;
+}
+
+// Cartes Material : rayon + ombre douce cohérents.
+.mat-mdc-card.mat-mdc-card {
+  border-radius: var(--app-radius);
+  border: 1px solid var(--mat-sys-outline-variant);
+  box-shadow: var(--app-shadow);
+}
+
+// Barre de défilement discrète.
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--mat-sys-outline) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--mat-sys-outline);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+// ==== Utilitaires des pages ADMIN (repris de feature/admin-users, modernisés) ====
 .page-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 
   h1 {
-    font: var(--mat-sys-headline-small);
+    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.1rem);
+    font-weight: 600;
+    line-height: 1.1;
     margin: 0;
+    color: var(--mat-sys-on-surface);
   }
 
   p {
-    margin: 4px 0 0;
+    margin: 6px 0 0;
     color: var(--mat-sys-on-surface-variant);
   }
 }
@@ -149,8 +234,9 @@ body {
 .panel {
   background: var(--mat-sys-surface);
   border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: 16px;
-  padding: 8px 16px 8px;
+  border-radius: var(--app-radius);
+  padding: 8px 16px;
+  box-shadow: var(--app-shadow);
 
   table {
     width: 100%;
@@ -192,9 +278,10 @@ tr.clickable {
 
 .badge {
   display: inline-block;
-  padding: 2px 10px;
-  border-radius: 12px;
+  padding: 3px 11px;
+  border-radius: 999px;
   font-size: 12px;
+  font-weight: 600;
   background: var(--mat-sys-secondary-container);
   color: var(--mat-sys-on-secondary-container);
 
@@ -222,6 +309,7 @@ tr.clickable {
 .link {
   color: var(--mat-sys-primary);
   text-decoration: none;
+  font-weight: 600;
 
   &:hover {
     text-decoration: underline;
