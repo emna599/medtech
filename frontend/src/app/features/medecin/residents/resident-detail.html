@@ -95,5 +95,243 @@
         </mat-card>
       }
     </section>
+
+    <section class="management-section" aria-labelledby="allergies-title">
+      <header class="section-header">
+        <div>
+          <h2 id="allergies-title">Allergies</h2>
+          <p>Allergies connues du résident.</p>
+        </div>
+        <button
+          mat-stroked-button
+          type="button"
+          [disabled]="allergySaving()"
+          (click)="startNewAllergy()"
+        >
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">add</mat-icon>
+          Ajouter
+        </button>
+      </header>
+
+      @if (showAllergyForm()) {
+        <mat-card appearance="outlined" class="edit-card">
+          <mat-card-header>
+            <mat-card-title>
+              {{ editingAllergyId() === null ? 'Ajouter une allergie' : 'Modifier une allergie' }}
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="allergyForm" (ngSubmit)="saveAllergy()" class="form-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Allergie</mat-label>
+                <input matInput formControlName="name" maxlength="100" />
+                @if (
+                  allergyForm.controls.name.hasError('required')
+                  || allergyForm.controls.name.hasError('pattern')
+                ) {
+                  <mat-error>Le nom de l'allergie est obligatoire.</mat-error>
+                } @else if (allergyForm.controls.name.hasError('maxlength')) {
+                  <mat-error>100 caractères maximum.</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Gravité (facultatif)</mat-label>
+                <input matInput formControlName="severity" maxlength="50" />
+                @if (allergyForm.controls.severity.hasError('maxlength')) {
+                  <mat-error>50 caractères maximum.</mat-error>
+                }
+              </mat-form-field>
+
+              <div class="form-actions">
+                <button mat-button type="button" (click)="cancelAllergyForm()">Annuler</button>
+                <button mat-flat-button type="submit" [disabled]="allergySaving()">
+                  {{ editingAllergyId() === null ? 'Ajouter' : 'Enregistrer' }}
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      @if (allergies.isLoading()) {
+        <div class="state" role="status">
+          <mat-spinner diameter="32" />
+          <p>Chargement des allergies…</p>
+        </div>
+      } @else if (allergiesError(); as message) {
+        <section class="state" role="alert">
+          <p>{{ message }}</p>
+          <button mat-flat-button type="button" (click)="allergies.reload()">Réessayer</button>
+        </section>
+      } @else {
+        <div class="item-grid">
+          @for (allergy of allergies.value(); track allergy.id) {
+            <mat-card appearance="outlined" class="item-card">
+              <mat-card-content>
+                <h3>{{ allergy.name }}</h3>
+                <p><strong>Gravité :</strong> {{ allergy.severity || 'Non renseignée' }}</p>
+              </mat-card-content>
+              <mat-card-actions align="end">
+                <button
+                  mat-button
+                  type="button"
+                  [disabled]="allergySaving()"
+                  (click)="startEditAllergy(allergy)"
+                >
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">edit</mat-icon>
+                  Modifier
+                </button>
+                <button
+                  mat-button
+                  type="button"
+                  [disabled]="allergySaving()"
+                  [attr.aria-label]="'Supprimer l’allergie ' + allergy.name"
+                  (click)="deleteAllergy(allergy)"
+                >
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">delete</mat-icon>
+                  Supprimer
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          } @empty {
+            <p class="empty-state">Aucune allergie enregistrée pour ce résident.</p>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="management-section" aria-labelledby="dietary-regimes-title">
+      <header class="section-header">
+        <div>
+          <h2 id="dietary-regimes-title">Régimes alimentaires</h2>
+          <p>Consignes et adaptations alimentaires du résident.</p>
+        </div>
+        <button
+          mat-stroked-button
+          type="button"
+          [disabled]="dietaryRegimeSaving()"
+          (click)="startNewDietaryRegime()"
+        >
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">add</mat-icon>
+          Ajouter
+        </button>
+      </header>
+
+      @if (showDietaryRegimeForm()) {
+        <mat-card appearance="outlined" class="edit-card">
+          <mat-card-header>
+            <mat-card-title>
+              {{
+                editingDietaryRegimeId() === null
+                  ? 'Ajouter un régime alimentaire'
+                  : 'Modifier un régime alimentaire'
+              }}
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <form
+              [formGroup]="dietaryRegimeForm"
+              (ngSubmit)="saveDietaryRegime()"
+              class="form-grid"
+            >
+              <mat-form-field appearance="outline">
+                <mat-label>Type de régime</mat-label>
+                <input matInput formControlName="type" maxlength="100" />
+                @if (
+                  dietaryRegimeForm.controls.type.hasError('required')
+                  || dietaryRegimeForm.controls.type.hasError('pattern')
+                ) {
+                  <mat-error>Le type de régime est obligatoire.</mat-error>
+                } @else if (dietaryRegimeForm.controls.type.hasError('maxlength')) {
+                  <mat-error>100 caractères maximum.</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Texture (facultatif)</mat-label>
+                <input matInput formControlName="texture" maxlength="50" />
+                @if (dietaryRegimeForm.controls.texture.hasError('maxlength')) {
+                  <mat-error>50 caractères maximum.</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Restrictions (facultatif)</mat-label>
+                <textarea matInput formControlName="restrictions" rows="2"></textarea>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Intolérances (facultatif)</mat-label>
+                <textarea matInput formControlName="intolerances" rows="2"></textarea>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Consignes (facultatif)</mat-label>
+                <textarea matInput formControlName="instructions" rows="3"></textarea>
+              </mat-form-field>
+
+              <div class="form-actions full-width">
+                <button mat-button type="button" (click)="cancelDietaryRegimeForm()">
+                  Annuler
+                </button>
+                <button mat-flat-button type="submit" [disabled]="dietaryRegimeSaving()">
+                  {{ editingDietaryRegimeId() === null ? 'Ajouter' : 'Enregistrer' }}
+                </button>
+              </div>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      @if (dietaryRegimes.isLoading()) {
+        <div class="state" role="status">
+          <mat-spinner diameter="32" />
+          <p>Chargement des régimes alimentaires…</p>
+        </div>
+      } @else if (dietaryRegimesError(); as message) {
+        <section class="state" role="alert">
+          <p>{{ message }}</p>
+          <button mat-flat-button type="button" (click)="dietaryRegimes.reload()">Réessayer</button>
+        </section>
+      } @else {
+        <div class="item-grid">
+          @for (regime of dietaryRegimes.value(); track regime.id) {
+            <mat-card appearance="outlined" class="item-card">
+              <mat-card-content>
+                <h3>{{ regime.type }}</h3>
+                <p><strong>Texture :</strong> {{ regime.texture || 'Non renseignée' }}</p>
+                <p><strong>Restrictions :</strong> {{ regime.restrictions || 'Aucune' }}</p>
+                <p><strong>Intolérances :</strong> {{ regime.intolerances || 'Aucune' }}</p>
+                <p><strong>Consignes :</strong> {{ regime.instructions || 'Aucune' }}</p>
+              </mat-card-content>
+              <mat-card-actions align="end">
+                <button
+                  mat-button
+                  type="button"
+                  [disabled]="dietaryRegimeSaving()"
+                  (click)="startEditDietaryRegime(regime)"
+                >
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">edit</mat-icon>
+                  Modifier
+                </button>
+                <button
+                  mat-button
+                  type="button"
+                  [disabled]="dietaryRegimeSaving()"
+                  [attr.aria-label]="'Supprimer le régime alimentaire ' + regime.type"
+                  (click)="deleteDietaryRegime(regime)"
+                >
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">delete</mat-icon>
+                  Supprimer
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          } @empty {
+            <p class="empty-state">Aucun régime alimentaire enregistré pour ce résident.</p>
+          }
+        </div>
+      }
+    </section>
   }
 </main>

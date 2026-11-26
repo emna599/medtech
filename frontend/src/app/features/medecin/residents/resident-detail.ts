@@ -4,9 +4,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
+  effect,
+  signal,
   inject,
 } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,12 +22,23 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ResidentService } from '../../../core/services/resident.service';
 import { Toolbar } from '../../../shared/components/toolbar/toolbar';
 
+import {
+  Allergy,
+  AllergyRequest,
+  DietaryRegime,
+  DietaryRegimeRequest,
+} from '../../../shared/models/resident.model';
+
 @Component({
   selector: 'app-resident-detail',
   imports: [
     DatePipe,
     MatButtonModule,
     MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSnackBarModule,
+    ReactiveFormsModule,
     MatIconModule,
     MatProgressSpinnerModule,
     RouterLink,
@@ -33,6 +51,9 @@ import { Toolbar } from '../../../shared/components/toolbar/toolbar';
 export class ResidentDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly residentService = inject(ResidentService);
+  private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly params = toSignal(this.route.paramMap, { requireSync: true });
   private readonly residentId = computed(() => {
     const id = Number(this.params().get('id'));
@@ -61,6 +82,289 @@ export class ResidentDetailPage {
     const error = this.medicalRecord.error();
     return error ? this.toMedicalRecordErrorMessage(error) : null;
   });
+
+  protected readonly allergies = rxResource({
+    params: this.residentId,
+    stream: ({ params }) => this.residentService.findAllergiesByResidentId(params),
+    defaultValue: [],
+  });
+
+  protected readonly dietaryRegimes = rxResource({
+    params: this.residentId,
+    stream: ({ params }) => this.residentService.findDietaryRegimesByResidentId(params),
+    defaultValue: [],
+  });
+
+  protected readonly allergiesError = computed(() => {
+    const error = this.allergies.error();
+    return error ? this.toCollectionErrorMessage(error, 'allergies') : null;
+  });
+
+  protected readonly dietaryRegimesError = computed(() => {
+    const error = this.dietaryRegimes.error();
+    return error ? this.toCollectionErrorMessage(error, 'régimes alimentaires') : null;
+  });
+
+  protected readonly allergySaving = signal(false);
+  protected readonly dietaryRegimeSaving = signal(false);
+  protected readonly showAllergyForm = signal(false);
+  protected readonly showDietaryRegimeForm = signal(false);
+  protected readonly editingAllergyId = signal<number | null>(null);
+  protected readonly editingDietaryRegimeId = signal<number | null>(null);
+  protected readonly allergyForm = this.formBuilder.group({
+    name: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)]],
+    severity: ['', [Validators.maxLength(50)]],
+  });
+  protected readonly dietaryRegimeForm = this.formBuilder.group({
+    type: ['', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)]],
+    texture: ['', [Validators.maxLength(50)]],
+    restrictions: [''],
+    intolerances: [''],
+    instructions: [''],
+  });
+
+  constructor() {
+    effect(() => {
+      this.residentId();
+      this.cancelAllergyForm();
+      this.cancelDietaryRegimeForm();
+      this.allergySaving.set(false);
+      this.dietaryRegimeSaving.set(false);
+    });
+  }
+
+  protected startNewAllergy(): void {
+    this.editingAllergyId.set(null);
+    this.allergyForm.reset({ name: '', severity: '' });
+    this.showAllergyForm.set(true);
+  }
+
+  protected startEditAllergy(allergy: Allergy): void {
+    this.editingAllergyId.set(allergy.id);
+    this.allergyForm.reset({
+      name: allergy.name,
+      severity: allergy.severity ?? '',
+    });
+    this.showAllergyForm.set(true);
+  }
+
+  protected cancelAllergyForm(): void {
+    this.showAllergyForm.set(false);
+    this.editingAllergyId.set(null);
+    this.allergyForm.reset({ name: '', severity: '' });
+  }
+
+  protected saveAllergy(): void {
+    if (this.allergySaving()) {
+      return;
+    }
+    if (this.allergyForm.invalid) {
+      this.allergyForm.markAllAsTouched();
+      return;
+    }
+
+    const residentId = this.residentId();
+    if (residentId === undefined) {
+      return;
+    }
+
+    const values = this.allergyForm.getRawValue();
+    const request: AllergyRequest = {
+      name: values.name.trim(),
+      severity: values.severity.trim() || null,
+    };
+    const allergyId = this.editingAllergyId();
+    this.allergySaving.set(true);
+
+    const saveRequest =
+      allergyId === null
+        ? this.residentService.createAllergy(residentId, request)
+        : this.residentService.updateAllergy(residentId, allergyId, request);
+
+    saveRequest.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        if (this.residentId() !== residentId) return;
+        this.allergySaving.set(false);
+        this.cancelAllergyForm();
+        this.allergies.reload();
+        this.showSuccess(allergyId === null ? 'Allergie ajoutée.' : 'Allergie modifiée.');
+      },
+      error: (error: unknown) => {
+        if (this.residentId() !== residentId) return;
+        this.allergySaving.set(false);
+        this.showMutationError(error, "L'enregistrement de l'allergie");
+      },
+    });
+  }
+
+  protected deleteAllergy(allergy: Allergy): void {
+    if (!window.confirm(`Supprimer l'allergie « ${allergy.name} » ?`)) {
+      return;
+    }
+
+    const residentId = this.residentId();
+    if (residentId === undefined || this.allergySaving()) {
+      return;
+    }
+
+    this.allergySaving.set(true);
+    this.residentService.deleteAllergy(residentId, allergy.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        if (this.residentId() !== residentId) return;
+        this.allergySaving.set(false);
+        if (this.editingAllergyId() === allergy.id) {
+          this.cancelAllergyForm();
+        }
+        this.allergies.reload();
+        this.showSuccess('Allergie supprimée.');
+      },
+      error: (error: unknown) => {
+        if (this.residentId() !== residentId) return;
+        this.allergySaving.set(false);
+        this.showMutationError(error, "La suppression de l'allergie");
+      },
+    });
+  }
+
+  protected startNewDietaryRegime(): void {
+    this.editingDietaryRegimeId.set(null);
+    this.dietaryRegimeForm.reset({
+      type: '',
+      texture: '',
+      restrictions: '',
+      intolerances: '',
+      instructions: '',
+    });
+    this.showDietaryRegimeForm.set(true);
+  }
+
+  protected startEditDietaryRegime(regime: DietaryRegime): void {
+    this.editingDietaryRegimeId.set(regime.id);
+    this.dietaryRegimeForm.reset({
+      type: regime.type,
+      texture: regime.texture ?? '',
+      restrictions: regime.restrictions ?? '',
+      intolerances: regime.intolerances ?? '',
+      instructions: regime.instructions ?? '',
+    });
+    this.showDietaryRegimeForm.set(true);
+  }
+
+  protected cancelDietaryRegimeForm(): void {
+    this.showDietaryRegimeForm.set(false);
+    this.editingDietaryRegimeId.set(null);
+    this.dietaryRegimeForm.reset({
+      type: '',
+      texture: '',
+      restrictions: '',
+      intolerances: '',
+      instructions: '',
+    });
+  }
+
+  protected saveDietaryRegime(): void {
+    if (this.dietaryRegimeSaving()) {
+      return;
+    }
+    if (this.dietaryRegimeForm.invalid) {
+      this.dietaryRegimeForm.markAllAsTouched();
+      return;
+    }
+
+    const residentId = this.residentId();
+    if (residentId === undefined) {
+      return;
+    }
+
+    const values = this.dietaryRegimeForm.getRawValue();
+    const request: DietaryRegimeRequest = {
+      type: values.type.trim(),
+      texture: values.texture.trim() || null,
+      restrictions: values.restrictions.trim() || null,
+      intolerances: values.intolerances.trim() || null,
+      instructions: values.instructions.trim() || null,
+    };
+    const regimeId = this.editingDietaryRegimeId();
+    this.dietaryRegimeSaving.set(true);
+
+    const saveRequest =
+      regimeId === null
+        ? this.residentService.createDietaryRegime(residentId, request)
+        : this.residentService.updateDietaryRegime(residentId, regimeId, request);
+
+    saveRequest.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        if (this.residentId() !== residentId) return;
+        this.dietaryRegimeSaving.set(false);
+        this.cancelDietaryRegimeForm();
+        this.dietaryRegimes.reload();
+        this.showSuccess(
+          regimeId === null ? 'Régime alimentaire ajouté.' : 'Régime alimentaire modifié.',
+        );
+      },
+      error: (error: unknown) => {
+        if (this.residentId() !== residentId) return;
+        this.dietaryRegimeSaving.set(false);
+        this.showMutationError(error, "L'enregistrement du régime alimentaire");
+      },
+    });
+  }
+
+  protected deleteDietaryRegime(regime: DietaryRegime): void {
+    if (!window.confirm(`Supprimer le régime alimentaire « ${regime.type} » ?`)) {
+      return;
+    }
+
+    const residentId = this.residentId();
+    if (residentId === undefined || this.dietaryRegimeSaving()) {
+      return;
+    }
+
+    this.dietaryRegimeSaving.set(true);
+    this.residentService.deleteDietaryRegime(residentId, regime.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        if (this.residentId() !== residentId) return;
+        this.dietaryRegimeSaving.set(false);
+        if (this.editingDietaryRegimeId() === regime.id) {
+          this.cancelDietaryRegimeForm();
+        }
+        this.dietaryRegimes.reload();
+        this.showSuccess('Régime alimentaire supprimé.');
+      },
+      error: (error: unknown) => {
+        if (this.residentId() !== residentId) return;
+        this.dietaryRegimeSaving.set(false);
+        this.showMutationError(error, 'La suppression du régime alimentaire');
+      },
+    });
+  }
+
+  private toCollectionErrorMessage(error: unknown, collection: string): string {
+    if (error instanceof HttpErrorResponse && error.status === 0) {
+      return 'Impossible de joindre le serveur. Vérifiez que le backend est démarré.';
+    }
+    return `Le chargement des ${collection} a échoué.`;
+  }
+
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Fermer', { duration: 3000 });
+  }
+
+  private showMutationError(error: unknown, action: string): void {
+    let message = `${action} a échoué.`;
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 0) {
+        message = 'Impossible de joindre le serveur. Vérifiez que le backend est démarré.';
+      } else if (error.status === 400) {
+        message = 'Veuillez vérifier les informations saisies.';
+      } else if (error.status === 403) {
+        message = "Vous n'avez pas l'autorisation d'effectuer cette opération.";
+      } else if (error.status === 404) {
+        message = 'Le résident ou l’enregistrement demandé est introuvable.';
+      }
+    }
+    this.snackBar.open(message, 'Fermer', { duration: 5000 });
+  }
 
   private toResidentErrorMessage(error: unknown): string {
     if (error instanceof HttpErrorResponse) {

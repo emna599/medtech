@@ -76,3 +76,31 @@ export interface MedicalRecord {
   treatments: string | null;
   updatedAt: string | null;
 }
+
+export interface Allergy {
+  id: number;
+  name: string;
+  severity: string | null;
+}
+
+export interface AllergyRequest {
+  name: string;
+  severity: string | null;
+}
+
+export interface DietaryRegime {
+  id: number;
+  type: string;
+  texture: string | null;
+  restrictions: string | null;
+  intolerances: string | null;
+  instructions: string | null;
+}
+
+export interface DietaryRegimeRequest {
+  type: string;
+  texture: string | null;
+  restrictions: string | null;
+  intolerances: string | null;
+  instructions: string | null;
+}
