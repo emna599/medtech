@@ -1,3 +1,4 @@
+import { ResidentPortrait } from '../resident-portrait/resident-portrait';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
@@ -5,13 +6,12 @@ import { ResidentDetail, ageFrom, stayDuration } from '../../models/resident.mod
 
 @Component({
   selector: 'app-resident-overview',
-  imports: [DatePipe, MatCardModule],
+  imports: [DatePipe, MatCardModule, ResidentPortrait],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @let r = resident();
     <header class="page-head">
       <div class="identity">
-        <span class="initials" aria-hidden="true">{{ initials() }}</span>
         <div>
           <h1>{{ r.firstName }} {{ r.lastName }}</h1>
           <p><span class="work-status" [class.inactive]="!r.active">{{ r.active ? 'Actif' : 'Inactif' }}</span></p>
@@ -23,6 +23,7 @@ import { ResidentDetail, ageFrom, stayDuration } from '../../models/resident.mod
       <h2 id="resident-overview-title">Identité et séjour</h2>
       <mat-card appearance="outlined" class="work-card">
         <mat-card-content>
+          <app-resident-portrait [residentId]="r.id" [firstName]="r.firstName" [lastName]="r.lastName" [manage]="true" />
           <dl>
             <div><dt>Date de naissance</dt><dd>{{ r.birthDate | date:'dd/MM/yyyy' }} · {{ age() }} ans</dd></div>
             <div><dt>Date d’admission</dt><dd>{{ (r.admissionDate | date:'dd/MM/yyyy') ?? 'Non renseignée' }}</dd></div>
@@ -38,8 +39,7 @@ import { ResidentDetail, ageFrom, stayDuration } from '../../models/resident.mod
   styles: `
     .identity { display: flex; align-items: center; gap: 12px; min-width: 0; }
     .identity h1 { overflow-wrap: anywhere; }
-    .initials { display: grid; place-items: center; flex: 0 0 48px; height: 48px;
-      border-radius: 8px; background: var(--mat-sys-primary-container); color: var(--mat-sys-on-primary-container); }
+    mat-card-content { display: grid; gap: 12px; }
     .page-head p { margin-top: 8px; }
     h2 { margin: 0 0 12px; font: var(--mat-sys-title-large); }
     dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 16px; margin: 0; }
@@ -49,10 +49,6 @@ import { ResidentDetail, ageFrom, stayDuration } from '../../models/resident.mod
 })
 export class ResidentOverview {
   readonly resident = input.required<ResidentDetail>();
-  protected readonly initials = computed(() => {
-    const { firstName, lastName } = this.resident();
-    return [firstName, lastName].map(name => name.slice(0, 1)).join('').toUpperCase();
-  });
   protected readonly age = computed(() => ageFrom(this.resident().birthDate));
   protected readonly duration = computed(() => {
     const date = this.resident().admissionDate;

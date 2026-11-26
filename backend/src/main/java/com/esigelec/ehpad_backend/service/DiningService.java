@@ -23,6 +23,7 @@ import com.esigelec.ehpad_backend.repository.TablePresenceRepository;
 import com.esigelec.ehpad_backend.repository.TableReaderRepository;
 import com.esigelec.ehpad_backend.repository.WeeklyMenuRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
@@ -49,6 +50,8 @@ public class DiningService {
     private final ResidentRepository residentRepository;
     private final CurrentUserService currentUserService;
     private final AuditService auditService;
+    private final JdbcTemplate jdbc;
+    private final ChevaletService chevaletService;
 
     public DiningService(DiningTableRepository tableRepository,
                          MealRepository mealRepository,
@@ -57,7 +60,7 @@ public class DiningService {
                          TablePresenceRepository presenceRepository,
                          ResidentRepository residentRepository,
                          CurrentUserService currentUserService,
-                         AuditService auditService) {
+                         AuditService auditService, JdbcTemplate jdbc, ChevaletService chevaletService) {
         this.tableRepository = tableRepository;
         this.mealRepository = mealRepository;
         this.menuRepository = menuRepository;
@@ -66,6 +69,8 @@ public class DiningService {
         this.residentRepository = residentRepository;
         this.currentUserService = currentUserService;
         this.auditService = auditService;
+        this.jdbc = jdbc;
+        this.chevaletService = chevaletService;
     }
 
     /** Repas affiché par défaut : le déjeuner jusqu'à 15 h, le dîner ensuite. */
@@ -103,6 +108,12 @@ public class DiningService {
             readers.put(reader.getTableId(), reader.getCode());
         }
 
+        Map<Long, String> chevalets = jdbc.query("select resident_id, code from chevalet where resident_id is not null", rs -> {
+            Map<Long, String> result = new HashMap<>();
+            while (rs.next()) result.put(rs.getLong("resident_id"), rs.getString("code"));
+            return result;
+        });
+
         Map<Long, List<DiningDto.Seat>> byTable = new HashMap<>();
         for (TablePresence presence : presences) {
             Resident resident = residents.get(presence.getResidentId());
@@ -115,6 +126,7 @@ public class DiningService {
                     atTable.size() + 1,
                     new DiningDto.Identity(resident.getId(), resident.getFirstName(), resident.getLastName(),
                             resident.getRoom() == null ? null : resident.getRoom().getNumber()),
+                    chevalets.get(resident.getId()),
                     planned == null ? null : new DiningDto.Meal(planned.getId(), planned.getStatus())));
         }
 
@@ -171,6 +183,7 @@ public class DiningService {
                 throw new ConflictException("Ce résident n’est pas présent à cette table.");
             }
             current.stream().filter(p -> p.getTableId().equals(table.getId())).forEach(p -> p.setLeftAt(now));
+            chevaletService.releaseForDeparture(residentId, user);
             auditService.record(user, "TABLE_DEPART", "Resident", residentId);
             return new ReadingDto("LEFT", residentId, name, table.getLabel(), name + " a quitté la table");
         }

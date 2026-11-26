@@ -445,3 +445,97 @@ tr.clickable {
     image-rendering: pixelated;
   }
 }
+
+// Contraste et échelle de lecture pour les écrans partagés.
+:root[data-projection='true'] {
+  font-size: clamp(16px, 1.35vw, 22px);
+  --app-bg: #eef2f8;
+  --app-surface: #ffffff;
+  --app-ink: #101d33;
+  --mat-sys-surface: #ffffff;
+  --mat-sys-on-surface: #101d33;
+  --mat-sys-on-surface-variant: #304153;
+  --mat-sys-outline-variant: #8999ad;
+  --mat-sys-primary: #183b72;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #dbe9ff;
+  --mat-sys-on-primary-container: #112e5a;
+  --app-danger: #891d22;
+  --app-danger-bg: #ffe4e6;
+  --app-warn: #713708;
+  --app-warn-bg: #ffedc6;
+  --app-ok: #155742;
+  --app-ok-bg: #d9f6e9;
+}
+
+:root[data-theme='dark'][data-projection='true'] {
+  --app-bg: #0a1424;
+  --app-surface: #14243d;
+  --app-ink: #ffffff;
+  --mat-sys-surface: #14243d;
+  --mat-sys-on-surface: #ffffff;
+  --mat-sys-on-surface-variant: #dce7f7;
+  --mat-sys-outline-variant: #8096b4;
+  --mat-sys-primary: #c2d9ff;
+  --mat-sys-on-primary: #102645;
+  --mat-sys-primary-container: #274873;
+  --mat-sys-on-primary-container: #ffffff;
+  --app-danger: #ffb8b9;
+  --app-danger-bg: #541e2a;
+  --app-warn: #ffe1a6;
+  --app-warn-bg: #493111;
+  --app-ok: #b0f7db;
+  --app-ok-bg: #174337;
+}
+
+[data-projection='true'] app-toolbar .toolbar {
+  --app-surface: #132c54;
+  background: var(--app-surface);
+  color: #ffffff;
+  --app-ink: #ffffff;
+  --brand-teal: #bcdcff;
+  --brand-coral: #ffdc99;
+  --mat-sys-on-surface: #ffffff;
+  --mat-sys-on-surface-variant: #e1ecff;
+  --mat-sys-primary: #ffffff;
+  --mat-sys-outline: #c6d6ee;
+}
+
+[data-projection='true'] .work-page {
+  max-width: 1440px;
+}
+
+[data-projection='true'] .work-page h1 {
+  font-size: clamp(1.65rem, 3vw, 2.5rem);
+  line-height: 1.15;
+}
+
+[data-projection='true'] .work-card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+}
+
+[data-projection='true'] .work-card-grid.room-tour {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+[data-projection='true'] :is(.work-page, .mat-mdc-dialog-container) .mat-mdc-button-base {
+  font-size: .86rem;
+  min-height: 44px;
+}
+
+[data-projection='true'] .work-status {
+  border: 1px solid currentColor;
+}
+
+[data-projection='true'] app-toolbar .projection-toggle[aria-pressed='true'] {
+  background: #e2edff;
+  color: #132c54;
+}
+
+[data-projection='true'] .service-page .tool-group {
+  border-block-start: 4px solid var(--mat-sys-primary);
+}
+
+[data-projection='true'] .service-page .tool-group h2 {
+  font-size: 1.15rem;
+}

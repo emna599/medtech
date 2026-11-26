@@ -22,7 +22,6 @@ mat-button-toggle-group {
 
 .service-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 .service-page > .page-head { margin: 0; }
-.tools { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .slots {
   display: flex;
@@ -234,4 +233,26 @@ ul.grid {
 
 .meal-change p {
   margin: 4px 0 0;
+}
+
+.tools {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr) max-content;
+  gap: 10px;
+}
+
+.tool-group {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--app-radius);
+  background: var(--app-surface);
+}
+
+.tool-group h2 { margin: 0 0 6px; font-size: 1rem; line-height: 1.25; }
+.tool-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+
+@media (max-width: 740px) {
+  .tools { grid-template-columns: minmax(0, 1fr); }
 }

@@ -298,6 +298,7 @@ export interface DiningMeal {
 export interface DiningSeat {
   position: number;
   resident: Pick<ResidentCard, 'id' | 'firstName' | 'lastName' | 'room'>;
+  chevalet: string | null;
   meal: DiningMeal | null;
 }
 

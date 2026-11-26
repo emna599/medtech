@@ -40,6 +40,14 @@ export class PersonnelService {
     return this.http.get<Dining>(`${this.base}/dining/tables`, { params: { slot } });
   }
 
+  assignChevalet(residentId: number, number: string): Observable<void> {
+    return this.http.put<void>(`${this.base}/dining/chevalets/${residentId}`, { number });
+  }
+
+  releaseChevalet(residentId: number, number: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/dining/chevalets/${residentId}/${encodeURIComponent(number)}`);
+  }
+
   weeklyMenu(date: string): Observable<WeeklyMenu> {
     return this.http.get<WeeklyMenu>(`${this.base}/dining/menu`, { params: { date } });
   }

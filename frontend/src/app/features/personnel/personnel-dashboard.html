@@ -21,40 +21,53 @@
     </mat-button-toggle-group>
 
     <div class="tools">
-    <button mat-stroked-button type="button" (click)="openResidents()">
-      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
-      Résidents
-    </button>
-
-    <button mat-stroked-button type="button" (click)="openReleve()">
-      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
-      Relève
-    </button>
-
-    <button mat-stroked-button type="button" (click)="openIdentify()">
-      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon>
-      Identifier un résident
-    </button>
-    <button mat-stroked-button type="button" (click)="openAssistant()">
-      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">support_agent</mat-icon>
-      Assistant
-    </button>
-    <button mat-stroked-button type="button" (click)="openDining()">
-      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon>
-      Service en salle
-    </button>
-    <button mat-stroked-button type="button" (click)="openPlanning()">
-      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">calendar_today</mat-icon>
-      Planning
-    </button>
-    <button mat-stroked-button type="button" (click)="openTeam()">
-      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
-      Équipe
-    </button>
-    <button mat-stroked-button type="button" (click)="openNotes()">
-      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">note_alt</mat-icon>
-      Notes de service
-    </button>
+      <div class="tool-group" role="group" aria-label="Résidents et repas">
+        <h2>Résidents et repas</h2>
+        <div class="tool-buttons">
+          <button mat-stroked-button type="button" (click)="openResidents()">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
+            Résidents
+          </button>
+          <button mat-stroked-button type="button" (click)="openIdentify()">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon>
+            Identifier un résident
+          </button>
+          <button mat-stroked-button type="button" (click)="openDining()">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon>
+            Service en salle
+          </button>
+        </div>
+      </div>
+      <div class="tool-group" role="group" aria-label="Équipe et transmissions">
+        <h2>Équipe et transmissions</h2>
+        <div class="tool-buttons">
+          <button mat-stroked-button type="button" (click)="openReleve()">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
+            Relève
+          </button>
+          <button mat-stroked-button type="button" (click)="openPlanning()">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">calendar_today</mat-icon>
+            Planning
+          </button>
+          <button mat-stroked-button type="button" (click)="openTeam()">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
+            Équipe
+          </button>
+          <button mat-stroked-button type="button" (click)="openNotes()">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">note_alt</mat-icon>
+            Notes de service
+          </button>
+        </div>
+      </div>
+      <div class="tool-group" role="group" aria-label="Assistance">
+        <h2>Assistance</h2>
+        <div class="tool-buttons">
+          <button mat-stroked-button type="button" (click)="openAssistant()">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">support_agent</mat-icon>
+            Assistant
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -213,7 +226,7 @@
                   </span>
                 }
                 @if (item.resident.texture; as texture) {
-                  <span class="work-status work-alert">
+                  <span class="work-status" [class.work-alert]="texture !== 'Normale'">
                     <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
                     Texture · {{ texture }}
                   </span>

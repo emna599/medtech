@@ -20,6 +20,12 @@ export class Toolbar {
 
   protected readonly dark = computed(() => this.theme.mode() === 'dark');
 
+  protected readonly projection = this.theme.projection;
+
+  protected toggleProjection(): void {
+    this.theme.toggleProjection();
+  }
+
   protected readonly user = this.auth.currentUser;
   protected readonly roleLabel = computed(() => {
     const role = this.user()?.role;

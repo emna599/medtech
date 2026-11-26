@@ -8,6 +8,10 @@
 | Cuisine | Accède à une vue limitée aux plateaux qu’elle prépare. Détermine avec l’EHPAD le minimum d’informations nécessaire pour éviter une erreur d’identification ou de préparation. |
 | Personnel soignant | Consulte les consignes et confirme la vérification au moment du service. Le dossier médical reste dans l’espace médecin. |
 
+## En salle aujourd’hui
+
+Dans **Service en salle**, l’équipe peut confirmer une présence, associer un numéro de chevalet et ouvrir la fiche Repas. Le chevalet facilite le repérage à la table. La vérification du plateau et de l’identité se fait dans la fiche Repas. [Parcours du personnel](parcours.md#personnel)
+
 ## Scénario d’essai
 
 1. La cuisine prépare un plateau et enregistre la version des consignes utilisée.

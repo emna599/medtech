@@ -30,15 +30,17 @@ public class AdminResidentService {
     private final QrCodeService qrCodes;
     private final CurrentUserService currentUserService;
     private final AuditService auditService;
+    private final ChevaletService chevalets;
 
     public AdminResidentService(ResidentRepository residentRepository, RoomRepository roomRepository,
                                 QrCodeService qrCodes, CurrentUserService currentUserService,
-                                AuditService auditService) {
+                                AuditService auditService, ChevaletService chevalets) {
         this.residentRepository = residentRepository;
         this.roomRepository = roomRepository;
         this.qrCodes = qrCodes;
         this.currentUserService = currentUserService;
         this.auditService = auditService;
+        this.chevalets = chevalets;
     }
 
     /**
@@ -111,6 +113,7 @@ public class AdminResidentService {
     private void recordDeparture(Resident resident, String username) {
         User user = currentUserService.require(username);
         qrCodes.revokeForDeparture(resident.getId(), user);
+        chevalets.releaseForDeparture(resident.getId(), user);
         auditService.record(user, "RESIDENT_DESACTIVE", "Resident", resident.getId());
     }
 

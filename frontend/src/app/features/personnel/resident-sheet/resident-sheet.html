@@ -1,7 +1,8 @@
 <div class="sheet">
   <header class="head">
-    <app-resident-avatar
-      [photoUrl]="resident().photoUrl"
+    <app-resident-portrait
+      [residentId]="resident().id"
+      [fallback]="resident().photoUrl"
       [firstName]="resident().firstName"
       [lastName]="resident().lastName"
       [size]="112"

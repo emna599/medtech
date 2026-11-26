@@ -64,3 +64,10 @@
     display: none;
   }
 }
+
+@media (max-width: 480px) {
+  .toolbar { padding-inline: 8px; gap: 4px; }
+  .logo, .logout-label { display: none; }
+  .logout { min-width: 40px; padding-inline: 8px; }
+  .logout mat-icon { margin: 0; }
+}

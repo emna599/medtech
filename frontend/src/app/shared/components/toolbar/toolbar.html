@@ -14,6 +14,13 @@
     </span>
   }
 
+  <button mat-stroked-button type="button" class="projection-toggle"
+    [attr.aria-pressed]="projection()" aria-label="Mode projection"
+    (click)="toggleProjection()">
+    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">present_to_all</mat-icon>
+    Projection
+  </button>
+
   <button
     mat-icon-button
     type="button"
@@ -24,8 +31,8 @@
     <mat-icon fontSet="material-symbols-outlined">{{ dark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
   </button>
 
-  <button mat-button type="button" (click)="logout()">
+  <button mat-button type="button" class="logout" aria-label="Déconnexion" (click)="logout()">
     <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">logout</mat-icon>
-    Déconnexion
+    <span class="logout-label">Déconnexion</span>
   </button>
 </mat-toolbar>

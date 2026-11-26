@@ -2,6 +2,10 @@
 
 Application web de gestion et d'identification des résidents d'un EHPAD : comptes, résidents, chambres, suivi des repas et QR codes. Projet de hackathon réalisé en équipe, avec une interface par rôle.
 
+## Parcours
+
+Le [guide des parcours](docs/parcours.md) couvre les trois rôles, la projection et le service en salle.
+
 ## Rôles
 
 | Rôle | Espace | État |

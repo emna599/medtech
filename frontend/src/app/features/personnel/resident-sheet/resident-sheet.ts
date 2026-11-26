@@ -22,7 +22,7 @@ import {
 } from '../../../shared/models/personnel.model';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { AppetiteChart } from '../components/appetite-chart';
-import { ResidentAvatar } from '../components/resident-avatar';
+import { ResidentPortrait } from '../../../shared/components/resident-portrait/resident-portrait';
 
 export interface ResidentSheetData {
   item: ServiceItem;
@@ -45,7 +45,7 @@ export interface ResidentSheetResult {
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    ResidentAvatar,
+    ResidentPortrait,
   ],
   templateUrl: './resident-sheet.html',
   styleUrl: './resident-sheet.scss',

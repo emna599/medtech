@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/resident-photos/*").hasAnyRole("ADMIN", "PERSONNEL", "MEDECIN")
                         .requestMatchers(HttpMethod.POST, "/api/identification/bracelet").hasAnyRole("ADMIN", "PERSONNEL", "MEDECIN")
                         .requestMatchers("/api/residents/*/qr-codes", "/api/residents/*/qr-codes/**").denyAll()
                         .requestMatchers("/api/personnel/planning",

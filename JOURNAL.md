@@ -5,6 +5,16 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — projection, chevalets et photos
+
+- Ajouté **Projection** aux trois espaces, avec contraste renforcé et texte agrandi sur grand écran. L’espace personnel regroupe les commandes en trois ensembles visibles. Les statuts et alertes restent libellés.
+- **Service en salle** permet d’associer et de libérer un chevalet numéroté pour un résident installé, après confirmation. L’unicité est garantie en base, y compris pour des demandes simultanées. Le déplacement de table conserve l’association. Le départ de salle et la désactivation la libèrent. Les écritures sont réservées au personnel pour la salle et les actions sont auditées.
+- L’admin peut ajouter, remplacer et retirer la photo dans **Identité et séjour**. JPEG et PNG sont validés côté serveur puis réencodés en JPEG sans recopier les métadonnées. La lecture est authentifiée et les réponses demandent au navigateur de ne pas les mettre en cache. Le médecin voit la photo dans la fiche et le personnel dans la fiche de tournée d’un résident actif.
+- Vérifié sur base isolée : 35 tests backend, 33 tests frontend, projection dans Chromium de 320 à 1 440 px, cycle du chevalet et refus de la double attribution, ajout et lecture d’un portrait fictif, refus des écritures hors admin et retrait.
+- Migrations additives `chevalet.sql` et `resident_photo.sql`. Le guide [Parcours MedTech](docs/parcours.md) centralise les trois rôles et est relié aux README, au guide de test et au circuit du plateau. Essais caméra et lecteur RFID physiques reportés à la demande de l’utilisateur. Le raccordement autonome dépend du matériel. La dictée distante reste à cadrer avant de transmettre des notes à un prestataire.
+
+---
+
 ## Relais Codex du 2026-11-26 — intégration des trois branches
 
 - Fusionné `feature/admin-users` puis `feature/medecin` puis `feature/personnel` dans `integration`. Les cartes, les validations de chambre, les circuits Repas et Médicaments et la relève existante sont conservés. Les résolutions gardent les règles d’accès actuelles et adaptent les apports incompatibles avec ces circuits.
@@ -257,6 +267,9 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 
 ## Guide de test par rôle (A → Z)
 
+Le [guide des parcours](docs/parcours.md) décrit la projection et les gestes actuels pour les trois rôles. Les essais caméra et RFID physiques sont en attente du matériel.
+
+
 > Objectif : dérouler chaque rôle et cocher chaque fonctionnalité pour repérer un éventuel problème.
 
 ### 👑 ADMINISTRATEUR (`admin` / Demo1234!)
@@ -266,7 +279,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 4. **Créer un résident** (« Nouveau résident ») : nom, dates, chambre. Vérifier les garde-fous :
    - date d'admission **antérieure** à la naissance → refus ;
    - affecter à une chambre **déjà pleine** (capacité atteinte) → refus.
-5. **Modifier / désactiver** un résident. Sur sa fiche, utiliser **Désactiver le résident** pour enregistrer son départ. Vérifier **Coordination du séjour** et **Bracelet d’identification**. Afficher, télécharger, imprimer, renouveler ou désactiver le QR. Après renouvellement, vérifier que le nouveau code identifie le résident et que l’ancien est refusé.
+5. **Modifier / désactiver** un résident. Dans **Identité et séjour**, ajouter, remplacer ou retirer une photo fictive. Sur sa fiche, utiliser **Désactiver le résident** pour enregistrer son départ. Vérifier **Coordination du séjour** et **Bracelet d’identification**. Afficher, télécharger, imprimer, renouveler ou désactiver le QR. Après renouvellement, vérifier que le nouveau code identifie le résident et que l’ancien est refusé.
 6. **Chambres et étages** : liste, créer/modifier une chambre (numéro, étage, capacité).
 7. **Comptes** : créer un compte (identifiant, rôle, mot de passe), modifier le rôle, réinitialiser le mot de passe, désactiver. Garde-fous à vérifier :
    - **se désactiver soi-même** ou retirer son propre rôle admin → refus ;
@@ -299,7 +312,8 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 6. **« Je ne le connais pas »** : identification par code bracelet / scan QR / photo de pochette (OCR).
 7. Onglet **Médicaments** : tournée **Matin / Midi / Soir**, « Démarrer la tournée », donner une prise ; un **médicament à risque** demande une **confirmation**.
 8. **Résidents** (annuaire), **Relève** (créer une transmission, la prendre en charge puis la reprendre et la clôturer avec un autre compte personnel), **Assistant** (ex. « qui reste à servir ? »).
-9. **Thème sombre** (bouton lune), **Déconnexion**.
+9. **Service en salle** : installer un résident, associer un numéro de chevalet, ouvrir la fiche repas et libérer le chevalet. Vérifier qu’un numéro déjà associé ne peut pas être pris par un deuxième résident.
+10. **Projection** (bouton dans la barre du haut), thème sombre et déconnexion.
 - À surveiller : le **scan QR** nécessite une caméra ; l'**OCR pochette** nécessite le service Flask externe (absent → message « indisponible », c'est normal).
 
 ### 🔒 Contrôles de sécurité (rapides)

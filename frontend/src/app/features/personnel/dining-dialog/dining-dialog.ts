@@ -38,6 +38,9 @@ export class DiningDialog {
   protected readonly status = signal<string | null>(null);
   protected readonly activeReader = signal<string | null>(null);
   protected readonly readCode = signal('');
+  protected readonly editingChevalet = signal<number | null>(null);
+  protected readonly chevaletNumber = signal('');
+  protected readonly chevaletPattern = /^[1-9][0-9]{0,3}$/;
   protected readonly labels: Record<ServiceStatus, string> = {
     A_FAIRE: 'À faire', FAIT: 'Servi', ABSENT: 'Absent', REFUSE: 'Refusé', PLUS_TARD: 'Plus tard',
   };
@@ -88,6 +91,31 @@ export class DiningDialog {
 
   protected leave(table: DiningTable, seat: DiningSeat): void {
     if (table.readerCode) this.record(table.readerCode, { residentId: seat.resident.id }, true);
+  }
+
+  protected toggleChevalet(seat: DiningSeat): void {
+    this.editingChevalet.set(this.editingChevalet() === seat.resident.id ? null : seat.resident.id);
+    this.chevaletNumber.set('');
+  }
+
+  protected saveChevalet(seat: DiningSeat): void {
+    const number = this.chevaletNumber().trim();
+    if (this.busy() || (!seat.chevalet && !this.chevaletPattern.test(number))) return;
+    this.busy.set(true);
+    this.error.set(null);
+    this.status.set(null);
+    const request = seat.chevalet
+      ? this.api.releaseChevalet(seat.resident.id, seat.chevalet)
+      : this.api.assignChevalet(seat.resident.id, number);
+    request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.editingChevalet.set(null);
+        this.status.set(seat.chevalet ? 'Chevalet libéré.' : 'Chevalet associé.');
+        this.load();
+      },
+      error: error => this.fail(error),
+    });
   }
 
   protected openMeal(seat: DiningSeat): void {

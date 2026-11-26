@@ -43,6 +43,34 @@
                   <li>
                     <strong class="work-card-name">{{ seat.resident.firstName }} {{ seat.resident.lastName }}</strong>
                     <span>{{ seat.resident.room ? 'Chambre ' + seat.resident.room : 'Sans chambre' }}</span>
+                    @if (seat.chevalet; as number) {
+                      <span class="work-status">
+                        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">confirmation_number</mat-icon>
+                        <span>Chevalet {{ number }}</span>
+                      </span>
+                    }
+                    <button mat-stroked-button type="button" [disabled]="busy()"
+                      [attr.aria-expanded]="editingChevalet() === seat.resident.id" (click)="toggleChevalet(seat)">
+                      {{ seat.chevalet ? 'Libérer le chevalet' : 'Associer un chevalet' }}
+                    </button>
+                    @if (editingChevalet() === seat.resident.id) {
+                      <form class="arrival" (submit)="$event.preventDefault(); saveChevalet(seat)">
+                        @if (seat.chevalet; as number) {
+                          <span>Libérer le chevalet {{ number }} de {{ seat.resident.firstName }} {{ seat.resident.lastName }} ?</span>
+                        } @else {
+                          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>Numéro du chevalet</mat-label>
+                            <input matInput inputmode="numeric" maxlength="4" [value]="chevaletNumber()"
+                              (input)="chevaletNumber.set($any($event.target).value)" />
+                          </mat-form-field>
+                        }
+                        <button mat-flat-button type="submit"
+                          [disabled]="busy() || (!seat.chevalet && !chevaletPattern.test(chevaletNumber().trim()))">
+                          {{ seat.chevalet ? 'Confirmer la libération' : 'Confirmer l’association' }}
+                        </button>
+                        <button mat-button type="button" (click)="toggleChevalet(seat)">Annuler</button>
+                      </form>
+                    }
                     @if (seat.meal; as meal) {
                       <span class="work-status">{{ labels[meal.status] }}</span>
                       <button mat-button [disabled]="busy()" (click)="openMeal(seat)">Ouvrir la fiche repas</button>

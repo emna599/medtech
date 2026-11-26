@@ -13,15 +13,15 @@ Principe de conception : **« un écran, un geste »**, pensé d'abord pour la t
 | Fonction | Description |
 |---|---|
 | Accueil | Choix **Repas / Médicaments**, créneau (déjeuner, dîner, matin, midi, soir), progression « X / Y faits », recherche par nom ou chambre, filtre À faire / Faits / Tous |
-| Salle à manger | **Grille de photos** des résidents : on reconnaît la personne, on touche, on valide |
+| Salle à manger | Cartes résidents avec nom, chambre, statut et alertes. **Service en salle** permet de gérer les présences et les chevalets |
 | Chambres | **Liste ordonnée par chambre** avec « Démarrer la tournée » : après chaque validation, la fiche du résident suivant s'ouvre |
 | Fiche résident | Photo, **bandeau rouge d'allergies**, régime et texture, actions **Servi / Donné**, **Refusé** (avec motif), **Plus tard**, quantité mangée, changement de lieu (salle ↔ chambre) |
 | Doute d'identité | Le soignant signale un doute : **Servi / Donné est bloqué** tant qu'un **autre** soignant ne l'a pas levé |
 | « Je ne le connais pas » | Saisie du code du bracelet (facultatif) pour afficher la fiche, puis confirmation « C'est bien cette personne » |
 | Assistant | Bouton **Assistant** (en bas à droite) : questions en français, écrites ou **dictées à la voix**, réponses sur le service en cours. Il **propose** une validation, le soignant **confirme** |
 | Appétit | Dans la fiche d'un repas : graphique des 7 derniers jours (une barre par jour) et alerte **« en baisse »** quand les trois derniers jours sont nettement moins bons ou sous la moitié. L'assistant répond aussi à « appétit de Mme Martin ? » |
-| Mode sombre | Bouton lune / soleil dans le bandeau ; suit le réglage du système tant qu'on n'a pas choisi |
-| Relève | Bouton **Relève** : résumé à transmettre à l'équipe suivante (repas et prises faits par créneau, reste à faire, doutes d'identité, refus, repas à peine touchés, traitements à risque non donnés), avec **Copier le résumé** |
+| Affichage | **Projection** pour rendre les cartes et commandes plus visibles de loin. Bouton lune / soleil pour choisir le thème |
+| Relève | Bouton **Relève** pour transmettre et attribuer les actions à poursuivre, consulter les clôtures et copier le résumé du service |
 | Pochette (OCR) | Dans « Je ne le connais pas » : **Photographier l'étiquette d'une pochette**. Le service OCR de l'équipe lit le nom, Spring retrouve le résident, et le soignant **compare le visage à la photo** avant de continuer. Facultatif : sans service OCR, un message l'indique |
 | Traçabilité | Chaque action est enregistrée dans `audit_log` avec le soignant, l'heure et le résident |
 
@@ -187,6 +187,11 @@ Codes de bracelet de démonstration : `DEMO-001` à `DEMO-012`.
 ---
 
 ## 5. Parcours de test
+
+Le [guide des parcours](docs/parcours.md#personnel) décrit les écrans actuels, les confirmations et les essais reportés. Pour présenter l’interface sur grand écran, sélectionnez **Projection** dans la barre du haut.
+
+Dans **Service en salle**, installez un résident après vérification de son identité. Sélectionnez **Associer un chevalet**, saisissez le numéro imprimé et confirmez. Le chevalet s’affiche sur la carte. Pour le rendre disponible, confirmez sa libération ou enregistrez le départ. **Ouvrir la fiche repas** mène à la validation habituelle du plateau. Le portrait ajouté par l’administration apparaît sur cette fiche quand il est disponible.
+
 
 1. **Salle à manger.** Connexion `personnel`, onglet Repas, Déjeuner. Toucher un résident, **Servi**, choisir la quantité. Le compteur « X / 12 » avance.
 2. **Allergie.** Ouvrir un résident allergique (Colette Simon : lactose ; Lucien Roux : arachides) : le bandeau rouge est en haut de la fiche.

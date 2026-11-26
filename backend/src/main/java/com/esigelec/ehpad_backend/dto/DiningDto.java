@@ -24,7 +24,7 @@ public record DiningDto(
     public record Table(Long id, String label, int capacity, int present, int served, String readerCode, List<Seat> seats) {
     }
 
-    public record Seat(int position, Identity resident, Meal meal) {}
+    public record Seat(int position, Identity resident, String chevalet, Meal meal) {}
 
     public record Identity(Long id, String firstName, String lastName, String room) {}
 
