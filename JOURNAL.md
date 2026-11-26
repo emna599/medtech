@@ -153,6 +153,14 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 - Logique métier EHPAD restante (features) : GIR/AGGIR, entité Prescription, rôles IDE/aide-soignant, motif+date de sortie, alerte dénutrition, relève persistée.
 - Sécurité : rate-limit sur le login, stratégie de révocation JWT, CSP.
 
+### Décision — base de données & déploiement
+- **Pendant le développement** : chacun sa **base locale identique** (via `docker compose up`, scripts SQL versionnés). Pas de base partagée pour l'instant.
+- **En fin de projet** : déployer **tout dans le cloud, gratuitement**. Pistes (offres gratuites) :
+  - **Base PostgreSQL** : Neon ou Supabase (free tier).
+  - **Backend Spring Boot** : Render, Railway ou Fly.io (free tier).
+  - **Frontend Angular** : Vercel, Netlify ou GitHub Pages.
+  - À prévoir au moment du déploiement : `CORS_ALLOWED_ORIGINS` vers l'URL du front déployé, `DB_URL`/secrets via les variables d'environnement de l'hébergeur (jamais dans Git), et faire pointer `environment.ts` du front vers l'URL publique de l'API.
+
 ---
 
 ## Base de données : la même pour toute l'équipe
