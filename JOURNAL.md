@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — audit du profil Service et des branches
+
+- Récupéré les branches distantes `feature/*`. Les cinq branches historiques sont dans l’ascendance d’`integration`. `feature/personnel-v2` a un commit supplémentaire, `7b6b3d4`, qui ouvre les tables par défaut pour le profil SERVICE, facilite l’accès des soignants aux tables et simplifie certains écrans.
+- La branche historique Personnel prévoyait les comptes fictifs `service1` (Sofia Service, fonction SERVICE) et `personnel3` (Hugo Infirmier), tous deux avec le rôle PERSONNEL. Leurs lignes de seed ne sont pas reprises dans les scripts d’intégration. L’interface Service en salle et la fonction SERVICE existent déjà dans l’intégration.
+- À reprendre après revue métier : gestion des profils et affectations depuis l’administration, écran d’accueil Service, jeux de test par fonction et contrôles d’accès serveur. La branche historique exigeait un droit métier pour valider une prise, tandis que l’intégration a conservé le périmètre général PERSONNEL/ADMIN. Distinguer lecture, validation et droits administratifs avant d’activer de nouveaux comptes. Aucun changement fonctionnel lors de cet audit.
+
+---
+
 ## Relais Codex du 2026-11-27 — registre de tournée Personnel
 
 - La tournée utilise un registre à colonnes sur ordinateur et une liste de résidents sur mobile. Nom, chambre, consignes, alertes et statut sont alignés. La ligne ouvre la fiche de tournée.
