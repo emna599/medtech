@@ -1,0 +1,97 @@
+<app-toolbar />
+
+<main class="page">
+  <a mat-button routerLink="/medecin/residents" class="back-link">
+    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">arrow_back</mat-icon>
+    Retour à la liste
+  </a>
+
+  @if (resident.isLoading()) {
+    <div class="state" role="status">
+      <mat-spinner diameter="40" />
+      <p>Chargement de la fiche…</p>
+    </div>
+  } @else if (residentError(); as message) {
+    <section class="state" role="alert">
+      <p>{{ message }}</p>
+      <button mat-flat-button type="button" (click)="resident.reload()">Réessayer</button>
+    </section>
+  } @else if (resident.value(); as currentResident) {
+    <header class="page-header">
+      <div>
+        <h1>{{ currentResident.firstName }} {{ currentResident.lastName }}</h1>
+        <p>Fiche du résident</p>
+      </div>
+      <span class="status" [class.inactive]="!currentResident.active">
+        {{ currentResident.active ? 'Actif' : 'Inactif' }}
+      </span>
+    </header>
+
+    <section aria-labelledby="resident-info-title">
+      <h2 id="resident-info-title">Informations du résident</h2>
+      <mat-card appearance="outlined">
+        <mat-card-content class="resident-info">
+          <p>
+            <strong>Date de naissance :</strong>
+            {{ currentResident.birthDate | date: 'dd/MM/yyyy' }}
+          </p>
+          <p>
+            <strong>Date d'admission :</strong>
+            @if (currentResident.admissionDate) {
+              {{ currentResident.admissionDate | date: 'dd/MM/yyyy' }}
+            } @else {
+              Non renseignée
+            }
+          </p>
+          <p>
+            <strong>Chambre :</strong>
+            {{ currentResident.roomNumber ?? 'Non renseignée' }}
+            @if (currentResident.floor !== null) {
+              <span> · Étage {{ currentResident.floor }}</span>
+            }
+          </p>
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <section class="medical-record" aria-labelledby="medical-record-title">
+      <h2 id="medical-record-title">Dossier médical</h2>
+      @if (medicalRecord.isLoading()) {
+        <div class="state" role="status">
+          <mat-spinner diameter="32" />
+          <p>Chargement du dossier médical…</p>
+        </div>
+      } @else if (medicalRecordError(); as recordMessage) {
+        <section class="state" role="alert">
+          <p>{{ recordMessage }}</p>
+          <button
+            mat-flat-button
+            type="button"
+            (click)="medicalRecord.reload()"
+          >
+            Réessayer
+          </button>
+        </section>
+      } @else if (medicalRecord.value(); as record) {
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <section class="record-section" aria-labelledby="history-title">
+              <h3 id="history-title">Antécédents</h3>
+              <p class="record-text">{{ record.history || 'Non renseignés' }}</p>
+            </section>
+            <section class="record-section" aria-labelledby="treatments-title">
+              <h3 id="treatments-title">Traitements</h3>
+              <p class="record-text">{{ record.treatments || 'Non renseignés' }}</p>
+            </section>
+            @if (record.updatedAt) {
+              <p class="updated-at">
+                <strong>Mis à jour le :</strong>
+                {{ record.updatedAt | date: 'dd/MM/yyyy' }} à {{ record.updatedAt | date: 'HH:mm' }}
+              </p>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </section>
+  }
+</main>

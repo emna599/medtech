@@ -1,0 +1,77 @@
+<app-toolbar />
+
+<main class="page">
+  <header class="page-header">
+    <div>
+      <h1>Résidents</h1>
+      <p>Consultez les résidents et leurs dossiers médicaux.</p>
+    </div>
+  </header>
+
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Rechercher par nom ou numéro de chambre</mat-label>
+    <mat-icon matPrefix fontSet="material-symbols-outlined" aria-hidden="true">search</mat-icon>
+    <input
+      matInput
+      type="search"
+      [value]="searchQuery()"
+      (input)="onSearchInput($event)"
+    />
+    @if (searchQuery()) {
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        aria-label="Effacer la recherche"
+        (click)="clearSearch()"
+      >
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">close</mat-icon>
+      </button>
+    }
+  </mat-form-field>
+
+  @if (loading()) {
+    <div class="state" role="status">
+      <mat-spinner diameter="40" />
+      <p>Chargement des résidents…</p>
+    </div>
+  } @else if (errorMessage(); as message) {
+    <section class="state" role="alert">
+      <p>{{ message }}</p>
+      <button mat-flat-button type="button" (click)="loadResidents()">Réessayer</button>
+    </section>
+  } @else if (residents().length === 0) {
+    <p class="state">Aucun résident à afficher.</p>
+  } @else {
+    <div class="resident-grid">
+      @for (resident of filteredResidents(); track resident.id) {
+        <mat-card appearance="outlined" class="resident-card">
+          <mat-card-content>
+            <div class="resident-heading">
+              <h2>{{ resident.firstName }} {{ resident.lastName }}</h2>
+              <span class="status" [class.inactive]="!resident.active">
+                {{ resident.active ? 'Actif' : 'Inactif' }}
+              </span>
+            </div>
+            <p><strong>Date de naissance :</strong> {{ resident.birthDate | date: 'dd/MM/yyyy' }}</p>
+            <p>
+              <strong>Chambre :</strong>
+              {{ resident.roomNumber ?? 'Non renseignée' }}
+              @if (resident.floor !== null) {
+                <span> · Étage {{ resident.floor }}</span>
+              }
+            </p>
+          </mat-card-content>
+          <mat-card-actions align="end">
+            <button mat-button type="button" (click)="viewResident(resident.id)">
+              Consulter la fiche
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">arrow_forward</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      } @empty {
+        <p class="state">Aucun résident ne correspond à cette recherche.</p>
+      }
+    </div>
+  }
+</main>

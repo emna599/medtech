@@ -56,3 +56,23 @@ export function stayDuration(admissionDate: string): string {
   }
   return parts.join(' ');
 }
+
+export interface ResidentSummary {
+  id: number;
+  firstName: string;
+  lastName: string;
+  birthDate: string;
+  active: boolean;
+  roomNumber: string | null;
+  floor: number | null;
+}
+
+export interface ResidentDetail extends ResidentSummary {
+  admissionDate: string | null;
+}
+
+export interface MedicalRecord {
+  history: string | null;
+  treatments: string | null;
+  updatedAt: string | null;
+}

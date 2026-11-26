@@ -58,5 +58,19 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/medecin/medecin-dashboard').then((m) => m.MedecinDashboard),
   },
+  {
+    path: 'medecin/residents',
+    title: 'Résidents',
+    canActivate: [roleGuard(['MEDECIN'])],
+    loadComponent: () =>
+      import('./features/medecin/residents/resident-list').then((m) => m.ResidentList),
+  },
+  {
+    path: 'medecin/residents/:id',
+    title: 'Fiche du résident',
+    canActivate: [roleGuard(['MEDECIN'])],
+    loadComponent: () =>
+      import('./features/medecin/residents/resident-detail').then((m) => m.ResidentDetailPage),
+  },
   { path: '**', redirectTo: 'login' },
 ];
