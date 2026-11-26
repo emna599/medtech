@@ -32,7 +32,7 @@ try {
         & $psql -U $User -d postgres -c "CREATE DATABASE $DbName"
     }
     & $psql -U $User -d $DbName -f (Join-Path $PSScriptRoot "setup.sql")
-    Write-Host "Base '$DbName' prête : 3 comptes de démo, 6 chambres, 8 résidents." -ForegroundColor Green
+    Write-Host "Base '$DbName' prête : 3 comptes de démo, 16 chambres, 24 résidents, repas et QR codes." -ForegroundColor Green
 }
 finally {
     Remove-Item Env:PGPASSWORD -ErrorAction SilentlyContinue

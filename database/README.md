@@ -10,7 +10,8 @@ Base **PostgreSQL** nommée `medtech`. Le backend la valide au démarrage (`ddl-
 | `setup.sql` | Enchaîne schéma, comptes de démo et données de démo |
 | `medtech_schema.sql` | Création de toutes les tables et des index |
 | `seed_users.sql` | 3 comptes de démonstration (admin, personnel, médecin) |
-| `seed_demo.sql` | 6 chambres et 8 résidents fictifs pour tester |
+| `seed_demo.sql` | 16 chambres (3 étages) et 24 résidents fictifs |
+| `seed_care.sql` | Fiches médicales, allergies, régimes, repas, distributions et QR codes fictifs |
 
 ## Mise en place (identique pour toute l'équipe)
 
@@ -23,7 +24,7 @@ Pour que tout le monde ait **la même base et les mêmes données**, chacun util
 Le script :
 1. cherche `psql` tout seul ;
 2. crée la base `medtech` si elle n'existe pas ;
-3. exécute `medtech_schema.sql`, `seed_users.sql` puis `seed_demo.sql` (via `setup.sql`).
+3. exécute `medtech_schema.sql`, `seed_users.sql`, `seed_demo.sql` puis `seed_care.sql` (via `setup.sql`).
 
 Il demande le mot de passe PostgreSQL (jamais écrit dans un fichier) et une confirmation avant d'effacer les tables.
 
@@ -44,7 +45,7 @@ Ensuite, reporte l'URL et le mot de passe dans ton fichier `.env` (`DB_URL`, `DB
 
 Chacun a sa propre base locale : les données saisies chez toi ne sont pas visibles chez les autres. Donc :
 - toute modification de structure passe par `medtech_schema.sql`, jamais à la main dans pgAdmin ;
-- toute donnée de démo commune passe par `seed_demo.sql` ou `seed_users.sql`, puis tout le monde relance `setup.ps1` après un `git pull`.
+- toute donnée de démo commune passe par `seed_demo.sql`, `seed_care.sql` ou `seed_users.sql`, puis tout le monde relance `setup.ps1` après un `git pull`.
 
 ## Numérotation des chambres
 
@@ -87,14 +88,24 @@ Sur `resident(room_id)`, `allergy(resident_id)`, `dietary_regime(resident_id)`, 
 
 ## Données de démonstration
 
+Toutes les données sont **fictives** (noms volontairement inventés : Exemple, Maquette, Prototype...). Ne mets jamais de vraies données de résidents dans le dépôt.
+
 `seed_demo.sql` crée :
+- 16 chambres sur 3 étages (27 lits) : 101 à 106, 201 à 206 et 301 à 304 ;
+- 24 résidents : 22 actifs et 2 inactifs (Henri Ancien, Roger Parti) ;
+- 2 résidents actifs sans chambre, pour tester l'alerte rouge : Simone Inventee et Jeanne Attente.
 
-- 6 chambres : 101, 102, 103 (étage 1) et 201, 202, 203 (étage 2), soit 10 lits ;
-- 8 résidents fictifs dont 1 inactif (Henri Ancien) et 1 actif sans chambre (Simone Inventee).
+`seed_care.sql` ajoute, pour les interfaces Personnel et Médecin :
+- 22 fiches médicales (une par résident actif) ;
+- 10 allergies, de gravité légère, modérée ou sévère ;
+- 11 régimes alimentaires (sans sel, diabétique, sans gluten, haché, mixé, végétarien...) ;
+- des repas : 3 par jour et par résident actif, de J-3 à J+3 autour du jour où tu lances le script ;
+- les distributions : les repas passés sont servis par le compte `personnel`, sauf environ 1 sur 9, pour avoir des repas « à servir » dans la démo ;
+- 23 QR codes : un actif par résident actif, et un ancien QR désactivé pour Marie Exemple (cas du renouvellement), créés par le compte `medecin`.
 
-Résultat attendu dans le tableau de bord : 7 résidents actifs, 6 lits occupés sur 10, taux d'occupation 60 %.
+Résultat attendu dans le tableau de bord admin : 22 résidents actifs et 2 inactifs, 2 résidents sans chambre, 20 lits occupés sur 27 (74 %), étage 1 : 9/10, étage 2 : 7/10, étage 3 : 4/7.
 
-Toutes ces données sont fictives. Ne mets jamais de vraies données de résidents dans le dépôt.
+Les dates des repas dépendent du jour d'exécution : relance `setup.ps1` pour recentrer les repas sur aujourd'hui.
 
 ## Outils utiles
 
