@@ -60,3 +60,95 @@ Points relevés (sécurité du soin, modèle manquant, améliorations). Correcti
 2. `fix(medecin)` : table `medical_record` (singulier).
 3. `refactor(ui)` : design sobre (neutre, à plat, Inter).
 4. `feat(soin)` : confirmation obligatoire avant de servir un repas/médicament à risque + `JOURNAL.md`.
+
+---
+
+## Lancement du projet
+
+### Option 1 — Docker, une seule commande (recommandé pour l'équipe)
+Prérequis : Docker Desktop. Depuis la racine du dépôt :
+
+```
+docker compose up --build
+```
+
+Cela construit et démarre **tout** : PostgreSQL (schéma + données de démo chargés automatiquement), le backend Spring Boot et le frontend Angular.
+- Interface : http://localhost:4200
+- API : http://localhost:8080
+- Comptes de démo (mot de passe **Demo1234!**) : `admin`, `personnel`, `medecin`.
+
+Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi les données et repartir d'une base neuve).
+
+> **Testé le 2026-11-26** : `docker compose up --build` construit les images et démarre DB + backend + frontend ; base initialisée (12 résidents), les 3 comptes se connectent (HTTP 200), app servie sur http://localhost:4200. ✅
+
+### Option 2 — Manuel (développement)
+1. Base : créer une base `medtech` puis exécuter dans l'ordre `database/medtech_schema.sql`, `seed_users.sql`, `personnel_additions.sql`, `seed_personnel.sql`.
+2. Copier `.env.example` → `.env` (à la racine) et renseigner les valeurs.
+3. Backend : `cd backend && ./mvnw spring-boot:run` (JDK 21).
+4. Frontend : `cd frontend && npm install && npx ng serve`.
+
+### Quelle branche tester ?
+- **`integration`** : l'application **complète** (les 3 modules fusionnés). **C'est la branche à tester.**
+- `main` : authentification seule.
+- `feature/admin-users` / `feature/personnel` / `feature/medecin` : un module isolé (utile pour comparer au travail d'origine d'un·e coéquipier·ère).
+
+---
+
+## Guide de test par rôle (A → Z)
+
+> Objectif : dérouler chaque rôle et cocher chaque fonctionnalité pour repérer un éventuel problème.
+
+### 👑 ADMINISTRATEUR (`admin` / Demo1234!)
+1. **Connexion** → on arrive sur le *Tableau de bord*.
+2. **Tableau de bord** : vérifier les tuiles (résidents actifs, lits occupés, taux d'occupation, comptes par rôle, dernières admissions) et l'alerte « résident(s) sans chambre ».
+3. **Résidents** : liste, recherche par nom, filtre d'état (Actifs / Tous), pagination (10/page). Ouvrir une fiche (clic sur une ligne).
+4. **Créer un résident** (« Nouveau résident ») : nom, dates, chambre. Vérifier les garde-fous :
+   - date d'admission **antérieure** à la naissance → refus ;
+   - affecter à une chambre **déjà pleine** (capacité atteinte) → refus.
+5. **Modifier / désactiver** un résident.
+6. **Chambres et étages** : liste, créer/modifier une chambre (numéro, étage, capacité).
+7. **Comptes** : créer un compte (identifiant, rôle, mot de passe), modifier le rôle, réinitialiser le mot de passe, désactiver. Garde-fous à vérifier :
+   - **se désactiver soi-même** ou retirer son propre rôle admin → refus ;
+   - retirer le **dernier administrateur actif** → refus ;
+   - **identifiant déjà pris** → refus.
+8. **Déconnexion**.
+- À surveiller : liste/tri/pagination se font côté client (volume EHPAD faible, assumé).
+
+### 🩺 MÉDECIN (`medecin` / Demo1234!)
+1. **Connexion** → *Espace médecin*.
+2. ⚠️ **L'interface médecin est un placeholder** (le module n'a pas encore d'écrans). À tester donc surtout via l'API :
+   - `GET /api/residents` (liste), `GET /api/residents/{id}` (détail),
+   - `GET /api/residents/{id}/medical-record` (dossier — réservé MEDECIN).
+   - Contrôle d'accès : avec un jeton `personnel`, le dossier médical renvoie **403**.
+3. **Déconnexion**.
+- À faire ensuite (backlog) : écrire l'interface médecin + l'écriture du dossier, allergies/régimes, QR codes.
+
+### 🧑‍⚕️ PERSONNEL / SOIGNANT (`personnel` / Demo1234!)
+1. **Connexion** → *Espace personnel*, onglet **Repas**.
+2. Parcourir : créneau **Déjeuner / Dîner**, filtres **Salle à manger / Chambres**, **À faire / Faits / Tous**, recherche.
+3. **Ouvrir une fiche** (clic sur une carte) : identité, signes distinctifs, **courbe d'appétit 7 jours**, repas du créneau, régime / texture / à éviter, consignes.
+4. **Servir un repas** :
+   - résident **sans** allergie → « Servi » direct ;
+   - résident **avec** allergie/texture (ex. **Lucien ROUX · Arachides · Hachée**) → « Servi » ouvre un **dialogue de confirmation** (vérifier le plateau) ; tester *Annuler* puis *J'ai vérifié, valider* ;
+   - **Refusé** → le **motif** est obligatoire ;
+   - **Plus tard** ;
+   - après « servi », saisir la **quantité mangée**.
+5. **Doute d'identité** : « J'ai un doute sur l'identité » → signaler. Essayer de servir → **bloqué** tant que le doute n'est pas levé. Lever le doute (⚠️ un **autre** soignant doit le faire : le backend refuse la même personne).
+6. **« Je ne le connais pas »** : identification par code bracelet / scan QR / photo de pochette (OCR).
+7. Onglet **Médicaments** : tournée **Matin / Midi / Soir**, « Démarrer la tournée », donner une prise ; un **médicament à risque** demande une **confirmation**.
+8. **Résidents** (annuaire), **Relève** (passation d'équipe, résumé à copier), **Assistant** (ex. « qui reste à servir ? »).
+9. **Thème sombre** (bouton lune), **Déconnexion**.
+- À surveiller : le **scan QR** nécessite une caméra ; l'**OCR pochette** nécessite le service Flask externe (absent → message « indisponible », c'est normal).
+
+### 🔒 Contrôles de sécurité (rapides)
+- Non connecté, aller sur `/admin` → redirigé vers `/login`.
+- Connecté `personnel`, forcer l'URL `/admin` → redirigé (guard) ; et l'API `/api/admin/**` renvoie **403**.
+- Jeton invalide/expiré → déconnexion automatique.
+
+---
+
+## À venir
+- **Ré-intégration du travail d'un·e coéquipier·ère** (mises à jour en cours) : en fin de journée, une fois stabilisé, relire ses fichiers modifiés, les intégrer à `integration`, avec une passe **logique métier** + **sécurité** (JWT, CSRF, XSS, injection, contrôle d'accès par rôle au merge).
+- Discuter de `integration` avec l'équipe, puis **ouvrir la pull request vers `main`** (plus tard, pas maintenant).
+- Logique métier EHPAD restante (features) : GIR/AGGIR, entité Prescription, rôles IDE/aide-soignant, motif+date de sortie, alerte dénutrition, relève persistée.
+- Sécurité : rate-limit sur le login, stratégie de révocation JWT, CSP.
