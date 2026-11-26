@@ -1,11 +1,11 @@
-:host { display: block; }
+:host { flex: 1 0 auto; display: grid; }
 
 .auth {
   box-sizing: border-box;
   display: grid;
   align-items: center;
   justify-items: center;
-  min-height: 100dvh;
+
   padding: 24px 16px;
 }
 

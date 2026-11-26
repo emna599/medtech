@@ -32,20 +32,25 @@ import { Toolbar } from '../../shared/components/toolbar/toolbar';
       flex-wrap: wrap;
       gap: 4px 8px;
       margin-bottom: 24px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--mat-sys-outline-variant);
+      padding: 8px;
+      background: var(--app-surface);
+      border: 1px solid var(--mat-sys-outline-variant);
+      border-radius: var(--app-radius);
     }
     .admin-nav a {
       padding: 10px 12px;
       border-radius: 6px;
       color: var(--mat-sys-on-surface-variant);
       text-decoration: none;
-      font: var(--mat-sys-label-large);
+      font-size: .95rem;
+      font-weight: 650;
     }
     .admin-nav a:hover { background: var(--mat-sys-surface-container-high); }
     .admin-nav a.active {
       background: var(--mat-sys-primary-container);
       color: var(--mat-sys-on-primary-container);
+      text-decoration: underline;
+      text-underline-offset: 4px;
     }
   `,
 })

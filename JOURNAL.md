@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — lisibilité permanente, en-tête et pied de page
+
+- Retiré la commande et le réglage Projection. Les contrastes, les cartes et l’échelle typographique s’appliquent dès l’ouverture et s’adaptent à la largeur de l’écran. Les groupes d’actions restent visibles dans la tournée.
+- Ajouté un en-tête commun qui met en évidence l’espace connecté et un pied de page avec les raccourcis du rôle et le retour en haut. Le pied de la connexion présente uniquement les commandes publiques.
+- Mis à jour le guide des parcours, le guide de test et les README. Vérifié dans Chromium pour les trois rôles à 320, 390, 1 440 et 1 920 px, avec bascule sombre et navigation par le pied de page. Build et 33 tests frontend réussis.
+
+---
+
 ## Relais Codex du 2026-11-26 — projection, chevalets et photos
 
 - Ajouté **Projection** aux trois espaces, avec contraste renforcé et texte agrandi sur grand écran. L’espace personnel regroupe les commandes en trois ensembles visibles. Les statuts et alertes restent libellés.
@@ -313,7 +321,7 @@ Le [guide des parcours](docs/parcours.md) décrit la projection et les gestes ac
 7. Onglet **Médicaments** : tournée **Matin / Midi / Soir**, « Démarrer la tournée », donner une prise ; un **médicament à risque** demande une **confirmation**.
 8. **Résidents** (annuaire), **Relève** (créer une transmission, la prendre en charge puis la reprendre et la clôturer avec un autre compte personnel), **Assistant** (ex. « qui reste à servir ? »).
 9. **Service en salle** : installer un résident, associer un numéro de chevalet, ouvrir la fiche repas et libérer le chevalet. Vérifier qu’un numéro déjà associé ne peut pas être pris par un deuxième résident.
-10. **Projection** (bouton dans la barre du haut), thème sombre et déconnexion.
+10. Vérifier la lisibilité sur grand écran et sur mobile, les raccourcis du pied de page, le thème sombre et la déconnexion.
 - À surveiller : le **scan QR** nécessite une caméra ; l'**OCR pochette** nécessite le service Flask externe (absent → message « indisponible », c'est normal).
 
 ### 🔒 Contrôles de sécurité (rapides)

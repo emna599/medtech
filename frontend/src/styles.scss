@@ -39,16 +39,21 @@ body {
 //  Jetons — neutres, sobres. Un seul accent (teal) utilisé avec parcimonie.
 // -----------------------------------------------------------------------------
 :root {
+  font-size: clamp(100%, calc(90% + 0.25vw), 131.25%);
+  --site-banner: #132c54;
+  --site-banner-border: #91b9e7;
+  --site-banner-text: #e1ecff;
+  --work-title-size: clamp(1.65rem, 1.35rem + 1vw, 2.5rem);
   --brand-teal: #0f6b63;
   --brand-navy: #1f2b38;
   --brand-coral: #b4532e; // accent chaud discret, pour alertes uniquement
   --brand-teal-text: #0f6b63;
 
   // Mapping Material (couleurs système) — sobre
-  --mat-sys-primary: #0f6b63;
+  --mat-sys-primary: #183b72;
   --mat-sys-on-primary: #ffffff;
-  --mat-sys-primary-container: #d7e8e5;
-  --mat-sys-on-primary-container: #0a3b36;
+  --mat-sys-primary-container: #dbe9ff;
+  --mat-sys-on-primary-container: #112e5a;
   --mat-sys-secondary: #42505f;
   --mat-sys-secondary-container: #e7eaee;
   --mat-sys-on-secondary-container: #27313c;
@@ -63,18 +68,18 @@ body {
   --mat-sys-surface-container-low: #f7f8fa;
   --mat-sys-surface-container: #f1f3f5;
   --mat-sys-surface-container-high: #eceef1;
-  --mat-sys-on-surface: #1f2730;
-  --mat-sys-on-surface-variant: #5c6773;
+  --mat-sys-on-surface: #101d33;
+  --mat-sys-on-surface-variant: #304153;
   --mat-sys-outline: #c3c9d0;
-  --mat-sys-outline-variant: #e3e6ea;
+  --mat-sys-outline-variant: #8999ad;
 
   // Jetons applicatifs
-  --app-bg: #f5f6f8;
+  --app-bg: #eef2f8;
   --app-surface: #ffffff;
   --app-surface-2: #f3f4f6;
   --app-line: #e3e6ea;
   --app-line-soft: #eceef1;
-  --app-ink: #1f2730;
+  --app-ink: #101d33;
   --app-teal-tint: #eaf2f1;
   --app-chip-bg: #eef0f2;
   --app-chip-ink: #3a4654;
@@ -82,12 +87,12 @@ body {
   --app-radius: 8px;
   --app-shadow: 0 1px 2px rgb(16 24 40 / 5%);
   --app-shadow-lg: 0 2px 8px rgb(16 24 40 / 8%);
-  --app-ok: #0f6b63;
-  --app-ok-bg: #eaf2f1;
-  --app-warn: #a9552a;
-  --app-warn-bg: #f7ece4;
-  --app-danger: #b3261e;
-  --app-danger-bg: #fbeae9;
+  --app-ok: #155742;
+  --app-ok-bg: #d9f6e9;
+  --app-warn: #713708;
+  --app-warn-bg: #ffedc6;
+  --app-danger: #891d22;
+  --app-danger-bg: #ffe4e6;
 
   // Rayons Material — discrets
   --mat-sys-corner-small: 6px;
@@ -109,10 +114,10 @@ body {
 :root[data-theme='dark'] {
   --brand-teal: #3fb9ac;
   --brand-teal-text: #58c7ba;
-  --mat-sys-primary: #58c7ba;
-  --mat-sys-on-primary: #003732;
-  --mat-sys-primary-container: #0b4b45;
-  --mat-sys-on-primary-container: #cdeae5;
+  --mat-sys-primary: #c2d9ff;
+  --mat-sys-on-primary: #102645;
+  --mat-sys-primary-container: #274873;
+  --mat-sys-on-primary-container: #ffffff;
   --mat-sys-secondary: #aeb8c4;
   --mat-sys-secondary-container: #333d48;
   --mat-sys-on-secondary-container: #dde3ea;
@@ -120,31 +125,31 @@ body {
   --mat-sys-tertiary-container: #4a330f;
   --mat-sys-on-tertiary-container: #f3e6d0;
   --mat-sys-surface-tint: #58c7ba;
-  --mat-sys-surface: #161b21;
+  --mat-sys-surface: #14243d;
   --mat-sys-surface-container-lowest: #11161b;
   --mat-sys-surface-container-low: #1b2127;
   --mat-sys-surface-container: #1f262d;
   --mat-sys-surface-container-high: #272f37;
-  --mat-sys-on-surface: #e4e8ec;
-  --mat-sys-on-surface-variant: #aab4bf;
+  --mat-sys-on-surface: #ffffff;
+  --mat-sys-on-surface-variant: #dce7f7;
   --mat-sys-outline: #495058;
-  --mat-sys-outline-variant: #2b323a;
-  --app-bg: #0f1419;
-  --app-surface: #161b21;
+  --mat-sys-outline-variant: #8096b4;
+  --app-bg: #0a1424;
+  --app-surface: #14243d;
   --app-surface-2: #11161b;
   --app-line: #2b323a;
   --app-line-soft: #232a31;
-  --app-ink: #e4e8ec;
+  --app-ink: #ffffff;
   --app-teal-tint: #123a36;
   --app-chip-bg: #242c34;
   --app-chip-ink: #c7d0da;
   --app-on-ok: #003732;
-  --app-ok: #58c7ba;
-  --app-ok-bg: #123a36;
-  --app-warn: #e0a06a;
-  --app-warn-bg: #352616;
-  --app-danger: #ff8a80;
-  --app-danger-bg: #3a1f1d;
+  --app-ok: #b0f7db;
+  --app-ok-bg: #174337;
+  --app-warn: #ffe1a6;
+  --app-warn-bg: #493111;
+  --app-danger: #ffb8b9;
+  --app-danger-bg: #541e2a;
   --app-shadow: 0 1px 2px rgb(0 0 0 / 35%);
   --app-shadow-lg: 0 2px 10px rgb(0 0 0 / 45%);
 }
@@ -206,9 +211,9 @@ body {
   margin-bottom: 20px;
 
   h1 {
-    font-size: 1.5rem;
-    font-weight: 650;
-    line-height: 1.2;
+    font-size: var(--work-title-size);
+    font-weight: 750;
+    line-height: 1.15;
     margin: 0;
     color: var(--mat-sys-on-surface);
   }
@@ -308,14 +313,14 @@ tr.clickable {
 .work-page {
   box-sizing: border-box;
   width: 100%;
-  max-width: 1132px;
+  max-width: 1440px;
   margin: 24px auto;
   padding: 0 16px 32px;
 }
 
 .work-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
   gap: 16px;
 }
 
@@ -373,6 +378,7 @@ tr.clickable {
   gap: 5px;
   max-width: 100%;
   padding: 4px 8px;
+  border: 1px solid currentColor;
   border-radius: 6px;
   background: var(--mat-sys-primary-container);
   color: var(--mat-sys-on-primary-container);
@@ -446,96 +452,16 @@ tr.clickable {
   }
 }
 
-// Contraste et échelle de lecture pour les écrans partagés.
-:root[data-projection='true'] {
-  font-size: clamp(16px, 1.35vw, 22px);
-  --app-bg: #eef2f8;
-  --app-surface: #ffffff;
-  --app-ink: #101d33;
-  --mat-sys-surface: #ffffff;
-  --mat-sys-on-surface: #101d33;
-  --mat-sys-on-surface-variant: #304153;
-  --mat-sys-outline-variant: #8999ad;
-  --mat-sys-primary: #183b72;
-  --mat-sys-on-primary: #ffffff;
-  --mat-sys-primary-container: #dbe9ff;
-  --mat-sys-on-primary-container: #112e5a;
-  --app-danger: #891d22;
-  --app-danger-bg: #ffe4e6;
-  --app-warn: #713708;
-  --app-warn-bg: #ffedc6;
-  --app-ok: #155742;
-  --app-ok-bg: #d9f6e9;
-}
 
-:root[data-theme='dark'][data-projection='true'] {
-  --app-bg: #0a1424;
-  --app-surface: #14243d;
-  --app-ink: #ffffff;
-  --mat-sys-surface: #14243d;
-  --mat-sys-on-surface: #ffffff;
-  --mat-sys-on-surface-variant: #dce7f7;
-  --mat-sys-outline-variant: #8096b4;
-  --mat-sys-primary: #c2d9ff;
-  --mat-sys-on-primary: #102645;
-  --mat-sys-primary-container: #274873;
-  --mat-sys-on-primary-container: #ffffff;
-  --app-danger: #ffb8b9;
-  --app-danger-bg: #541e2a;
-  --app-warn: #ffe1a6;
-  --app-warn-bg: #493111;
-  --app-ok: #b0f7db;
-  --app-ok-bg: #174337;
-}
-
-[data-projection='true'] app-toolbar .toolbar {
-  --app-surface: #132c54;
-  background: var(--app-surface);
-  color: #ffffff;
-  --app-ink: #ffffff;
-  --brand-teal: #bcdcff;
-  --brand-coral: #ffdc99;
-  --mat-sys-on-surface: #ffffff;
-  --mat-sys-on-surface-variant: #e1ecff;
-  --mat-sys-primary: #ffffff;
-  --mat-sys-outline: #c6d6ee;
-}
-
-[data-projection='true'] .work-page {
-  max-width: 1440px;
-}
-
-[data-projection='true'] .work-page h1 {
-  font-size: clamp(1.65rem, 3vw, 2.5rem);
-  line-height: 1.15;
-}
-
-[data-projection='true'] .work-card-grid {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
-}
-
-[data-projection='true'] .work-card-grid.room-tour {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-[data-projection='true'] :is(.work-page, .mat-mdc-dialog-container) .mat-mdc-button-base {
-  font-size: .86rem;
+:where(.work-page, .mat-mdc-dialog-container) .mat-mdc-button-base {
+  font-size: 0.9rem;
   min-height: 44px;
 }
 
-[data-projection='true'] .work-status {
-  border: 1px solid currentColor;
-}
-
-[data-projection='true'] app-toolbar .projection-toggle[aria-pressed='true'] {
-  background: #e2edff;
-  color: #132c54;
-}
-
-[data-projection='true'] .service-page .tool-group {
+.service-page .tool-group {
   border-block-start: 4px solid var(--mat-sys-primary);
 }
 
-[data-projection='true'] .service-page .tool-group h2 {
-  font-size: 1.15rem;
+.service-page .tool-group h2 {
+  font-size: 1.1rem;
 }

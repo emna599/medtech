@@ -9,7 +9,9 @@
 
 h1 {
   margin: 0;
-  font: var(--mat-sys-headline-medium);
+  font-size: var(--work-title-size);
+  font-weight: 750;
+  line-height: 1.15;
 }
 
 .page-header p {

@@ -3,7 +3,7 @@
 ## Présenter l’application
 
 - Connectez-vous avec un compte de démonstration du rôle à présenter, sur une base fictive.
-- Dans la barre du haut, sélectionnez **Projection**. Les titres, les cartes et les boutons deviennent plus visibles. Sélectionnez de nouveau **Projection** pour revenir à la taille habituelle. Le réglage clair ou sombre reste accessible à côté.
+- Les titres, les cartes et les commandes sont lisibles dès l’ouverture, avec une taille adaptée à la largeur de l’écran. Le réglage clair ou sombre est dans l’en-tête. Le pied de page propose les raccourcis du rôle et **Haut de page**.
 - Côté personnel, cherchez les actions sous **Résidents et repas**, **Équipe et transmissions** ou **Assistance**. Les statuts et alertes associent texte et icône.
 
 ## Administration

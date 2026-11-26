@@ -1,4 +1,4 @@
-<mat-toolbar class="toolbar">
+<header class="toolbar">
   <img class="logo" src="logo.svg" alt="" />
   <span class="brand">
     <span class="app-name">Med<b>Tech</b></span>
@@ -14,13 +14,6 @@
     </span>
   }
 
-  <button mat-stroked-button type="button" class="projection-toggle"
-    [attr.aria-pressed]="projection()" aria-label="Mode projection"
-    (click)="toggleProjection()">
-    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">present_to_all</mat-icon>
-    Projection
-  </button>
-
   <button
     mat-icon-button
     type="button"
@@ -28,11 +21,11 @@
     [attr.aria-pressed]="dark()"
     (click)="toggleTheme()"
   >
-    <mat-icon fontSet="material-symbols-outlined">{{ dark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ dark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
   </button>
 
   <button mat-button type="button" class="logout" aria-label="Déconnexion" (click)="logout()">
     <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">logout</mat-icon>
     <span class="logout-label">Déconnexion</span>
   </button>
-</mat-toolbar>
+</header>

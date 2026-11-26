@@ -20,7 +20,7 @@ Principe de conception : **« un écran, un geste »**, pensé d'abord pour la t
 | « Je ne le connais pas » | Saisie du code du bracelet (facultatif) pour afficher la fiche, puis confirmation « C'est bien cette personne » |
 | Assistant | Bouton **Assistant** (en bas à droite) : questions en français, écrites ou **dictées à la voix**, réponses sur le service en cours. Il **propose** une validation, le soignant **confirme** |
 | Appétit | Dans la fiche d'un repas : graphique des 7 derniers jours (une barre par jour) et alerte **« en baisse »** quand les trois derniers jours sont nettement moins bons ou sous la moitié. L'assistant répond aussi à « appétit de Mme Martin ? » |
-| Affichage | **Projection** pour rendre les cartes et commandes plus visibles de loin. Bouton lune / soleil pour choisir le thème |
+| Affichage | Contraste et tailles de lecture adaptés à l’écran par défaut. Bouton lune / soleil pour choisir le thème |
 | Relève | Bouton **Relève** pour transmettre et attribuer les actions à poursuivre, consulter les clôtures et copier le résumé du service |
 | Pochette (OCR) | Dans « Je ne le connais pas » : **Photographier l'étiquette d'une pochette**. Le service OCR de l'équipe lit le nom, Spring retrouve le résident, et le soignant **compare le visage à la photo** avant de continuer. Facultatif : sans service OCR, un message l'indique |
 | Traçabilité | Chaque action est enregistrée dans `audit_log` avec le soignant, l'heure et le résident |
@@ -188,7 +188,7 @@ Codes de bracelet de démonstration : `DEMO-001` à `DEMO-012`.
 
 ## 5. Parcours de test
 
-Le [guide des parcours](docs/parcours.md#personnel) décrit les écrans actuels, les confirmations et les essais reportés. Pour présenter l’interface sur grand écran, sélectionnez **Projection** dans la barre du haut.
+Le [guide des parcours](docs/parcours.md#personnel) décrit les écrans actuels, les confirmations et les essais reportés. Sur grand écran, l’affichage s’adapte automatiquement. Le pied de page donne un accès rapide aux tournées et au retour en haut.
 
 Dans **Service en salle**, installez un résident après vérification de son identité. Sélectionnez **Associer un chevalet**, saisissez le numéro imprimé et confirmez. Le chevalet s’affiche sur la carte. Pour le rendre disponible, confirmez sa libération ou enregistrez le départ. **Ouvrir la fiche repas** mène à la validation habituelle du plateau. Le portrait ajouté par l’administration apparaît sur cette fiche quand il est disponible.
 

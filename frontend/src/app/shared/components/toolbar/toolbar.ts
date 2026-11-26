@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { ThemeService } from '../../../core/services/theme.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ROLE_LABEL } from '../../models/auth.model';
@@ -9,7 +8,7 @@ import { ROLE_LABEL } from '../../models/auth.model';
 /** Barre du haut commune aux trois espaces : nom, rôle de l'utilisateur et déconnexion. */
 @Component({
   selector: 'app-toolbar',
-  imports: [MatToolbarModule, MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule],
   templateUrl: './toolbar.html',
   styleUrl: './toolbar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,12 +18,6 @@ export class Toolbar {
   private readonly theme = inject(ThemeService);
 
   protected readonly dark = computed(() => this.theme.mode() === 'dark');
-
-  protected readonly projection = this.theme.projection;
-
-  protected toggleProjection(): void {
-    this.theme.toggleProjection();
-  }
 
   protected readonly user = this.auth.currentUser;
   protected readonly roleLabel = computed(() => {

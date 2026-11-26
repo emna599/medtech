@@ -4,7 +4,7 @@ Application web de gestion et d'identification des résidents d'un EHPAD : compt
 
 ## Parcours
 
-Le [guide des parcours](docs/parcours.md) couvre les trois rôles, la projection et le service en salle.
+Le [guide des parcours](docs/parcours.md) couvre les trois rôles, l’affichage sur grand écran et le service en salle.
 
 ## Rôles
 

@@ -121,12 +121,12 @@ import { AdminDashboardService } from './admin-dashboard.service';
   `,
   styles: `
     .stack { display: flex; flex-direction: column; gap: 16px; }
-    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 12px; }
     .ico { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; margin-bottom: 8px; background: var(--mat-sys-primary-container); color: var(--mat-sys-on-primary-container); }
-    .value { font-size: 32px; font-weight: 500; }
+    .value { font-size: 2rem; font-weight: 750; }
     .label { font-weight: 500; }
-    .sub { color: var(--mat-sys-on-surface-variant); font-size: 13px; }
-    .panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+    .sub { color: var(--mat-sys-on-surface-variant); font-size: 0.95rem; }
+    .panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 12px; }
     .wide { grid-column: 1 / -1; }
     .floor { display: flex; justify-content: space-between; margin: 12px 0 4px; }
     .notice { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 12px; background: var(--mat-sys-error-container); color: var(--mat-sys-on-error-container); margin: 0; }
