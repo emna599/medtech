@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -105,9 +106,12 @@ export class ResidentSheet {
   // ------------------------------------------------------------------ actions
 
   protected done(): void {
+    const mealRiskVersion = this.item().kind === 'REPAS'
+      ? this.resident().mealRiskVersion
+      : undefined;
     const risks = this.servingRisks();
     if (risks.length === 0) {
-      this.complete({ status: 'FAIT' });
+      this.complete({ status: 'FAIT', mealRiskVersion });
       return;
     }
     // Point à risque (allergie / texture / médicament à risque) : confirmation obligatoire.
@@ -123,7 +127,7 @@ export class ResidentSheet {
       .afterClosed()
       .subscribe((ok) => {
         if (ok) {
-          this.complete({ status: 'FAIT', acknowledgeRisk: true });
+          this.complete({ status: 'FAIT', acknowledgeRisk: true, mealRiskVersion });
         }
       });
   }
@@ -139,6 +143,9 @@ export class ResidentSheet {
       }
       if (resident.texture && resident.texture.toLowerCase() !== 'normale') {
         risks.push('Texture ' + resident.texture.toLowerCase());
+      }
+      if (resident.restrictions) {
+        risks.push('À éviter : ' + resident.restrictions);
       }
     }
     if (item.kind === 'MEDICAMENT' && item.highRisk) {
@@ -209,14 +216,28 @@ export class ResidentSheet {
   // ------------------------------------------------------------------ interne
 
   private complete(body: CompleteRequest): void {
-    this.run(this.api.complete(this.item(), body), (updated) => {
+    const item = this.item();
+    this.run(this.api.complete(item, body), (updated) => {
       this.item.set(updated);
       // « Un geste » : on referme tout de suite et la liste passe au suivant.
       this.ref.close({ changed: true, completed: true });
+    }, (error) => {
+      if (item.kind === 'REPAS' && body.status === 'FAIT'
+          && error instanceof HttpErrorResponse && error.status === 409) {
+        const message = errorMessage(error);
+        this.run(this.api.listService('REPAS'), (items) => {
+          const updated = items.find((entry) => entry.id === item.id);
+          if (updated) {
+            this.item.set(updated);
+          }
+          this.changed = true;
+          this.error.set(message);
+        });
+      }
     });
   }
 
-  private run<T>(request$: Observable<T>, onSuccess: (value: T) => void): void {
+  private run<T>(request$: Observable<T>, onSuccess: (value: T) => void, onError?: (error: unknown) => void): void {
     if (this.busy()) {
       return;
     }
@@ -230,6 +251,7 @@ export class ResidentSheet {
       error: (err: unknown) => {
         this.busy.set(false);
         this.error.set(err instanceof Error && !('status' in err) ? err.message : errorMessage(err));
+        onError?.(err);
       },
     });
   }

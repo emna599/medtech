@@ -19,6 +19,7 @@ import com.esigelec.ehpad_backend.repository.IdentityDoubtRepository;
 import com.esigelec.ehpad_backend.repository.MealDistributionRepository;
 import com.esigelec.ehpad_backend.repository.MealRepository;
 import com.esigelec.ehpad_backend.repository.MedicationDoseRepository;
+import com.esigelec.ehpad_backend.repository.ResidentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +49,7 @@ public class CareService {
     private final MedicationDoseRepository doseRepository;
     private final IdentityDoubtRepository doubtRepository;
     private final ResidentCardAssembler assembler;
+    private final ResidentRepository residentRepository;
     private final CurrentUserService currentUserService;
     private final AuditService auditService;
 
@@ -56,6 +58,7 @@ public class CareService {
                        MedicationDoseRepository doseRepository,
                        IdentityDoubtRepository doubtRepository,
                        ResidentCardAssembler assembler,
+                       ResidentRepository residentRepository,
                        CurrentUserService currentUserService,
                        AuditService auditService) {
         this.mealRepository = mealRepository;
@@ -63,6 +66,7 @@ public class CareService {
         this.doseRepository = doseRepository;
         this.doubtRepository = doubtRepository;
         this.assembler = assembler;
+        this.residentRepository = residentRepository;
         this.currentUserService = currentUserService;
         this.auditService = auditService;
     }
@@ -114,7 +118,8 @@ public class CareService {
     public ServiceItemDto completeMeal(Long mealId, CompleteRequest request, String username) {
         User user = currentUserService.require(username);
         Meal meal = mealRepository.findById(mealId).orElseThrow(() -> new ResourceNotFoundException("Repas introuvable"));
-        Resident resident = requireActive(meal.getResident());
+        Resident resident = requireActive(residentRepository.findByIdForUpdate(meal.getResident().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Résident introuvable")));
         ResidentCardDto card = assembler.assemble(List.of(resident)).get(resident.getId());
         validate(request, meal.getStatus(), resident.getId());
         requireMealRiskAck(request, card);
@@ -198,12 +203,18 @@ public class CareService {
     }
 
     /**
-     * Repas : avant de valider "servi", si le résident a des allergies ou une texture adaptée,
-     * le soignant doit avoir confirmé explicitement (acknowledgeRisk) avoir vérifié le plateau.
-     * Les allergies et la fausse route (texture) sont des risques vitaux en EHPAD.
+     * Le soignant confirme les allergies, la texture adaptée et les restrictions
+     * à partir de la version des consignes affichée sur sa fiche.
      */
     private void requireMealRiskAck(CompleteRequest request, ResidentCardDto card) {
-        if (request.status() != ServiceStatus.FAIT || request.riskAcknowledged() || card == null) {
+        if (request.status() != ServiceStatus.FAIT || card == null) {
+            return;
+        }
+        if ((request.mealRiskVersion() != null || request.riskAcknowledged())
+                && !card.mealRiskVersion().equals(request.mealRiskVersion())) {
+            throw new ConflictException("Les consignes du repas ont changé. Vérifiez la fiche actualisée avant de confirmer.");
+        }
+        if (request.riskAcknowledged()) {
             return;
         }
         List<String> risks = new ArrayList<>();
@@ -214,6 +225,9 @@ public class CareService {
         String texture = card.texture();
         if (texture != null && !texture.isBlank() && !texture.equalsIgnoreCase("Normale")) {
             risks.add("texture " + texture.toLowerCase(Locale.ROOT));
+        }
+        if (card.restrictions() != null) {
+            risks.add("à éviter : " + card.restrictions());
         }
         if (!risks.isEmpty()) {
             throw new ConflictException(

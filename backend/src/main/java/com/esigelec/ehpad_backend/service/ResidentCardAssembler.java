@@ -12,7 +12,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -61,11 +63,19 @@ public class ResidentCardAssembler {
     }
 
     private ResidentCardDto toCard(Resident r, List<Allergy> allergies, List<DietaryRegime> regimes, boolean doubt) {
-        String regime = join(regimes.stream().map(DietaryRegime::getType).toList(), ", ");
-        String texture = regimes.stream().map(DietaryRegime::getTexture)
-                .filter(t -> t != null && !t.isBlank()).findFirst().orElse(null);
-        String restrictions = join(regimes.stream().map(DietaryRegime::getRestrictions).toList(), "; ");
-        String instructions = join(regimes.stream().map(DietaryRegime::getInstructions).toList(), "; ");
+        List<DietaryRegime> sortedRegimes = regimes.stream().sorted(Comparator.comparing(DietaryRegime::getId)).toList();
+        String regime = join(sortedRegimes.stream().map(DietaryRegime::getType).toList(), ", ");
+        List<String> textures = sortedRegimes.stream().map(DietaryRegime::getTexture)
+                .filter(t -> t != null && !t.isBlank()).map(String::strip).toList();
+        String adaptedTextures = join(textures.stream().filter(t -> !t.equalsIgnoreCase("Normale")).toList(), " / ");
+        String texture = adaptedTextures == null ? textures.stream().findFirst().orElse(null) : adaptedTextures;
+        String restrictions = join(sortedRegimes.stream().map(regimeEntry -> {
+            String intolerances = regimeEntry.getIntolerances();
+            return join(Arrays.asList(
+                    regimeEntry.getRestrictions(),
+                    intolerances == null || intolerances.isBlank() ? null : "Intolérances : " + intolerances), "; ");
+        }).toList(), "; ");
+        String instructions = join(sortedRegimes.stream().map(DietaryRegime::getInstructions).toList(), "; ");
 
         return new ResidentCardDto(
                 r.getId(),
@@ -78,7 +88,8 @@ public class ResidentCardAssembler {
                 r.getMealLocation(),
                 r.isNeedsHelp(),
                 r.getDistinguishingFeatures(),
-                allergies.stream().map(a -> new AllergyDto(a.getName(), a.getSeverity())).toList(),
+                allergies.stream().sorted(Comparator.comparing(Allergy::getId))
+                        .map(a -> new AllergyDto(a.getName(), a.getSeverity())).toList(),
                 regime,
                 texture,
                 restrictions,

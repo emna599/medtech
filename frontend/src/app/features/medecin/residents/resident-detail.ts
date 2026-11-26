@@ -6,8 +6,9 @@ import {
   computed,
   DestroyRef,
   effect,
-  signal,
   inject,
+  signal,
+  untracked,
 } from '@angular/core';
 import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -21,7 +22,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ResidentService } from '../../../core/services/resident.service';
 import { Toolbar } from '../../../shared/components/toolbar/toolbar';
-
 import {
   Allergy,
   AllergyRequest,
@@ -126,10 +126,12 @@ export class ResidentDetailPage {
   constructor() {
     effect(() => {
       this.residentId();
-      this.cancelAllergyForm();
-      this.cancelDietaryRegimeForm();
-      this.allergySaving.set(false);
-      this.dietaryRegimeSaving.set(false);
+      untracked(() => {
+        this.cancelAllergyForm();
+        this.cancelDietaryRegimeForm();
+        this.allergySaving.set(false);
+        this.dietaryRegimeSaving.set(false);
+      });
     });
   }
 

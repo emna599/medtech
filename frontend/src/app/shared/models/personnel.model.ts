@@ -24,6 +24,7 @@ export interface ResidentCard {
   regime: string | null;
   texture: string | null;
   restrictions: string | null;
+  mealRiskVersion?: string;
   instructions: string | null;
   identityDoubt: boolean;
 }
@@ -57,6 +58,7 @@ export interface CompleteRequest {
   comment?: string;
   /** Le soignant confirme avoir vérifié un point à risque (allergie / texture / médicament à risque). */
   acknowledgeRisk?: boolean;
+  mealRiskVersion?: string;
 }
 
 export const SLOT_LABEL: Record<string, string> = {

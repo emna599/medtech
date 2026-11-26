@@ -12,7 +12,8 @@ import jakarta.validation.constraints.Size;
 public record CompleteRequest(
         @NotNull(message = "Le statut est obligatoire") ServiceStatus status,
         @Size(max = 255, message = "255 caractères maximum") String comment,
-        Boolean acknowledgeRisk) {
+        Boolean acknowledgeRisk,
+        @Size(max = 64) String mealRiskVersion) {
 
     /** Vrai si le soignant a explicitement confirmé le point à risque. */
     public boolean riskAcknowledged() {

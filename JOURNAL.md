@@ -5,6 +5,16 @@
 
 ---
 
+## Relais Codex du 2026-11-26 — allergies, régimes et service des repas
+
+- Intégré `da16ab8` de Ran depuis `feature/medecin`. Le médecin peut consulter, créer, modifier et supprimer les allergies et régimes depuis la fiche résident. Les nouveaux endpoints de lecture et d’écriture sont réservés à MEDECIN. L’administration conserve ses fonctions existantes. Le personnel consulte les consignes dans son espace repas, issu des mêmes tables PostgreSQL.
+- Fusionné les méthodes des repositories et conservé la forme du DTO personnel. Les intolérances sont visibles dans « À éviter ». Une texture normale ne masque plus une texture adaptée lorsqu’un résident a plusieurs régimes. Les tables et scripts SQL existants suffisent.
+- Les écritures médecin et la validation d’un repas s’ordonnent avec le même verrou résident. À la validation, le backend compare la version des consignes affichées avec celle des consignes enregistrées. Une confirmation obsolète reçoit 409. La fiche personnel recharge le repas puis demande une nouvelle confirmation si nécessaire. Les clients de l’API qui confirment un risque repas doivent transmettre `mealRiskVersion` depuis la fiche résident. Le flux médicaments est inchangé.
+- Vérifié sur Docker isolé : 24 tests backend dont le test de régression, 26 tests frontend, CRUD et cloisonnement via l’API, données visibles côté personnel, confirmation obsolète refusée et nouvelle confirmation acceptée. Chromium a validé l’édition médecin, puis l’actualisation et l’affichage des nouvelles consignes sur une fiche repas déjà ouverte.
+- À cadrer avec l’équipe : gestion des modifications concurrentes de la même fiche par deux médecins, règles en cas de consignes alimentaires contradictoires et signalement aux équipes de préparation lorsqu’un plateau est déjà préparé. La fiche repas se réactualise à la validation, sans diffusion en direct pendant la tournée.
+
+---
+
 ## Relais Codex du 2026-11-26 — espace médecin
 
 - Synchronisé `integration` et repris le commit `250187c` de `feature/medecin`. Les branches admin et personnel n’avaient aucun commit distant supplémentaire à intégrer.
@@ -128,7 +138,8 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 1. **Connexion** → *Espace médecin*.
 2. Ouvrir **Consulter les résidents**, rechercher un nom ou un numéro de chambre, puis ouvrir une fiche.
 3. Vérifier l’identité, la chambre et la section **Dossier médical**. Le jeu de démo actuel ne contient aucun dossier médical. L’interface affiche un message d’absence de dossier.
-4. Vérifier que le retour à la liste et la déconnexion fonctionnent.
+4. Vérifier l’ajout, la modification et la suppression d’une allergie ou d’un régime avec des données fictives. L’ouverture de la fiche repas du même résident côté personnel doit afficher les consignes actualisées.
+5. Vérifier que le retour à la liste et la déconnexion fonctionnent.
 - API : `GET /api/residents` (liste), `GET /api/residents/{id}` (détail), `GET /api/residents/{id}/medical-record` (dossier réservé à MEDECIN). Le dernier endpoint répond **403** avec un jeton personnel ou admin.
 
 ### 🧑‍⚕️ PERSONNEL / SOIGNANT (`personnel` / Demo1234!)
@@ -141,6 +152,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
    - **Refusé** → le **motif** est obligatoire ;
    - **Plus tard** ;
    - après « servi », saisir la **quantité mangée**.
+   - si le médecin modifie une consigne alors que la fiche repas est ouverte, la validation doit être refusée et la fiche actualisée. Relire les nouvelles consignes puis relancer « Servi » ;
 5. **Doute d'identité** : « J'ai un doute sur l'identité » → signaler. Essayer de servir → **bloqué** tant que le doute n'est pas levé. Lever le doute (⚠️ un **autre** soignant doit le faire : le backend refuse la même personne).
 6. **« Je ne le connais pas »** : identification par code bracelet / scan QR / photo de pochette (OCR).
 7. Onglet **Médicaments** : tournée **Matin / Midi / Soir**, « Démarrer la tournée », donner une prise ; un **médicament à risque** demande une **confirmation**.
@@ -156,7 +168,7 @@ Arrêter : `Ctrl+C` puis `docker compose down` (ajouter `-v` pour effacer aussi 
 ---
 
 ## À venir
-- **Espace médecin** : ajouter des dossiers de démo fictifs via `database/`, puis cadrer l’écriture du dossier médical, les allergies/régimes et les QR codes.
+- **Espace médecin** : ajouter des dossiers de démo fictifs via `database/`, puis cadrer l’écriture du dossier médical et les QR codes.
 - Discuter de `integration` avec l'équipe, puis **ouvrir la pull request vers `main`** (plus tard, pas maintenant).
 - Logique métier EHPAD restante (features) : GIR/AGGIR, entité Prescription, rôles IDE/aide-soignant, motif+date de sortie, alerte dénutrition, relève persistée.
 - Sécurité : rate-limit sur le login, stratégie de révocation JWT, CSP.
