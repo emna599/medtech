@@ -29,10 +29,6 @@
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">calendar_clock</mat-icon>
       <span>Planning</span>
     </button>
-    <button mat-stroked-button type="button" class="tool" (click)="toggleSimulator()" [attr.aria-expanded]="simOpen()">
-      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">science</mat-icon>
-      <span>Test</span>
-    </button>
     <button mat-flat-button type="button" class="tool read" [class.off]="!active()" (click)="read()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ active() ? 'contactless' : 'sensors_off' }}</mat-icon>
       <span>{{ active() ? 'Relire' : 'Lire' }}</span>
@@ -43,35 +39,6 @@
       </button>
     }
   </section>
-
-  @if (simOpen()) {
-    <section class="sim" aria-label="Simulateur de bracelet">
-      <mat-form-field appearance="outline" subscriptSizing="dynamic">
-        <mat-label>Résident</mat-label>
-        <input matInput list="sim-residents" autocomplete="off" [ngModel]="simQuery()" (ngModelChange)="simQuery.set($event)" />
-        <datalist id="sim-residents">
-          @for (resident of simResidents(); track resident.id) {
-            <option [value]="residentLabel(resident)"></option>
-          }
-        </datalist>
-      </mat-form-field>
-      <label class="pick">
-        Table
-        <select [ngModel]="simTable()" (ngModelChange)="simTable.set($event)">
-          <option value="">Choisir…</option>
-          @for (t of dining()?.tables ?? []; track t.id) {
-            @if (t.readerCode) {
-              <option [value]="t.readerCode">{{ t.label }} ({{ t.readerCode }}) · {{ t.present }}/{{ t.capacity }}</option>
-            }
-          }
-        </select>
-      </label>
-      <button mat-flat-button type="button" [disabled]="busy()" (click)="simulateArrival()">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">sensors</mat-icon>
-        <span>OK</span>
-      </button>
-    </section>
-  }
 
   @if (dining(); as data) {
     <section class="summary" aria-live="polite">
@@ -92,6 +59,33 @@
         <mat-progress-bar mode="determinate" [value]="progress()" aria-label="Avancement du service" />
       </div>
     </section>
+
+    @if (dishAlerts().length > 0) {
+      <section class="dish-alerts" aria-label="Résidents qui ne peuvent pas manger certains plats">
+        @for (alert of dishAlerts(); track alert.dish) {
+          <details class="dish-alert" [open]="alert.stops > 0">
+            <summary>
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">no_meals</mat-icon>
+              <strong>{{ alert.dish }}</strong>
+              <span class="count">{{ alert.count }}</span>
+            </summary>
+            @for (group of alert.groups; track group.reason) {
+              <div class="group" [class.stop]="group.stop">
+                <span class="reason">
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ group.stop ? 'block' : 'warning' }}</mat-icon>
+                  {{ group.reason }}
+                </span>
+                <span class="names">
+                  @for (person of group.people; track person.name + person.table) {
+                    <span class="name">{{ person.name }} <small>{{ person.table }}</small></span>
+                  }
+                </span>
+              </div>
+            }
+          </details>
+        }
+      </section>
+    }
 
     <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
       <mat-label>Rechercher</mat-label>
@@ -154,6 +148,12 @@
                           @if (seat.resident.mealLocation === 'CHAMBRE') { <span class="chip room"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon></span> }
                           @if (seat.resident.texture && seat.resident.texture !== 'Normale') {
                             <span class="chip">{{ seat.resident.texture }}</span>
+                          }
+                          @if (seat.warnings?.length) {
+                            <span class="chip allergy" title="Un plat du menu ne lui convient pas">
+                              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">no_meals</mat-icon>
+                              {{ seat.warnings.length }}
+                            </span>
                           }
                           @for (allergy of seat.resident.allergies; track allergy.name) {
                             <span class="chip allergy">

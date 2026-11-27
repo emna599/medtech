@@ -14,6 +14,7 @@ import { errorMessage, PersonnelService } from '../../../core/services/personnel
 import {
   Dining,
   DiningSeat,
+  MenuWarning,
   DiningSlot,
   DiningTable,
   fullName,
@@ -98,6 +99,36 @@ export class DiningService {
 
   protected readonly fullName = fullName;
   protected readonly isFinished = isMealFinished;
+
+  /** Plats du menu qui posent problème : pour chaque plat, les résidents regroupés par raison (allergies d'abord). */
+  protected readonly dishAlerts = computed(() => {
+    type Group = { reason: string; stop: boolean; people: { name: string; table: string }[] };
+    const byDish = new Map<string, Map<string, Group>>();
+    for (const table of this.dining()?.tables ?? []) {
+      for (const seat of table.seats) {
+        for (const warning of seat.warnings ?? []) {
+          const groups = byDish.get(warning.dish) ?? new Map<string, Group>();
+          const stop = warning.level === 'STOP';
+          const group = groups.get(warning.reason) ?? { reason: warning.reason, stop, people: [] };
+          group.people.push({
+            name: `${seat.resident.lastName} ${seat.resident.firstName.charAt(0)}.`,
+            table: table.label.replace(/^Table\s*/i, 'T'),
+          });
+          groups.set(warning.reason, group);
+          byDish.set(warning.dish, groups);
+        }
+      }
+    }
+    return [...byDish.entries()].map(([dish, groups]) => {
+      const list = [...groups.values()].sort((a, b) => Number(b.stop) - Number(a.stop) || a.reason.localeCompare(b.reason));
+      return {
+        dish,
+        groups: list,
+        count: list.reduce((sum, group) => sum + group.people.length, 0),
+        stops: list.filter((group) => group.stop).length,
+      };
+    });
+  });
 
   protected readonly progress = computed(() => {
     const dining = this.dining();
@@ -318,36 +349,6 @@ export class DiningService {
       }
     }
     this.snackBar.open('Ce résident n\'est pas encore installé à une table.', 'OK', { duration: 5000 });
-  }
-
-  // ---------- Simulateur de bracelet (démonstration sans lecteur réel) ----------
-
-  protected readonly simOpen = signal(false);
-  protected readonly simResidents = signal<ResidentCard[]>([]);
-  protected readonly simQuery = signal('');
-  protected readonly simTable = signal('');
-
-  protected toggleSimulator(): void {
-    this.simOpen.update((open) => !open);
-    if (this.simOpen() && this.simResidents().length === 0) {
-      this.api.listResidents().subscribe({ next: (list) => this.simResidents.set(list), error: () => undefined });
-    }
-  }
-
-  protected residentLabel(resident: ResidentCard): string {
-    return `${resident.lastName} ${resident.firstName}`;
-  }
-
-  /** « Bracelet lu » : le résident choisi s'assoit à la table choisie (n'importe laquelle). */
-  protected simulateArrival(): void {
-    const label = normalize(this.simQuery());
-    const resident = this.simResidents().find((r) => normalize(this.residentLabel(r)) === label);
-    if (!resident) {
-      this.snackBar.open('Choisissez un résident dans la liste.', 'OK', { duration: 4000 });
-      return;
-    }
-    this.sendReading(this.simTable() || null, resident.id, false);
-    this.simQuery.set('');
   }
 
   protected openMenu(): void {

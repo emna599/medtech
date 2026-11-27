@@ -85,9 +85,9 @@ export class PersonnelDashboard {
 
   protected readonly kind = signal<ServiceKind>('REPAS');
 
-  /** Vue « salle à manger » (tables) : toujours pour le service, et sur demande pour un soignant qui aide à servir. */
+  /** Vue « salle à manger » (tables) : écran de départ du service, et sur demande pour un soignant qui aide à servir. */
   protected readonly showDining = signal(false);
-  protected readonly diningView = computed(() => this.me()?.job === 'SERVICE' || this.showDining());
+  protected readonly diningView = computed(() => this.showDining());
   protected readonly location = signal<MealLocation>('SALLE');
   protected readonly statusFilter = signal<StatusFilter>('A_FAIRE');
   protected readonly search = signal('');
@@ -145,6 +145,11 @@ export class PersonnelDashboard {
   /** Le matin (petit-déjeuner, médicaments du matin), tout se passe en chambre : pas de salle à manger. */
   protected readonly morning = computed(() => ['PETIT_DEJEUNER', 'MATIN'].includes(this.currentSlot() ?? ''));
   /** Tournée des chambres : choisie, ou imposée le matin. */
+  /** Titre d'étage affiché avant le premier résident de chaque étage. */
+  protected floorTitle(floor: number | null): string {
+    return floor === null ? 'Étage ?' : floor === 0 ? 'Rez-de-chaussée' : `Étage ${floor}`;
+  }
+
   protected readonly roomTour = computed(() => this.morning() || this.location() === 'CHAMBRE');
 
   private readonly slotItems = computed(() => {
@@ -195,6 +200,10 @@ export class PersonnelDashboard {
     this.api.me().subscribe({
       next: (me) => {
         this.me.set(me);
+        // Le service (hôtesses) démarre en salle ; le bouton « Chambres » mène à la tournée des petits-déjeuners.
+        if (me.job === 'SERVICE') {
+          this.showDining.set(true);
+        }
         // L'infirmier donne surtout les médicaments : c'est son écran de départ (il peut passer aux repas quand il en distribue).
         if (me.job === 'INFIRMIER' && this.kind() === 'REPAS') {
           this.setKind('MEDICAMENT');

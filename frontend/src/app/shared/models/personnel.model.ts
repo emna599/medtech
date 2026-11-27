@@ -277,11 +277,19 @@ export interface DiningMeal {
 }
 
 /** Un résident à table (numéro d'arrivée de 1 à 8), son chevalet et le repas à lui servir. */
+export interface MenuWarning {
+  dish: string;
+  reason: string;
+  /** STOP = allergie (ne pas servir), ADAPT = régime ou texture (adapter le plat). */
+  level: 'STOP' | 'ADAPT';
+}
+
 export interface DiningSeat {
   position: number;
   resident: ResidentCard;
   chevalet: string | null;
   meal: DiningMeal | null;
+  warnings: MenuWarning[];
 }
 
 export interface DiningTable {

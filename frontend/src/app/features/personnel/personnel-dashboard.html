@@ -1,19 +1,18 @@
 <app-toolbar [job]="me()?.job ?? null" />
 
 @if (diningView()) {
-  @if (me()?.job !== 'SERVICE') {
-    <div class="back">
-      <button mat-stroked-button type="button" class="releve" (click)="showDining.set(false)">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">arrow_back</mat-icon>
-        <span>Retour</span>
-      </button>
-    </div>
-  }
+  <div class="back">
+    <button mat-stroked-button type="button" class="releve" (click)="showDining.set(false)">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ me()?.job === 'SERVICE' ? 'bed' : 'arrow_back' }}</mat-icon>
+      <span>{{ me()?.job === 'SERVICE' ? 'Chambres' : 'Retour' }}</span>
+    </button>
+  </div>
   <app-dining-service />
 } @else {
 
 <main class="page">
   <section class="top">
+    @if (me()?.job !== 'SERVICE') {
     <mat-button-toggle-group
       class="kind"
       aria-label="Type de service"
@@ -30,6 +29,7 @@
         Médicaments
       </mat-button-toggle>
     </mat-button-toggle-group>
+    }
 
     <button mat-stroked-button type="button" class="releve" (click)="showDining.set(true)">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon>
@@ -271,7 +271,13 @@
     </ul>
   } @else {
     <ul class="rows">
-      @for (item of visible(); track item.id) {
+      @for (item of visible(); track item.id; let i = $index) {
+        @if (i === 0 || visible()[i - 1].resident.floor !== item.resident.floor) {
+          <li class="floor-title">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">stairs</mat-icon>
+            {{ floorTitle(item.resident.floor) }}
+          </li>
+        }
         <li>
           <button type="button" [class]="'row ' + statusClass(item)" (click)="open(item)">
             <span class="room">{{ item.resident.room ?? '—' }}</span>
