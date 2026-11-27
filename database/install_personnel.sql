@@ -432,6 +432,18 @@ FROM (VALUES
 ) AS g(code, type, texture, restrictions, instructions)
 JOIN resident r ON r.identity_code = g.code;
 
+-- ---------- Petit-déjeuner du jour (8h) : servi en chambre par les hôtesses (les soignants peuvent aider) ----------
+INSERT INTO meal (type, description, scheduled_at, status, resident_id)
+SELECT 'PETIT_DEJEUNER',
+       CASE d.texture
+            WHEN 'Mixée'  THEN 'Bouillie de céréales, compote, café au lait'
+            WHEN 'Hachée' THEN 'Pain trempé, fromage blanc, thé'
+            ELSE               'Café ou thé, pain, beurre, confiture, yaourt'
+       END || CASE WHEN d.type ILIKE '%diab%' THEN ' (sans sucre)' ELSE '' END,
+       CURRENT_DATE + TIME '08:00', 'A_FAIRE', r.id
+FROM resident r JOIN dietary_regime d ON d.resident_id = r.id
+WHERE r.identity_code LIKE 'DEMO-%';
+
 -- ---------- Repas du jour : déjeuner 12h et dîner 19h ----------
 INSERT INTO meal (type, description, scheduled_at, status, resident_id)
 SELECT 'DEJEUNER',
@@ -746,7 +758,7 @@ CROSS JOIN (VALUES
     (3, 'DINER',    'Potage de courgettes', 'Jambon blanc', 'Gratin de macaronis', 'Compote de poires'),
     (4, 'DEJEUNER', 'Salade de lentilles', 'Boeuf bourguignon', 'Pommes de terre vapeur', 'Crème caramel'),
     (4, 'DINER',    'Soupe de potiron', 'Croque-monsieur', 'Salade verte', 'Yaourt aux fruits'),
-    (5, 'DEJEUNER', 'Céleri rémoulade', 'Poisson pané', 'Épinards à la crème', 'Mousse au chocolat'),
+    (5, 'DEJEUNER', 'Céleri rémoulade', 'Poisson pané', 'Frites', 'Mousse au chocolat'),
     (5, 'DINER',    'Velouté de champignons', 'Gratin de légumes', 'Semoule', 'Fromage blanc'),
     (6, 'DEJEUNER', 'Salade de tomates', 'Escalope de dinde', 'Ratatouille', 'Tarte aux pommes'),
     (6, 'DINER',    'Soupe de poireaux', 'Pizza au fromage', 'Salade verte', 'Compote de pommes'),

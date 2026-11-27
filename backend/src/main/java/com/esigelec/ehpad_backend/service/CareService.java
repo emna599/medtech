@@ -38,6 +38,7 @@ public class CareService {
 
     private static final Comparator<ServiceItemDto> ORDER = Comparator
             .comparing(ServiceItemDto::scheduledAt)
+            .thenComparing(item -> item.resident().floor() == null ? Integer.MAX_VALUE : item.resident().floor())
             .thenComparing(item -> roomOrder(item.resident().room()))
             .thenComparing(item -> item.resident().lastName());
 

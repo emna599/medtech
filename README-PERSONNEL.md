@@ -314,7 +314,21 @@ Compte de démo : `service1` / `Demo1234!` (fonction `SERVICE`, équipe de jour)
 - Chaque résident présent montre nom, prénom, photo, allergies, régime/texture, chevalet, « En chambre » le cas échéant, et une case **Fait** (réutilise `POST /api/personnel/meals/{id}/complete`). Un clic ouvre la fiche détaillée avec « Fait » / « Refusé » (motif obligatoire). Une table pleine (8) refuse un 9e résident (409).
 - **Menu de la semaine** : table `weekly_menu` (lundi de la semaine, jour 1–7, déjeuner/dîner). Tant qu'aucune nouvelle semaine n'est saisie, le dernier menu se répète. Menu du jour en haut de l'écran, bouton « Menu de la semaine » pour naviguer.
 - **API** : `GET /api/personnel/dining/tables?slot=DEJEUNER|DINER`, `GET /api/personnel/dining/menu?date=AAAA-MM-JJ`, `POST /api/personnel/dining/readings` `{ readerCode, token | residentId, leaving }` (réponses `OK`, `ALREADY`, `MOVED`, `LEFT`). Un vrai lecteur (ESP32 + module RFID) appellera cette route avec un compte de service.
-- **Démonstration sans lecteur** : bouton « Simulateur de bracelet » (choisir un résident et une table → « Bracelet lu ») et bouton de départ sur chaque résident. Le seed installe 24 résidents au hasard sur les tables 1 à 4. Le bouton « Scanner » (NFC/QR/code) retrouve un résident déjà installé.
+- **Démonstration sans lecteur** : le seed installe 24 résidents au hasard sur les tables 1 à 4 ; bouton de départ sur chaque résident ; le bouton « Scanner » (NFC/QR/code) retrouve un résident déjà installé.
 - Le service en salle n'a pas accès aux médicaments et n'entre pas dans la répartition des résidents entre soignants.
 
 Après mise à jour : relancer `install_personnel.sql` (UTF-8), redémarrer le backend, tests : `DiningServiceTest`.
+
+### 7quinquies. Menu du jour et résidents concernés
+
+L'interface Service compare le menu du repas (entrée, plat, accompagnement, dessert) aux résidents **présents à table**
+(`MenuCompatibility`, mots-clés des plats) : allergie (STOP : ne pas servir), régime sans sel / sans sucre / végétarien
+et texture mixée / hachée (ADAPT : adapter le plat). Le résultat est dans `DiningDto.Seat.warnings` ; l'écran affiche,
+par plat, la liste des résidents concernés (ex. vendredi : « Frites »). Règles simples = aide au service, pas un avis médical.
+
+### 7sexies. Petit-déjeuner et ordre de tournée
+
+- Le **petit-déjeuner** (8 h, type `PETIT_DEJEUNER`) est servi **en chambre** par les hôtesses (compte « Service ») ;
+  infirmiers et aides-soignants peuvent aider depuis le même écran (onglet « Petit-déjeuner » de la liste des repas).
+  Le service ouvre sur la salle ; le bouton « Chambres » mène à la tournée, « Tables » y retourne.
+- Les listes de tournée sont triées **par étage puis par numéro de chambre croissant** (titres d'étage dans la liste des chambres).

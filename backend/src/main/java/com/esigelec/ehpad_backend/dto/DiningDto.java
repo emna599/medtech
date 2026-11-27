@@ -25,7 +25,11 @@ public record DiningDto(
     }
 
     /** Un résident à table : numéro d'arrivée (1 à 8), fiche, chevalet et repas à servir. */
-    public record Seat(int position, ResidentCardDto resident, String chevalet, Meal meal) {
+    public record Seat(int position, ResidentCardDto resident, String chevalet, Meal meal, List<Warning> warnings) {
+    }
+
+    /** Un plat du menu que ce résident ne peut pas (STOP : allergie) ou ne devrait pas (ADAPT : régime, texture) manger tel quel. */
+    public record Warning(String dish, String reason, String level) {
     }
 
     public record Meal(Long id, String description, ServiceStatus status) {

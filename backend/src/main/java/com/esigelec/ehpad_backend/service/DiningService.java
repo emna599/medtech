@@ -121,6 +121,8 @@ public class DiningService {
             readers.put(reader.getTableId(), reader.getCode());
         }
 
+        MenuEntryDto todayMenu = menuEntry(today, meal);
+
         Map<Long, List<DiningDto.Seat>> byTable = new HashMap<>();
         for (TablePresence presence : presences) {
             ResidentCardDto card = cards.get(presence.getResidentId());
@@ -133,7 +135,8 @@ public class DiningService {
                     atTable.size() + 1,
                     card,
                     chevalets.get(presence.getResidentId()),
-                    planned == null ? null : new DiningDto.Meal(planned.getId(), planned.getDescription(), planned.getStatus())));
+                    planned == null ? null : new DiningDto.Meal(planned.getId(), planned.getDescription(), planned.getStatus()),
+                    MenuCompatibility.check(todayMenu, card)));
         }
 
         List<DiningDto.Table> tables = new ArrayList<>();
@@ -147,7 +150,7 @@ public class DiningService {
             seated += tableSeats.size();
             served += done;
         }
-        return new DiningDto(meal, today, menuEntry(today, meal), seated, served, tables);
+        return new DiningDto(meal, today, todayMenu, seated, served, tables);
     }
 
     /**
@@ -206,6 +209,10 @@ public class DiningService {
     /** Menu de la semaine qui contient la date ; à défaut, celui de la dernière semaine saisie (le menu se répète). */
     @Transactional(readOnly = true)
     public WeeklyMenuDto menu(LocalDate date) {
+        return rawMenu(date);
+    }
+
+    private WeeklyMenuDto rawMenu(LocalDate date) {
         LocalDate monday = mondayOf(date == null ? LocalDate.now() : date);
         Optional<LocalDate> source = menuRepository.latestWeekStart(monday);
         List<MenuEntryDto> entries = source
@@ -217,7 +224,7 @@ public class DiningService {
     }
 
     private MenuEntryDto menuEntry(LocalDate date, String mealType) {
-        return menu(date).entries().stream()
+        return rawMenu(date).entries().stream()
                 .filter(entry -> entry.dayOfWeek() == date.getDayOfWeek().getValue() && entry.mealType().equalsIgnoreCase(mealType))
                 .findFirst()
                 .orElse(null);
