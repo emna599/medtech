@@ -5,6 +5,13 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — projet iOS pour installation USB
+
+- Ajout du projet Xcode iOS avec Capacitor 8 et Swift Package Manager. La cible embarque Angular et le build reçoit l’origine HTTPS de l’API de démo. Les étapes de signature et de branchement sont dans le [guide mobile](docs/mobile.md#installer-lapplication-ios-par-usb).
+- Build Angular iOS, synchronisation Capacitor, validation des fichiers Xcode avec plutil et 33 tests frontend réussis. L’origine d’exemple est un paramètre de vérification du build. Il reste à configurer une API HTTPS joignable, à disposer de Xcode complet et à signer et tester sur l’iPhone.
+
+---
+
 ## Relais Codex du 2026-11-27 — démo Safari sur iPhone
 
 - Le build Docker utilise une API de même origine via nginx, avec transmission sans tampon du flux des tournées. Le serveur Angular de développement conserve son URL locale habituelle.

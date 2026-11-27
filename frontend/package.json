@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "ios:sync": "node scripts/build-ios.mjs"
   },
   "private": true,
   "packageManager": "npm@11.20.0",
@@ -19,6 +20,8 @@
     "@angular/material": "^22.3.0",
     "@angular/platform-browser": "^22.3.0",
     "@angular/router": "^22.3.0",
+    "@capacitor/core": "^8.6.3",
+    "@capacitor/ios": "^8.6.3",
     "jsqr": "^1.4.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
@@ -27,6 +30,7 @@
     "@angular/build": "^22.3.0",
     "@angular/cli": "^22.3.0",
     "@angular/compiler-cli": "^22.3.0",
+    "@capacitor/cli": "^8.6.3",
     "jsdom": "^31.0.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",

@@ -1,0 +1,9 @@
+{
+  "appId": "fr.medtechehpad.app",
+  "appName": "MedTech EHPAD",
+  "webDir": "dist/frontend/browser",
+  "server": {
+    "hostname": "localhost",
+    "iosScheme": "capacitor"
+  }
+}

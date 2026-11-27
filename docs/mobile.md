@@ -29,9 +29,24 @@ Sur l’iPhone connecté au même Wi-Fi, ouvrez `http://192.168.1.57:4201` dans 
 
 Cette instance utilise HTTP et des données fictives. Arrêtez-la après la recette avec la même commande Compose en remplaçant `up -d --build` par `down`. Le volume fictif est conservé.
 
-### Recette installée sur iPhone et Android
+### Installer l’application iOS par USB
 
-Le site Docker utilise désormais une URL relative pour `/api/`, et nginx transmet le flux des tournées sans mise en tampon. Pour un build natif, prévoir une URL HTTPS absolue par environnement avec un certificat reconnu par les deux téléphones. Autoriser uniquement les origines exactes des WebViews dans Spring, ajuster la politique CSP et vérifier l’authentification et le flux sur les deux plateformes. Le flux utilise directement `fetch`, en plus des appels Angular HttpClient.
+Le projet Xcode est dans `frontend/ios/App/App.xcodeproj`. Capacitor embarque le build Angular dans l’application et Swift Package Manager résout ses dépendances iOS. La connexion à Spring Boot nécessite une API de démonstration HTTPS joignable depuis l’iPhone et un certificat reconnu par iOS. Le câble sert à installer et déboguer l’application. Les requêtes passent par le réseau.
+
+1. Installez Xcode 26 ou une version ultérieure compatible avec votre iPhone. Ouvrez Xcode et connectez votre compte Apple dans **Settings → Accounts**.
+2. Configurez l’API fictive pour accepter l’origine `capacitor://localhost`. Sous Docker Compose, utilisez `CORS_ALLOWED_ORIGINS='http://localhost:4200,capacitor://localhost'` lors du démarrage de l’API. Conservez les autres origines explicitement autorisées pour cet environnement si nécessaire.
+3. Depuis `frontend/`, compilez et synchronisez en remplaçant l’adresse d’exemple par l’origine réelle de l’API.
+
+   ```sh
+   npm ci
+   MEDTECH_IOS_API_ORIGIN=https://demo.example.com npm run ios:sync
+   npx cap open ios
+   ```
+
+4. Branchez et déverrouillez l’iPhone. Confirmez **Faire confiance** si iOS le demande. Dans Xcode, sélectionnez la cible **App**, activez **Automatically manage signing** et choisissez votre équipe ou **Personal Team**. Sélectionnez l’iPhone comme destination et lancez **Run**. Activez le **Mode développeur** sur l’iPhone si Xcode le demande.
+5. Ouvrez **MedTech EHPAD** depuis l’écran d’accueil et connectez-vous avec `service1` et `Demo1234!`. Vérifiez l’arrivée sur **Tables** et reprenez la recette fictive par rôle.
+
+[Mode développeur sur iPhone](https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device) · [Signature avec un compte Apple](https://developer.apple.com/help/account/basics/about-your-developer-account/)
 
 ## Session et réseau
 
