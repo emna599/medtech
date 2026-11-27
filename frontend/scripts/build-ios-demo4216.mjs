@@ -5,9 +5,12 @@ import { fileURLToPath } from 'node:url';
 
 const frontend = fileURLToPath(new URL('../', import.meta.url));
 const demo = resolve(frontend, '../demo4216');
-const api = URL.parse(process.env.MEDTECH_DEMO_IOS_API_URL ?? '');
+const platform = process.argv[2] ?? 'ios';
+if (!['ios', 'android'].includes(platform)) throw new Error('Plateforme mobile inconnue');
+const apiVariable = platform === 'android' ? 'MEDTECH_DEMO_ANDROID_API_URL' : 'MEDTECH_DEMO_IOS_API_URL';
+const api = URL.parse(process.env[apiVariable] ?? '');
 if (!api || api.protocol !== 'https:' || api.username || api.password || api.search || api.hash) {
-  console.error('Définissez MEDTECH_DEMO_IOS_API_URL avec l’adresse HTTPS privée de la démo 4216.');
+  console.error(`Définissez ${apiVariable} avec l’adresse HTTPS privée de la démo 4216.`);
   process.exit(1);
 }
 
@@ -44,7 +47,7 @@ try {
   cpSync(integrationBuild, browser, { recursive: true });
   cpSync(personnelBuild, resolve(browser, 'v2'), { recursive: true });
   cpSync(resolve(personnelBuild, 'avatars'), resolve(browser, 'avatars'), { recursive: true });
-  run(resolve(frontend, 'node_modules/.bin/cap'), ['sync', 'ios'], frontend);
+  run(resolve(frontend, 'node_modules/.bin/cap'), ['sync', platform], frontend);
 } finally {
   rmSync(scratch, { recursive: true, force: true });
 }

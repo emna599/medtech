@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MedTech EHPAD</string>
+    <string name="title_activity_main">MedTech EHPAD</string>
+    <string name="package_name">fr.medtechehpad.app</string>
+    <string name="custom_url_scheme">fr.medtechehpad.app</string>
+</resources>

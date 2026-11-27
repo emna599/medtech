@@ -8,7 +8,7 @@ services:
   backend:
     ports: !reset []
     environment:
-      CORS_ALLOWED_ORIGINS: "${CORS_ALLOWED_ORIGINS:-http://localhost:4216},capacitor://localhost"
+      CORS_ALLOWED_ORIGINS: "${CORS_ALLOWED_ORIGINS:-http://localhost:4216},capacitor://localhost,https://localhost"
 
   db-demo-4216:
     image: postgres:17

@@ -33,7 +33,7 @@ function readerCtor(): NdefReaderCtor | null {
 
 /** Le NFC du navigateur (Web NFC) n'existe que sur Chrome pour Android, en HTTPS ou sur localhost. */
 export function nfcSupported(): boolean {
-  return Capacitor.getPlatform() === 'ios'
+  return Capacitor.isNativePlatform()
     ? Capacitor.isPluginAvailable('MedTechNfc')
     : readerCtor() !== null;
 }
@@ -121,8 +121,8 @@ export class NfcReader {
   }
 
   private async start(): Promise<void> {
-    if (Capacitor.getPlatform() === 'ios') {
-      this.status.set('Approchez le haut de l’iPhone du badge ou du bracelet.');
+    if (Capacitor.isNativePlatform()) {
+      this.status.set('Approchez le téléphone du badge ou du bracelet.');
       this.nativeScanActive = true;
       try {
         const { code } = await nativeNfc.scan();

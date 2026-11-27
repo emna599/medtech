@@ -5,6 +5,11 @@
 
 ---
 
+## Démo Android 4216
+
+- Ajouté le projet Android Capacitor et le lecteur natif en lecture seule. Le lecteur prend le texte ou lien NDEF quand il existe, puis le numéro de série lorsque la puce ne fournit pas de texte lisible. L’application utilise l’API HTTPS privée et la base commune de la démo 4216.
+- Procédure de build et d’installation dans `demo4216/Parcours.md`. La lecture de la carte doit être confirmée sur un appareil physique.
+
 ## Lecture du numéro de série NFC sur iPhone
 
 - Le lecteur natif de la démo 4216 lit les données NDEF lorsqu’elles existent et utilise le numéro de série en l’absence de texte ou lien lisible. Le formulaire d’attribution ouvre désormais ce lecteur sur les appareils compatibles.

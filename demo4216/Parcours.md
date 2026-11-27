@@ -50,3 +50,18 @@ Dans **Pointage RFID**, touchez **Lire le badge NFC** et approchez le haut de l�
 Pour un essai avec une carte étudiante compatible, ouvrez **Bracelet d’identification → Gérer le RFID → Lire la puce NFC** dans l’app iPhone. Lorsqu’aucun texte ou lien NDEF lisible n’est présent, l’app renseigne le numéro de série sous la forme affichée par NFC Tools. Vérifiez le numéro, puis attribuez-le à un résident fictif. Sur un compte Personnel, utilisez **Scanner → Puce NFC** et confirmez le nom et la chambre. L’app effectue une lecture seule.
 
 L’app iOS doit être signée avec une équipe Apple autorisée à utiliser **Near Field Communication Tag Reading** et le réglage Xcode `MEDTECH_NFC_ENTITLEMENTS` doit pointer vers `App/App.entitlements`. En l’absence de ce droit, la saisie et le QR restent disponibles.
+
+## Installer la démo sur Android
+
+Le téléphone doit avoir le NFC activé et pouvoir joindre le même relais HTTPS privé que l’iPhone. La compilation utilise le JDK 21 et le SDK Android 36.
+
+```sh
+cd frontend
+npm ci
+MEDTECH_DEMO_ANDROID_API_URL=https://mac.tailnet.ts.net/demo4216 npm run android:demo4216
+cd android
+./gradlew assembleDebug
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+Dans **Administration → Résidents → Bracelet d’identification → Gérer le RFID**, choisissez **Lire la puce NFC** et présentez la carte. Si la puce contient un texte ou un lien NDEF lisible, l’app utilise ce code. Sinon, elle affiche son numéro de série en hexadécimal. Confirmez l’attribution au résident fictif, puis relisez la carte depuis **Scanner → Puce NFC** avec `personnel2`. La lecture ne modifie pas la carte.
