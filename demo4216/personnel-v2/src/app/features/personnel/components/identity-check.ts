@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -69,6 +69,7 @@ export class IdentityCheck {
   readonly residentId = input.required<number>();
   readonly residentName = input.required<string>();
   readonly hasBracelet = input(true);
+  readonly mismatch = output<boolean>();
   readonly kind = input<ServiceKind>('REPAS');
 
   protected readonly verified = signal<'NONE' | 'OK' | 'BAD'>('NONE');
@@ -103,7 +104,9 @@ export class IdentityCheck {
     });
     ref.afterClosed().subscribe((result) => {
       if (result) {
-        this.verified.set(result.residentId === this.residentId() ? 'OK' : 'BAD');
+        const mismatch = result.residentId !== this.residentId();
+        this.verified.set(mismatch ? 'BAD' : 'OK');
+        this.mismatch.emit(mismatch);
       }
     });
   }

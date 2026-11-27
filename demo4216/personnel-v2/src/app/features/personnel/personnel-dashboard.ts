@@ -39,7 +39,7 @@ import { ResidentSheet, ResidentSheetData, ResidentSheetResult } from './residen
 type StatusFilter = 'A_FAIRE' | 'FAIT' | 'TOUS';
 
 const PENDING: readonly ServiceStatus[] = ['A_FAIRE', 'PLUS_TARD'];
-const FINISHED: readonly ServiceStatus[] = ['FAIT', 'REFUSE'];
+const FINISHED: readonly ServiceStatus[] = ['FAIT', 'REFUSE', 'ABSENT'];
 
 function normalize(text: string): string {
   return text
@@ -221,7 +221,7 @@ export class PersonnelDashboard {
   }
 
   protected setKind(kind: ServiceKind): void {
-    if (kind === this.kind()) {
+    if (kind === this.kind() || (kind === 'MEDICAMENT' && !this.medicationAccess())) {
       return;
     }
     this.kind.set(kind);
@@ -272,7 +272,6 @@ export class PersonnelDashboard {
       data: {
         item,
         canAct: !(item.kind === 'MEDICAMENT' && !this.medicationAccess()),
-        hasBracelet: false,
       },
       width: '680px',
       maxWidth: '100vw',

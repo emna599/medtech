@@ -5,6 +5,11 @@
 
 ---
 
+## Vérification des autres écrans 4216
+
+- Le bouton Planning des soignants affiche les créneaux publiés et le planning type. Le raccourci Médicaments respecte les droits du compte.
+- Les fiches de tournée proposent le scanner de bracelet et désactivent la validation en cas de discordance. Le chevalet se gère depuis la table. Une absence entre dans le filtre des tâches traitées et s’affiche comme telle sur la fiche.
+
 ## Résumé de relève Personnel V2
 
 - Sur 4216, le bouton Relève affiche à nouveau le résumé dès l’ouverture. La section repliable **Transmissions de l’équipe** donne accès aux actions partagées de l’API commune.

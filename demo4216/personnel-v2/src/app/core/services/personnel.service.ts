@@ -22,6 +22,7 @@ import {
   HandoverAssignment,
   HandoverBoard,
   HandoverRequest,
+  ScheduledAssignment,
   ServiceItem,
   ServiceKind,
   Team,
@@ -143,6 +144,10 @@ export class PersonnelService {
 
   checkOut(): Observable<Team> {
     return this.http.post<Team>(`${this.base}/team/check-out`, {});
+  }
+
+  myAssignments(): Observable<ScheduledAssignment[]> {
+    return this.http.get<ScheduledAssignment[]>(`${this.base}/my-assignments`);
   }
 
   planning(): Observable<Planning> {

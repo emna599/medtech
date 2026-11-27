@@ -1,7 +1,7 @@
 # Parcours de la démo 4216
 
 - **Administration**. Attribuer ou révoquer les badges des agents dans Comptes. Gérer les QR et les bracelets des résidents dans leur fiche.
-- **Aide-soignant et infirmier**. Scanner et confirmer l’identité, puis ouvrir la tournée autorisée. Utiliser Pointage RFID avec son propre badge. Dans Relève, le résumé s’affiche d’abord. Ouvrir **Transmissions de l’équipe** pour enregistrer ou prendre en charge une action.
+- **Aide-soignant et infirmier**. Scanner et confirmer l’identité, puis ouvrir la tournée autorisée. Vérifier les créneaux publiés dans **Planning**. Utiliser Pointage RFID avec son propre badge. Dans Relève, le résumé s’affiche d’abord. Ouvrir **Transmissions de l’équipe** pour enregistrer ou prendre en charge une action.
 - **Service en salle**. Scanner et confirmer l’identité. Si la personne est déjà installée, le panneau de sa table s’ouvre. Sinon, sélectionner une table puis confirmer l’installation. Gérer le chevalet depuis le panneau. Pointer avec le badge du compte connecté.
 - **Médecin**. Identifier un résident et ouvrir le dossier médical après confirmation.
 

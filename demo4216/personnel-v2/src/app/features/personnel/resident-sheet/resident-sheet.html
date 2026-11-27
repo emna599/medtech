@@ -91,10 +91,8 @@
       [residentName]="name()"
       [hasBracelet]="hasBracelet"
       [kind]="item().kind"
+      (mismatch)="identityMismatch.set($event)"
     />
-    @if (item().kind === 'REPAS') {
-      <app-chevalet-box [residentId]="resident().id" />
-    }
   </div>
 
   @if (error()) {
@@ -107,7 +105,7 @@
         mat-flat-button
         type="button"
         class="primary"
-        [disabled]="busy() || hasDoubt()"
+        [disabled]="busy() || hasDoubt() || identityMismatch()"
         (click)="done()"
       >
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon>

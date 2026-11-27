@@ -20,7 +20,6 @@ import {
   slotLabel,
 } from '../../../shared/models/personnel.model';
 import { AppetiteChart } from '../components/appetite-chart';
-import { ChevaletBox } from '../components/chevalet-box';
 import { IdentityCheck } from '../components/identity-check';
 import { NotesDialog } from '../notes-dialog/notes-dialog';
 import { ResidentAvatar } from '../components/resident-avatar';
@@ -44,7 +43,6 @@ export interface ResidentSheetResult {
   selector: 'app-resident-sheet',
   imports: [
     AppetiteChart,
-    ChevaletBox,
     DatePipe,
     IdentityCheck,
     FormsModule,
@@ -75,6 +73,7 @@ export class ResidentSheet {
   protected readonly name = computed(() => fullName(this.resident()));
 
   protected readonly busy = signal(false);
+  protected readonly identityMismatch = signal(false);
   protected readonly error = signal<string | null>(null);
 
   protected readonly refusing = signal(false);
@@ -109,6 +108,8 @@ export class ResidentSheet {
         return 'Refusé';
       case 'PLUS_TARD':
         return 'Reporté';
+      case 'ABSENT':
+        return 'Absent';
       default:
         return 'À faire';
     }
@@ -190,6 +191,10 @@ export class ResidentSheet {
   // ------------------------------------------------------------------ interne
 
   private complete(body: CompleteRequest): void {
+    if (body.status === 'FAIT' && this.identityMismatch()) {
+      this.error.set("Le bracelet lu correspond à une autre personne. Vérifiez l’identité avant de poursuivre.");
+      return;
+    }
     this.run(this.api.complete(this.item(), body), (updated) => {
       this.item.set(updated);
       // « Un geste » : on referme tout de suite et la liste passe au suivant.

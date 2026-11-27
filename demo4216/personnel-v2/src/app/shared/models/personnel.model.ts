@@ -371,3 +371,10 @@ export interface HandoverRequest {
 }
 
 export type HandoverAssignment = 'CLAIM' | 'RELEASE' | 'TAKE_OVER';
+
+export interface ScheduledAssignment {
+  id: number;
+  floor: number;
+  startsAt: string;
+  endsAt: string;
+}
