@@ -5,6 +5,10 @@
 
 ---
 
+## Résumé de relève Personnel V2
+
+- Sur 4216, le bouton Relève affiche à nouveau le résumé dès l’ouverture. La section repliable **Transmissions de l’équipe** donne accès aux actions partagées de l’API commune.
+
 ## Jeu de données original Personnel V2
 
 - La démo 4216 sur `feature/demo-4216` charge le SQL de données de `personnel-v2` (`e29a20b`) à l’initialisation d’un volume dédié. La base contient 80 résidents, 80 chambres, 160 repas et 136 prises du jour, ainsi que 10 tables et 24 présences à table. Le schéma reste compatible avec l’API commune aux profils, et l’ancienne base d’intégration est conservée.

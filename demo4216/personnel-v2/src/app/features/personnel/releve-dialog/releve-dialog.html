@@ -1,7 +1,7 @@
 <header class="head">
   <span class="material-symbols-outlined visual-cue cue--blue" aria-hidden="true">swap_horiz</span>
   <div class="head-text">
-    <h2>Relève</h2>
+    <h2>Résumé de relève</h2>
     <p>{{ nowText }}</p>
   </div>
   <button mat-icon-button type="button" aria-label="Fermer" [disabled]="saving()" (click)="ref.close()">
@@ -10,121 +10,6 @@
 </header>
 
 <div class="body">
-  <section aria-labelledby="handover-open-title">
-    <div class="section-heading">
-      <h3 id="handover-open-title">Actions à poursuivre</h3>
-      <button mat-button type="button" [disabled]="boardLoading()" (click)="loadBoard()">Actualiser</button>
-    </div>
-    @if (boardError(); as message) {
-      <p class="error" role="alert">Relève indisponible. {{ message }}</p>
-    }
-    @if (actionError(); as message) {
-      <p class="error" role="alert">{{ message }}</p>
-    }
-    @if (board(); as current) {
-      <div class="work-card-grid handover-grid">
-        @for (entry of current.open; track entry.id) {
-          <mat-card appearance="outlined" class="work-card">
-            <mat-card-content>
-              <div class="work-card-heading">
-                <h4>{{ entry.residentName ?? 'Équipe' }}</h4>
-                <span class="work-status"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ entry.assignedTo ? 'person' : 'pending_actions' }}</mat-icon> {{ entry.assignedTo ? 'En cours' : 'À faire' }}</span>
-              </div>
-              <p class="muted">{{ entry.authorName }} · {{ entry.createdAt | date:'dd/MM HH:mm' }}</p>
-              @if (entry.targetShift) { <p class="muted">Destinataire · {{ shiftLabel[entry.targetShift] }}</p> }
-              @if (entry.assigneeName) {
-                <p class="muted">Pris en charge par {{ entry.assigneeName }}</p>
-              }
-              <p class="handover-text">{{ entry.observation }}</p>
-              <p class="handover-text"><strong>Action attendue</strong><br />{{ entry.expectedAction }}</p>
-            </mat-card-content>
-            @if (!entry.targetShift || entry.targetShift === current.shift) {
-            <mat-card-actions align="end">
-              @if (entry.assignedTo === null) {
-                <button mat-button type="button" [disabled]="closing() !== null || saving()" (click)="assign(entry, 'CLAIM')">
-                  Prendre en charge
-                </button>
-              } @else if (entry.assignedTo === currentUser()?.id) {
-                <button mat-button type="button" [disabled]="closing() !== null || saving()" (click)="assign(entry, 'RELEASE')">
-                  Libérer
-                </button>
-                <button mat-flat-button type="button" [disabled]="closing() !== null || saving()" (click)="complete(entry)">
-                  Marquer comme faite
-                </button>
-              } @else {
-                <button mat-button type="button" [disabled]="closing() !== null || saving()" (click)="assign(entry, 'TAKE_OVER')">
-                  Reprendre
-                </button>
-              }
-            </mat-card-actions>
-            }
-          </mat-card>
-        } @empty {
-          <p class="muted">Aucune action en attente.</p>
-        }
-      </div>
-    } @else if (boardLoading()) {
-      <p class="muted" role="status">Chargement des transmissions…</p>
-    }
-  </section>
-
-  <section aria-labelledby="handover-new-title">
-    <h3 id="handover-new-title">Nouvelle transmission</h3>
-    <form class="handover-form" [formGroup]="form" #handoverForm="ngForm" (ngSubmit)="save(handoverForm)">
-      <mat-form-field appearance="outline">
-        <mat-label>Équipe destinataire</mat-label>
-        <mat-select formControlName="targetShift" [canSelectNullableOptions]="true">
-          <mat-option [value]="null">Toutes les équipes</mat-option>
-          <mat-option value="JOUR">Équipe de jour</mat-option>
-          <mat-option value="NUIT">Équipe de nuit</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Résident</mat-label>
-        <mat-select formControlName="residentId" [canSelectNullableOptions]="true">
-          <mat-option [value]="null">Équipe entière</mat-option>
-          @for (resident of residents(); track resident.id) {
-            <mat-option [value]="resident.id">
-              {{ residentName(resident) }} @if (resident.room) { · Chambre {{ resident.room }} }
-            </mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
-      @if (residentError()) {
-        <p class="error" role="alert">La liste des résidents est indisponible.</p>
-      }
-      <mat-form-field appearance="outline">
-        <mat-label>Observation</mat-label>
-        <textarea matInput formControlName="observation" rows="3" maxlength="1200"></textarea>
-        <mat-error>Saisissez une observation de 1 à 1 200 caractères.</mat-error>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <mat-label>Action attendue</mat-label>
-        <textarea matInput formControlName="expectedAction" rows="2" maxlength="400"></textarea>
-        <mat-error>Saisissez une action de 1 à 400 caractères.</mat-error>
-      </mat-form-field>
-      @if (formError(); as message) {
-        <p class="error" role="alert">{{ message }}</p>
-      }
-      <button mat-flat-button type="submit" [disabled]="saving() || closing() !== null">Enregistrer la transmission</button>
-    </form>
-  </section>
-
-  @if (board()?.recentlyCompleted?.length) {
-    <details class="handover-history">
-      <summary>Actions terminées récemment</summary>
-      @for (entry of board()?.recentlyCompleted; track entry.id) {
-        <article class="history-entry">
-          <h4>{{ entry.residentName ?? 'Équipe' }}</h4>
-          <p class="handover-text">{{ entry.expectedAction }}</p>
-          <p class="muted">Terminée par {{ entry.completedBy }} · {{ entry.completedAt | date:'dd/MM HH:mm' }}</p>
-        </article>
-      }
-    </details>
-  }
-
-  <details class="handover-history">
-    <summary>Résumé du service</summary>
   @if (loading()) {
     <div class="state"><mat-spinner diameter="40" /></div>
   } @else if (error()) {
@@ -174,6 +59,120 @@
       }
     </section>
   }
+  <details class="handover-history">
+    <summary>Transmissions de l’équipe</summary>
+    <section aria-labelledby="handover-open-title">
+      <div class="section-heading">
+        <h3 id="handover-open-title">Actions à poursuivre</h3>
+        <button mat-button type="button" [disabled]="boardLoading()" (click)="loadBoard()">Actualiser</button>
+      </div>
+      @if (boardError(); as message) {
+        <p class="error" role="alert">Relève indisponible. {{ message }}</p>
+      }
+      @if (actionError(); as message) {
+        <p class="error" role="alert">{{ message }}</p>
+      }
+      @if (board(); as current) {
+        <div class="work-card-grid handover-grid">
+          @for (entry of current.open; track entry.id) {
+            <mat-card appearance="outlined" class="work-card">
+              <mat-card-content>
+                <div class="work-card-heading">
+                  <h4>{{ entry.residentName ?? 'Équipe' }}</h4>
+                  <span class="work-status"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ entry.assignedTo ? 'person' : 'pending_actions' }}</mat-icon> {{ entry.assignedTo ? 'En cours' : 'À faire' }}</span>
+                </div>
+                <p class="muted">{{ entry.authorName }} · {{ entry.createdAt | date:'dd/MM HH:mm' }}</p>
+                @if (entry.targetShift) { <p class="muted">Destinataire · {{ shiftLabel[entry.targetShift] }}</p> }
+                @if (entry.assigneeName) {
+                  <p class="muted">Pris en charge par {{ entry.assigneeName }}</p>
+                }
+                <p class="handover-text">{{ entry.observation }}</p>
+                <p class="handover-text"><strong>Action attendue</strong><br />{{ entry.expectedAction }}</p>
+              </mat-card-content>
+              @if (!entry.targetShift || entry.targetShift === current.shift) {
+              <mat-card-actions align="end">
+                @if (entry.assignedTo === null) {
+                  <button mat-button type="button" [disabled]="closing() !== null || saving()" (click)="assign(entry, 'CLAIM')">
+                    Prendre en charge
+                  </button>
+                } @else if (entry.assignedTo === currentUser()?.id) {
+                  <button mat-button type="button" [disabled]="closing() !== null || saving()" (click)="assign(entry, 'RELEASE')">
+                    Libérer
+                  </button>
+                  <button mat-flat-button type="button" [disabled]="closing() !== null || saving()" (click)="complete(entry)">
+                    Marquer comme faite
+                  </button>
+                } @else {
+                  <button mat-button type="button" [disabled]="closing() !== null || saving()" (click)="assign(entry, 'TAKE_OVER')">
+                    Reprendre
+                  </button>
+                }
+              </mat-card-actions>
+              }
+            </mat-card>
+          } @empty {
+            <p class="muted">Aucune action en attente.</p>
+          }
+        </div>
+      } @else if (boardLoading()) {
+        <p class="muted" role="status">Chargement des transmissions…</p>
+      }
+    </section>
+
+    <section aria-labelledby="handover-new-title">
+      <h3 id="handover-new-title">Nouvelle transmission</h3>
+      <form class="handover-form" [formGroup]="form" #handoverForm="ngForm" (ngSubmit)="save(handoverForm)">
+        <mat-form-field appearance="outline">
+          <mat-label>Équipe destinataire</mat-label>
+          <mat-select formControlName="targetShift" [canSelectNullableOptions]="true">
+            <mat-option [value]="null">Toutes les équipes</mat-option>
+            <mat-option value="JOUR">Équipe de jour</mat-option>
+            <mat-option value="NUIT">Équipe de nuit</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Résident</mat-label>
+          <mat-select formControlName="residentId" [canSelectNullableOptions]="true">
+            <mat-option [value]="null">Équipe entière</mat-option>
+            @for (resident of residents(); track resident.id) {
+              <mat-option [value]="resident.id">
+                {{ residentName(resident) }} @if (resident.room) { · Chambre {{ resident.room }} }
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        @if (residentError()) {
+          <p class="error" role="alert">La liste des résidents est indisponible.</p>
+        }
+        <mat-form-field appearance="outline">
+          <mat-label>Observation</mat-label>
+          <textarea matInput formControlName="observation" rows="3" maxlength="1200"></textarea>
+          <mat-error>Saisissez une observation de 1 à 1 200 caractères.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Action attendue</mat-label>
+          <textarea matInput formControlName="expectedAction" rows="2" maxlength="400"></textarea>
+          <mat-error>Saisissez une action de 1 à 400 caractères.</mat-error>
+        </mat-form-field>
+        @if (formError(); as message) {
+          <p class="error" role="alert">{{ message }}</p>
+        }
+        <button mat-flat-button type="submit" [disabled]="saving() || closing() !== null">Enregistrer la transmission</button>
+      </form>
+    </section>
+
+    @if (board()?.recentlyCompleted?.length) {
+      <details class="handover-history">
+        <summary>Actions terminées récemment</summary>
+        @for (entry of board()?.recentlyCompleted; track entry.id) {
+          <article class="history-entry">
+            <h4>{{ entry.residentName ?? 'Équipe' }}</h4>
+            <p class="handover-text">{{ entry.expectedAction }}</p>
+            <p class="muted">Terminée par {{ entry.completedBy }} · {{ entry.completedAt | date:'dd/MM HH:mm' }}</p>
+          </article>
+        }
+      </details>
+    }
   </details>
 </div>
 
