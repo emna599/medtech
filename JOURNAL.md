@@ -5,6 +5,13 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — diagnostic HTTPS sur iPhone
+
+- L’application signée s’ouvre sur l’iPhone. La connexion échoue et Safari a affiché un avertissement de certificat. La chaîne TLS et la connexion au compte fictif fonctionnent depuis le Mac.
+- Ajout du chemin `/connexion-test` au proxy de démo. Le message est vérifié depuis le Mac et sert à tester la connexion Safari de l’iPhone sans saisir d’identifiants.
+
+---
+
 ## Relais Codex du 2026-11-27 — données et accès pour la recette iPhone
 
 - Relancé les scripts datés sur la base fictive dédiée iOS sans remise à zéro. L’API HTTPS sert 24 résidents, un dossier médical fictif, 42 repas côté aide-soignant, 12 prises côté infirmier et 22 plateaux au déjeuner. Planning publié, relève Nuit, tables et menu vérifiés par lecture d’API.

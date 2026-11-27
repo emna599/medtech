@@ -19,6 +19,11 @@ https://{$MEDTECH_LAN_IP}:8443 {
 		reverse_proxy backend:8080
 	}
 
+	handle /connexion-test {
+		header Cache-Control "no-store"
+		respond "MedTech EHPAD : le serveur HTTPS répond." 200
+	}
+
 	handle {
 		respond 404
 	}
