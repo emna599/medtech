@@ -5,6 +5,10 @@
 
 ---
 
+## Correction de la source du design de connexion
+
+- Le design de connexion est repris de `feature/admin-users`. Le formulaire et la reprise après lecture d’un bracelet restent ceux de l’intégration.
+
 ## Relais Codex du 2026-11-27 — RFID web, pictogrammes et connexion
 
 - Reprise ciblée de `feature/personnel-v2` : lecteur Web NFC lorsque disponible et pictogrammes avec libellés dans l’identification, la fiche de tournée et les tables. Le code fourni par le lecteur ou saisi au clavier reste utilisable.

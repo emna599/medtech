@@ -2,7 +2,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -11,6 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/auth/auth.service';
+import { Logo } from '../../../shared/components/logo/logo';
 import { BRACELET_PATH, braceletCode } from '../../../shared/utils/bracelet-link';
 import { ROLE_HOME_ROUTE } from '../../../shared/models/auth.model';
 
@@ -18,7 +18,7 @@ import { ROLE_HOME_ROUTE } from '../../../shared/models/auth.model';
   selector: 'app-login',
   imports: [
     ReactiveFormsModule,
-    MatCardModule,
+    Logo,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
