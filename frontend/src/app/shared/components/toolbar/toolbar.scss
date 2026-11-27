@@ -46,3 +46,7 @@
   .logout { min-width: 40px; padding-inline: 8px; }
   .logout mat-icon { margin: 0; }
 }
+
+.identity { min-height: 44px; }
+.logo { padding: 4px; border-radius: 12px; background: var(--app-surface); box-sizing: border-box; }
+.user { border-inline-end: 0; }

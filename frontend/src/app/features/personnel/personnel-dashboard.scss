@@ -54,7 +54,7 @@
 
 .controls {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1.7fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   padding-block-start: 10px;
   border-block-start: 1px solid var(--app-line);
@@ -208,8 +208,7 @@
 }
 
 .locations {
-  grid-column: 1 / -1;
-  grid-row: 1;
+  grid-column: span 2;
   min-width: 0;
   margin: 0;
   padding: 0;
@@ -228,7 +227,7 @@
 }
 .locations mat-icon { margin-inline-end: 4px; }
 .location-count { margin-inline-start: 4px; font-weight: 750; }
-.controls > .search { grid-column: span 2; }
+.controls > .search { grid-column: 1 / -1; }
 .start { max-width: 100%; height: auto; min-height: var(--control-height); white-space: normal; }
 
 .register:not(.in-room) { border: 0; background: transparent; }
@@ -255,3 +254,27 @@
 .register:not(.in-room) .tile-room { grid-column: 1; grid-row: 2; }
 .register:not(.in-room) .tile-status { grid-column: 2 / 4; grid-row: 2; }
 .register:not(.in-room) .tile-guidance { grid-column: 1 / -1; grid-row: 3; }
+
+.tour-heading {
+  padding: clamp(12px, 2vw, 24px);
+  border: 1px solid var(--app-line);
+  border-radius: 16px;
+  background: var(--app-teal-tint);
+}
+
+.tour-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tour-mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--app-surface);
+  color: var(--app-ok);
+}

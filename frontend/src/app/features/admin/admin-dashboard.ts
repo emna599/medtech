@@ -18,11 +18,15 @@ import { AdminDashboardService } from './admin-dashboard.service';
   template: `
     <header class="page-head">
       <div>
-        <h1 class="cue-title"><span class="material-symbols-outlined visual-cue" aria-hidden="true">dashboard</span><span>Tableau de bord</span></h1>
-        <p>Vue d'ensemble de l'établissement</p>
+        <h1 class="cue-title"><span class="material-symbols-outlined visual-cue" aria-hidden="true">dashboard</span><span>Administration</span></h1>
       </div>
     </header>
     <div class="stack">
+      <nav class="quick-actions" aria-label="Actions d’administration">
+        <a routerLink="/admin/residents"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon> Gérer les résidents</a>
+        <a routerLink="/admin/rooms"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon> Gérer les chambres</a>
+        <a routerLink="/admin/users"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">badge</mat-icon> Gérer les comptes</a>
+      </nav>
       @if (loading()) {
         <mat-progress-bar mode="indeterminate" />
       }
@@ -121,6 +125,21 @@ import { AdminDashboardService } from './admin-dashboard.service';
   `,
   styles: `
     .stack { display: flex; flex-direction: column; gap: 16px; }
+    .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 12px; }
+    .quick-actions a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: var(--app-teal-tint);
+      color: var(--app-ink);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .quick-actions a:hover { text-decoration: underline; }
+    .quick-actions a:focus-visible { outline: 2px solid var(--control-focus); outline-offset: 2px; }
     .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 12px; }
     .ico { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; margin-bottom: 8px; background: var(--mat-sys-primary-container); color: var(--mat-sys-on-primary-container); }
     .value { font-size: 2rem; font-weight: 750; }

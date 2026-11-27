@@ -5,6 +5,10 @@
 
 ---
 
+## Accès directs aux tâches courantes
+
+- Placé les actions Résidents, Chambres et Comptes en haut de l’accueil Administration. Clarifié l’ouverture du dossier et l’identification côté médecin. Réorganisé les commandes de la tournée Personnel autour du lieu, du créneau et de la recherche.
+
 ## Simplification de la tournée Personnel
 
 - Repris de `feature/personnel-v2` les cartes en salle, la liste en chambre et les repères associant icône et libellé. La bascule Salle/Chambres est visible directement et le bouton de tournée affiche le nom du prochain résident à traiter.

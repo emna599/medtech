@@ -4,16 +4,15 @@
   <header class="page-header">
     <div>
       <h1 class="cue-title"><span class="material-symbols-outlined visual-cue cue--blue" aria-hidden="true">clinical_notes</span><span>Résidents</span></h1>
-      <p>Consultez les résidents et leurs dossiers médicaux.</p>
     </div>
-    <button mat-stroked-button type="button" (click)="identifyResident()">
+    <button mat-flat-button type="button" (click)="identifyResident()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
       Identifier un résident
     </button>
   </header>
 
   <mat-form-field appearance="outline" class="search-field">
-    <mat-label>Rechercher par nom ou numéro de chambre</mat-label>
+    <mat-label>Nom ou chambre</mat-label>
     <mat-icon matPrefix fontSet="material-symbols-outlined" aria-hidden="true">search</mat-icon>
     <input
       matInput
@@ -67,7 +66,7 @@
           </mat-card-content>
           <mat-card-actions align="end">
             <button mat-button type="button" (click)="viewResident(resident.id)">
-              Consulter la fiche
+              Ouvrir le dossier
               <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">arrow_forward</mat-icon>
             </button>
           </mat-card-actions>

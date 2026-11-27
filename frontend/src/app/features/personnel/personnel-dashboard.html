@@ -12,6 +12,9 @@
 <main class="work-page service-page">
   <header class="page-head tour-heading">
     <div class="tour-title">
+      <span class="tour-mark" aria-hidden="true">
+        <mat-icon fontSet="material-symbols-outlined">{{ kind() === 'REPAS' ? 'restaurant' : 'medication' }}</mat-icon>
+      </span>
       <h1>{{ kind() === 'REPAS' ? 'Tournée des repas' : 'Tournée des médicaments' }}</h1>
     </div>
     <div class="heading-actions">
@@ -116,13 +119,6 @@
       }
     </div>
     <div class="controls" aria-label="Filtres de la tournée" role="group">
-      <label>
-        <span>Créneau</span>
-        <select [ngModel]="currentSlot()" (ngModelChange)="setSlot($event)" [disabled]="slots().length === 0">
-          @if (slots().length === 0) { <option [ngValue]="null">Aucun créneau</option> }
-          @for (slot of slots(); track slot) { <option [ngValue]="slot">{{ slotText(slot) }}</option> }
-        </select>
-      </label>
       <fieldset class="locations">
         <legend>Lieu</legend>
         <mat-button-toggle-group
@@ -142,7 +138,14 @@
         </mat-button-toggle-group>
       </fieldset>
       <label>
-        <span>Statut</span>
+        <span>Créneau</span>
+        <select [ngModel]="currentSlot()" (ngModelChange)="setSlot($event)" [disabled]="slots().length === 0">
+          @if (slots().length === 0) { <option [ngValue]="null">Aucun créneau</option> }
+          @for (slot of slots(); track slot) { <option [ngValue]="slot">{{ slotText(slot) }}</option> }
+        </select>
+      </label>
+      <label class="status-filter">
+        <span>Afficher</span>
         <select [ngModel]="statusFilter()" (ngModelChange)="setStatusFilter($event)">
           <option value="A_FAIRE">À faire</option>
           <option value="FAIT">Traités</option>
@@ -150,8 +153,8 @@
         </select>
       </label>
       <label class="search">
-        <span>Nom ou chambre</span>
-        <input type="search" autocomplete="off" [ngModel]="search()" (ngModelChange)="search.set($event)" />
+        <span>Rechercher un résident</span>
+        <input type="search" placeholder="Nom ou chambre" autocomplete="off" [ngModel]="search()" (ngModelChange)="search.set($event)" />
       </label>
     </div>
   </div>
@@ -206,9 +209,9 @@
         @if (total() === 0) {
           Aucun élément pour vos affectations actives.
         } @else if (statusFilter() === 'A_FAIRE' && !search()) {
-          Tout est fait ici. Bravo !
+          Tout est traité pour ce lieu et ce créneau.
         } @else {
-          Aucun résultat.
+          Aucun résident ne correspond à ces filtres.
         }
       </p>
     </div>

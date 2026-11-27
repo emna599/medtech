@@ -12,7 +12,7 @@ Les actions principales sont pleines, les actions secondaires ont un contour fin
 
 ## Administration
 
-1. Ouvrez **Résidents**, recherchez la personne et sélectionnez **Consulter la fiche**. Vérifiez le nom, la chambre et le statut.
+1. Depuis l’accueil Administration, choisissez **Gérer les résidents**, recherchez la personne et sélectionnez **Consulter la fiche**. Vérifiez le nom, la chambre et le statut.
 2. Dans **Identité et séjour**, choisissez **Ajouter une photo** ou **Remplacer la photo**. Formats JPEG ou PNG, 1 Mo maximum. Utilisez **Retirer la photo** puis confirmez pour la supprimer.
 3. Dans **Bracelet d’identification**, l’admin affiche, imprime, renouvelle ou désactive le QR.
 4. Ouvrez **Chambres** pour vérifier l’occupation. La désactivation d’un résident libère sa place et son chevalet, puis révoque son QR.
@@ -25,13 +25,13 @@ Dans **Administration → Comptes → Badge RFID**, attribuez, remplacez ou rév
 
 ## Médecin
 
-1. Ouvrez **Résidents**, recherchez par nom ou chambre, puis ouvrez la fiche.
+1. Ouvrez **Résidents**, recherchez par nom ou chambre, puis sélectionnez **Ouvrir le dossier**.
 2. La photo enregistrée est visible dans **Identité et séjour**. Consultez le dossier médical et mettez à jour les allergies, le régime ou la texture selon les droits de l’espace médecin.
 3. Un lien QR valide reprend après connexion. Vérifiez l’identité affichée, puis confirmez pour ouvrir la fiche du rôle connecté.
 
 ## Personnel
 
-1. Ouvrez **Repas** ou **Médicaments**, puis choisissez **Salle** ou **Chambres**. Les champs **Créneau**, **Statut** et **Nom ou chambre** affinent la liste.
+1. Ouvrez **Repas** ou **Médicaments**, puis choisissez **Salle** ou **Chambres**. Les commandes **Créneau**, **Afficher** et **Rechercher un résident** affinent la liste.
 2. Ouvrez la carte en salle ou la ligne en chambre. En chambre, **Ouvrir la prochaine fiche** affiche le nom du résident quand la liste est sur **À faire** et que la recherche est vide. Le portrait apparaît s’il est renseigné. Sinon, un pictogramme et les initiales accompagnent le nom. Vérifiez le nom, la chambre et les alertes, puis suivez les confirmations demandées.
 3. Pour gérer le placement, ouvrez **Tables**, choisissez le créneau et la table, puis **Installer un résident**. Vérifiez l’identité et confirmez sa présence.
 4. Sur le résident installé, sélectionnez **Associer un chevalet**, saisissez le numéro imprimé de 1 à 9999 et confirmez. Si le numéro est déjà utilisé, vérifiez l’ancienne affectation avec l’équipe. Le chevalet est disponible après **Libérer le chevalet** et confirmation, ou après **Enregistrer le départ**. Un changement de table conserve le chevalet.
