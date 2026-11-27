@@ -5,6 +5,13 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — accès réseau local dans l’application iOS
+
+- La page de test HTTPS s’affiche dans Safari sur l’iPhone. Le dernier essai depuis l’application ne figure pas dans le journal HTTP, dont le fonctionnement est confirmé depuis le Mac.
+- Ajout de la déclaration iOS pour les connexions réseau locales. L’API du bundle reste en HTTPS. Relancer la cible iPhone dans Xcode et vérifier la connexion sur l’appareil.
+
+---
+
 ## Relais Codex du 2026-11-27 — diagnostic HTTPS sur iPhone
 
 - L’application signée s’ouvre sur l’iPhone. La connexion échoue et Safari a affiché un avertissement de certificat. La chaîne TLS et la connexion au compte fictif fonctionnent depuis le Mac.
