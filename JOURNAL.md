@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — cadrage Android et iOS
+
+- `integration` synchronisée en fast-forward sur le relais `829a170` avant l’audit. Le [cadrage mobile](docs/mobile.md) compare PWA, Capacitor et client séparé. Il propose de tester le site responsive sur téléphone, puis d’embarquer Angular dans Capacitor pour conserver les parcours et contrôles existants.
+- Le guide décrit l’accès HTTPS à la démo, le JWT et la reprise après suspension ou coupure. Il s’appuie sur la recette des huit comptes, le planning publié, les affectations actives, la relève jour/nuit et les tables de Sofia.
+- Session de cadrage documentaire. Le build natif et la recette sur téléphones restent à réaliser. Les prescriptions restent à cadrer et les essais caméra et RFID physiques attendent le signal de l’équipe.
+
+---
+
 ## Relais du 2026-11-27 — démarrage du chantier mobile
 
 - Le site web de référence est sur `integration`. Le dernier changement fonctionnel est `0422f34` : Sofia ouvre les tables directement après connexion et les soignants y accèdent depuis leur tournée. Vérifié dans Chromium, dont l’accueil Service à 320 px. Les 33 tests frontend passent. Le dernier lot planning, relève et Cuisine a aussi passé les 36 tests backend et été vérifié avec les huit comptes fictifs.

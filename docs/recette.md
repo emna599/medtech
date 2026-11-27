@@ -1,6 +1,6 @@
 # Recette MedTech sur données fictives
 
-[Valeurs à saisir dans les formulaires et vérifications attendues](saisie-guidee.md)
+[Valeurs à saisir dans les formulaires et vérifications attendues](saisie-guidee.md) · [Cadrage Android et iOS](mobile.md)
 
 ## 1. Préparer les données
 

@@ -1,6 +1,6 @@
 # Parcours MedTech EHPAD
 
-[Recette par compte et par fonctionnalité](recette.md) · [Exercice de saisie champ par champ](saisie-guidee.md)
+[Recette par compte et par fonctionnalité](recette.md) · [Exercice de saisie champ par champ](saisie-guidee.md) · [Cadrage Android et iOS](mobile.md)
 
 ## Présenter l’application
 
