@@ -1,0 +1,156 @@
+<div class="dialog">
+  <header class="head">
+    <h2 class="title">Scanner</h2>
+    <button mat-icon-button type="button" aria-label="Fermer" (click)="close()">
+      <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
+    </button>
+  </header>
+
+  @if (found(); as resident) {
+    <section class="found">
+      <app-resident-avatar
+        [photoUrl]="resident.photoUrl"
+        [firstName]="resident.firstName"
+        [lastName]="resident.lastName"
+        [size]="160"
+      />
+      <h3 class="name">{{ foundName() }}</h3>
+      <p class="sub">
+        {{ resident.room ? 'Chambre ' + resident.room : 'Sans chambre' }} · {{ resident.age }} ans
+      </p>
+      @if (labelInfo(); as info) {
+        <p class="sub">{{ info }}</p>
+      }
+      @if (resident.distinguishingFeatures) {
+        <p class="sub">{{ resident.distinguishingFeatures }}</p>
+      }
+      @if (resident.allergies.length > 0) {
+        <p class="allergy" role="alert">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+          ALLERGIE :
+          @for (allergy of resident.allergies; track allergy.name; let last = $last) {
+            {{ allergy.name }}@if (!last) {, }
+          }
+        </p>
+      }
+
+      <p class="ask">Comparez le visage de la personne à cette photo.</p>
+      <div class="buttons">
+        <button mat-flat-button type="button" class="yes" (click)="confirm()">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon>
+          C'est bien cette personne
+        </button>
+        <button mat-stroked-button type="button" class="no" (click)="reject()">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">cancel</mat-icon>
+          Ce n'est pas elle
+        </button>
+      </div>
+    </section>
+  } @else {
+    <section class="scan">
+      @if (rejected()) {
+        <p class="stop" role="alert">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">front_hand</mat-icon>
+          Ne donnez rien. Demandez à un collègue ou à l'infirmier référent qui est cette personne.
+        </p>
+      }
+
+      <mat-button-toggle-group
+        class="modes"
+        aria-label="Façon de scanner"
+        [hideSingleSelectionIndicator]="true"
+        [value]="mode()"
+        (change)="setMode($event.value)"
+      >
+        <mat-button-toggle value="NFC">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">nfc</mat-icon>
+          Puce NFC
+        </mat-button-toggle>
+        <mat-button-toggle value="QR">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
+          QR code
+        </mat-button-toggle>
+        <mat-button-toggle value="AUTRE">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">more_horiz</mat-icon>
+          Autre
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+
+      @switch (mode()) {
+        @case ('NFC') {
+          <p class="help">Médicaments et bracelets : approchez la tablette de la puce NFC.</p>
+          @if (nfcAvailable && !nfcError()) {
+            <app-nfc-reader (scanned)="onNfc($event)" (failed)="onNfcError($event)" />
+          } @else {
+            <p class="error" role="status">
+              {{ nfcError() ?? "La lecture NFC n'est pas disponible sur cet appareil (il faut Chrome sur Android, en connexion sécurisée)." }}
+            </p>
+          }
+        }
+        @case ('QR') {
+          <p class="help">Repas : scannez le QR code du bracelet ou du plateau.</p>
+          @if (scanning()) {
+            @if (cameraError(); as cameraProblem) {
+              <p class="error" role="alert">{{ cameraProblem }}</p>
+            } @else {
+              <app-qr-reader (scanned)="onQr($event)" (failed)="onCameraError($event)" />
+            }
+            <input #qrfile type="file" accept="image/*" capture="environment" hidden (change)="qrPhoto($event)" />
+            <div class="row">
+              <button mat-stroked-button type="button" (click)="qrfile.click()">
+                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">photo_camera</mat-icon>
+                Photo du QR code
+              </button>
+              <button mat-button type="button" (click)="stopScan()">Arrêter la caméra</button>
+            </div>
+          } @else {
+            <button mat-flat-button type="button" class="qr" [disabled]="busy()" (click)="startScan()">
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
+              Relancer la caméra
+            </button>
+          }
+        }
+        @default {
+          <p class="help">Saisissez le code du bracelet ou photographiez l'étiquette d'une pochette.</p>
+          <input #photo type="file" accept="image/*" capture="environment" hidden (change)="scanPochette($event)" />
+          <button mat-stroked-button type="button" class="pochette" [disabled]="busy()" (click)="photo.click()">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">photo_camera</mat-icon>
+            Photographier l'étiquette d'une pochette
+          </button>
+        }
+      }
+
+      @if (!scanning()) {
+        <mat-form-field appearance="outline" class="full code-field">
+          <mat-label>Ou saisir le code</mat-label>
+          <input
+            matInput
+            autocomplete="off"
+            maxlength="200"
+            [ngModel]="code()"
+            (ngModelChange)="code.set($event)"
+            (keydown.enter)="identify()"
+          />
+          <mat-icon matSuffix fontSet="material-symbols-outlined" aria-hidden="true">keyboard</mat-icon>
+        </mat-form-field>
+        <button
+          mat-flat-button
+          type="button"
+          class="search"
+          [disabled]="busy() || !code().trim()"
+          (click)="identify()"
+        >
+          Afficher la fiche
+        </button>
+      }
+
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+      }
+
+      <p class="hint">
+        Un doute sur qui est la personne ? Demandez à un collègue. Dans tous les cas, comparez toujours le visage à la photo.
+      </p>
+    </section>
+  }
+</div>

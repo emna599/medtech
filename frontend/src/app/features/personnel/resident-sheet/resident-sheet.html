@@ -1,0 +1,227 @@
+<div class="sheet">
+  <header class="head">
+    <app-resident-avatar
+      [photoUrl]="resident().photoUrl"
+      [firstName]="resident().firstName"
+      [lastName]="resident().lastName"
+      [size]="112"
+    />
+    <div class="identity">
+      <h2 class="name">{{ name() }}</h2>
+      <p class="sub">{{ roomText() }} · {{ resident().age }} ans</p>
+      @if (resident().distinguishingFeatures) {
+        <p class="features">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">visibility</mat-icon>
+          {{ resident().distinguishingFeatures }}
+        </p>
+      }
+    </div>
+    <button mat-icon-button type="button" aria-label="Fermer" (click)="close()">
+      <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
+    </button>
+  </header>
+
+  @if (resident().allergies.length > 0) {
+    <div class="alert alert-danger" role="alert">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+      <div>
+        @for (allergy of resident().allergies; track allergy.name; let last = $last) {
+          {{ allergy.name }}@if (allergy.severity) { ({{ allergy.severity }}) }@if (!last) {, }
+        }
+      </div>
+    </div>
+  }
+
+  @if (hasDoubt()) {
+    <div class="alert alert-warning" role="alert">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon>
+      <div class="grow">
+        <strong>Doute</strong>
+      </div>
+      <button mat-stroked-button type="button" [disabled]="busy()" (click)="resolveDoubt()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">verified_user</mat-icon>
+        Confirmé
+      </button>
+    </div>
+  }
+
+  @if (item().kind === 'REPAS') {
+    <app-appetite-chart [residentId]="item().resident.id" />
+  }
+
+  <section class="task" [class.task-risk]="item().highRisk">
+    <div class="task-time">
+      {{ slotText() }} · {{ item().scheduledAt | date: 'HH:mm' }}
+    </div>
+    <div class="task-label">
+      {{ item().label }}@if (item().detail) { <span class="task-detail"> · {{ item().detail }}</span> }
+    </div>
+    @if (item().highRisk) {
+      <div class="risk">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">shield</mat-icon>
+        À risque
+      </div>
+    }
+  </section>
+
+  <section class="facts" aria-label="Régime et consignes">
+    @if (resident().regime) {
+      <div class="fact" title="Régime"><mat-icon fontSet="material-symbols-outlined" aria-label="Régime">restaurant_menu</mat-icon><span class="fact-label">Régime</span><span>{{ resident().regime }}</span></div>
+    }
+    @if (resident().texture) {
+      <div class="fact" title="Texture"><mat-icon fontSet="material-symbols-outlined" aria-label="Texture">blender</mat-icon><span class="fact-label">Texture</span><span>{{ resident().texture }}</span></div>
+    }
+    @if (resident().restrictions) {
+      <div class="fact" title="À éviter"><mat-icon fontSet="material-symbols-outlined" aria-label="À éviter">block</mat-icon><span class="fact-label">À éviter</span><span>{{ resident().restrictions }}</span></div>
+    }
+    @if (resident().instructions) {
+      <div class="fact" title="Consignes"><mat-icon fontSet="material-symbols-outlined" aria-label="Consignes">info</mat-icon><span class="fact-label">Consignes</span><span>{{ resident().instructions }}</span></div>
+    }
+    @if (resident().needsHelp) {
+      <div class="fact fact-help">
+        <mat-icon fontSet="material-symbols-outlined" aria-label="Aide nécessaire">volunteer_activism</mat-icon>
+        Aide
+      </div>
+    }
+  </section>
+
+  <div class="checks">
+    <app-identity-check
+      [residentId]="resident().id"
+      [residentName]="name()"
+      [hasBracelet]="hasBracelet"
+      [kind]="item().kind"
+    />
+    @if (item().kind === 'REPAS') {
+      <app-chevalet-box [residentId]="resident().id" />
+    }
+  </div>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  @if (pending() && canAct) {
+    <section class="actions">
+      <button
+        mat-flat-button
+        type="button"
+        class="primary"
+        [disabled]="busy() || hasDoubt()"
+        (click)="done()"
+      >
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon>
+        {{ doneText() }}
+      </button>
+
+      <div class="secondary">
+        <button mat-stroked-button type="button" [disabled]="busy()" (click)="toggleRefusal()">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">block</mat-icon>
+          Refusé
+        </button>
+        <button mat-stroked-button type="button" [disabled]="busy()" (click)="later()">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">schedule</mat-icon>
+          Plus tard
+        </button>
+      </div>
+
+      @if (refusing()) {
+        <div class="refusal">
+          <p class="refusal-title"><mat-icon fontSet="material-symbols-outlined" aria-label="Motif du refus">help</mat-icon></p>
+          <div class="chips" role="radiogroup" aria-label="Motif du refus">
+            @for (reason of refusalReasons(); track reason) {
+              <button
+                type="button"
+                class="chip"
+                role="radio"
+                [attr.aria-checked]="refusalReason() === reason"
+                [class.chip-on]="refusalReason() === reason"
+                (click)="refusalReason.set(reason)"
+              >
+                {{ reason }}
+              </button>
+            }
+          </div>
+          <button
+            mat-flat-button
+            type="button"
+            [disabled]="busy() || !refusalReason()"
+            (click)="confirmRefusal()"
+          >
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check</mat-icon>
+            OK
+          </button>
+        </div>
+      }
+    </section>
+  } @else if (pending()) {
+    <p class="locked" role="status">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">lock</mat-icon>
+      Lecture seule
+    </p>
+  } @else {
+    <section class="done-box">
+      <div class="done-status" [class.done-refused]="item().status === 'REFUSE'">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">
+          {{ item().status === 'FAIT' ? 'check_circle' : 'block' }}
+        </mat-icon>
+        {{ statusText() }}
+      </div>
+
+      @if (item().kind === 'REPAS' && item().status === 'FAIT') {
+        <p class="refusal-title"><mat-icon fontSet="material-symbols-outlined" aria-label="Quantité mangée">scale</mat-icon></p>
+        <div class="chips" role="radiogroup" aria-label="Quantité mangée">
+          @for (q of quantities; track q) {
+            <button
+              type="button"
+              class="chip"
+              role="radio"
+              [attr.aria-checked]="item().quantityEaten === q"
+              [class.chip-on]="item().quantityEaten === q"
+              [disabled]="busy()"
+              (click)="setQuantity(q)"
+            >
+              {{ quantityLabel[q] }}
+            </button>
+          }
+        </div>
+      }
+    </section>
+  }
+
+  <footer class="more">
+    <button mat-button type="button" [disabled]="busy()" (click)="toggleLocation()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
+      {{ otherLocationLabel() }}
+    </button>
+    <button mat-button type="button" (click)="openNotes()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">edit_note</mat-icon>
+      Note
+    </button>
+    @if (!hasDoubt()) {
+      <button mat-button type="button" (click)="showDoubt.set(!showDoubt())">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon>
+        Doute
+      </button>
+    }
+  </footer>
+
+  @if (showDoubt() && !hasDoubt()) {
+    <section class="doubt-form">
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Précision</mat-label>
+        <input
+          matInput
+          maxlength="255"
+          [ngModel]="doubtNote()"
+          (ngModelChange)="doubtNote.set($event)"
+        />
+      </mat-form-field>
+      <button mat-flat-button type="button" [disabled]="busy()" (click)="reportDoubt()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">flag</mat-icon>
+        Signaler
+      </button>
+    </section>
+  }
+</div>
