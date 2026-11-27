@@ -68,12 +68,12 @@
 
       @switch (mode()) {
         @case ('NFC') {
-          <p class="help">Médicaments et bracelets : approchez la tablette de la puce NFC.</p>
+          <p class="help">Médicaments et bracelets : approchez le téléphone ou la tablette de la puce NFC.</p>
           @if (nfcAvailable && !nfcError()) {
             <app-nfc-reader (scanned)="onNfc($event)" (failed)="onNfcError($event)" />
           } @else {
             <p class="error" role="status">
-              {{ nfcError() ?? "La lecture NFC n'est pas disponible sur cet appareil (il faut Chrome sur Android, en connexion sécurisée)." }}
+              {{ nfcError() ?? "La lecture NFC n'est pas disponible ici. Saisissez le code de la puce." }}
             </p>
           }
         }

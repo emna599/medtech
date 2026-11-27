@@ -1,5 +1,11 @@
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { afterNextRender, ChangeDetectionStrategy, Component, DestroyRef, inject, output, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+
+const nativeNfc = registerPlugin<{
+  scan(): Promise<{ code: string }>;
+  cancel(): Promise<void>;
+}>('MedTechNfc');
 
 interface NdefRecordLike {
   recordType: string;
@@ -27,7 +33,7 @@ function readerCtor(): NdefReaderCtor | null {
 
 /** Le NFC du navigateur (Web NFC) n'existe que sur Chrome pour Android, en HTTPS ou sur localhost. */
 export function nfcSupported(): boolean {
-  return readerCtor() !== null;
+  return Capacitor.getPlatform() === 'ios' || readerCtor() !== null;
 }
 
 /** Contenu texte d'une puce : premier enregistrement texte ou adresse, sinon son numéro de série. */
@@ -102,13 +108,33 @@ export class NfcReader {
   protected readonly status = signal('Approchez la tablette de la puce du bracelet.');
   private readonly abort = new AbortController();
   private done = false;
+  private nativeScanActive = false;
 
   constructor() {
     afterNextRender(() => void this.start());
-    inject(DestroyRef).onDestroy(() => this.abort.abort());
+    inject(DestroyRef).onDestroy(() => {
+      this.abort.abort();
+      if (this.nativeScanActive) void nativeNfc.cancel().catch(() => {});
+    });
   }
 
   private async start(): Promise<void> {
+    if (Capacitor.getPlatform() === 'ios') {
+      this.status.set('Approchez le haut de l’iPhone du badge ou du bracelet.');
+      this.nativeScanActive = true;
+      try {
+        const { code } = await nativeNfc.scan();
+        this.nativeScanActive = false;
+        if (!this.abort.signal.aborted) this.scanned.emit(code);
+      } catch (error) {
+        this.nativeScanActive = false;
+        if (!this.abort.signal.aborted) {
+          this.failed.emit(error instanceof Error ? error.message : 'Lecture NFC indisponible. Saisissez le code.');
+        }
+      }
+      return;
+    }
+
     const Reader = readerCtor();
     if (!Reader) {
       this.failed.emit("La lecture NFC n'est pas disponible sur cet appareil. Saisissez le code de la puce.");

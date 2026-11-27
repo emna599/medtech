@@ -38,3 +38,9 @@ MEDTECH_DEMO_IOS_API_URL=https://mac.tailnet.ts.net/demo4216 npm run ios:demo421
 ```
 
 Branchez l’iPhone, sélectionnez-le dans Xcode et lancez **Run**. Le projet utilise le même identifiant iOS que l’application de démo précédente. Cette installation remplace donc sa version sur l’iPhone. Pour vérifier la démo, connectez-vous avec `personnel2` pour la tournée Personnel V2 ou `service1` pour les tables.
+
+### Tester le NFC sur iPhone
+
+Dans **Pointage RFID**, touchez **Lire le badge NFC** et approchez le haut de l’iPhone d’une étiquette NFC contenant un enregistrement Texte NDEF avec `BADGE-DEMO-AIDE`. Avec `personnel2`, vérifiez le code affiché, puis confirmez l’arrivée ou le départ. Pour l’identification d’un résident, ouvrez **Scanner → NFC** et utilisez une étiquette de test contenant `NFC-DEMO-002`.
+
+Une carte étudiante peut être essayée en lecture si elle contient des données NDEF accessibles. Pour un pointage reproductible, utilisez une étiquette de démo dédiée. Le champ de saisie accepte également le code fictif. La signature de la cible iOS doit autoriser la capacité **Near Field Communication Tag Reading**.

@@ -27,6 +27,8 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NFCReaderUsageDescription</key>
+	<string>MedTech EHPAD lit le code NFC du badge ou du bracelet que vous présentez.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>MedTech EHPAD utilise la caméra pour lire le QR code d’un bracelet de résident.</string>
 	<key>NSLocalNetworkUsageDescription</key>

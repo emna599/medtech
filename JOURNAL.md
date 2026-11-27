@@ -5,6 +5,11 @@
 
 ---
 
+## Lecture NFC native dans la démo 4216
+
+- Core NFC lit les enregistrements Texte et URL NDEF sur iPhone pour le scanner de résident et le pointage. Le serveur conserve la vérification du code. La saisie reste disponible et le lecteur Web NFC est conservé sur Android.
+- Build Angular et synchronisation Capacitor réussis. Code Swift vérifié par le compilateur avec le SDK iPhoneOS. Signature NFC et lecture d’une puce physique à vérifier sur l’iPhone.
+
 ## Version iPhone de la démo 4216
 
 - Le script iOS assemble la connexion et les écrans Admin/Médecin avec Personnel V2 et la salle, puis synchronise les deux interfaces dans Capacitor. Les appels HTTPS privés utilisent le préfixe `/demo4216`.
