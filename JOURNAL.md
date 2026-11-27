@@ -5,6 +5,13 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — zone sûre iPhone
+
+- La capture iPhone confirme l’arrivée de Sofia sur les tables. La barre d’état iOS recouvrait l’en-tête.
+- Le conteneur Angular applique les marges de sécurité fournies par l’écran. Bundle iOS recompilé et synchronisé. Le rendu de l’en-tête reste à confirmer sur l’appareil après relance dans Xcode.
+
+---
+
 ## Relais Codex du 2026-11-27 — test réseau natif depuis la connexion iOS
 
 - L’autorisation réseau local n’a pas résolu l’erreur de connexion signalée. Le journal HTTP ne montre aucune requête de connexion de l’application.
