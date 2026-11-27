@@ -5,7 +5,7 @@ import { environment } from '../../../../environments/environment';
 import { Appetite } from '../../../shared/models/personnel.model';
 import { AppetiteChart } from './appetite-chart';
 
-const URL = `${environment.apiUrl}/api/personnel/residents/7/appetite`;
+const URL = `${environment.apiUrl}/personnel/residents/7/appetite`;
 
 function appetite(declining: boolean): Appetite {
   const scores = [1, 0.75, 1, 0.25, 0, 0.25, null];

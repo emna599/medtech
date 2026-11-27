@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import { ServiceItem } from '../../shared/models/personnel.model';
 import { errorMessage, PersonnelService } from './personnel.service';
 
-const BASE = `${environment.apiUrl}/api/personnel`;
+const BASE = `${environment.apiUrl}/personnel`;
 
 describe('PersonnelService', () => {
   let service: PersonnelService;

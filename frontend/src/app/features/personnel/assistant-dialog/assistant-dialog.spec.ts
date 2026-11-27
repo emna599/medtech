@@ -6,7 +6,7 @@ import { environment } from '../../../../environments/environment';
 import { AssistantReply } from '../../../shared/models/personnel.model';
 import { AssistantDialog } from './assistant-dialog';
 
-const BASE = `${environment.apiUrl}/api/personnel`;
+const BASE = `${environment.apiUrl}/personnel`;
 
 const proposal: AssistantReply = {
   answer: 'Je prépare : Déjeuner de Michel DURAND → servi. Confirmez-vous ?',

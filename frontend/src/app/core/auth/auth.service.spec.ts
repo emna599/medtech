@@ -6,7 +6,7 @@ import { environment } from '../../../environments/environment';
 import { LoginResponse } from '../../shared/models/auth.model';
 import { AuthService } from './auth.service';
 
-const LOGIN_URL = `${environment.apiUrl}/api/auth/login`;
+const LOGIN_URL = `${environment.apiUrl}/auth/login`;
 
 const response: LoginResponse = {
   token: 'jeton-de-test',

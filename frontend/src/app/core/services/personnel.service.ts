@@ -29,7 +29,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class PersonnelService {
   private readonly http = inject(HttpClient);
-  private readonly base = `${environment.apiUrl}/api/personnel`;
+  private readonly base = `${environment.apiUrl}/personnel`;
 
   listService(kind: ServiceKind): Observable<ServiceItem[]> {
     return this.http.get<ServiceItem[]>(`${this.base}/service`, { params: { kind } });
