@@ -5,6 +5,13 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — saisie de connexion sur iPhone
+
+- L’accès Tailscale à la démo est confirmé sur iPhone. L’API accepte le compte fictif `personnel2`, bien qu’un essai sur l’appareil ait été refusé.
+- Désactivation des corrections et de la majuscule automatique pour l’identifiant. Les espaces en bordure de l’identifiant sont retirés à l’envoi. Bundle iOS resynchronisé et vérification sur appareil à reprendre.
+
+---
+
 ## Relais Codex du 2026-11-27 — accès privé iPhone hors du Wi-Fi de la maison
 
 - Le Mac et l’iPhone sont connectés au même réseau Tailscale. Tailscale Serve fournit une origine HTTPS privée et transmet les requêtes au relais du Mac sur `127.0.0.1:8767`, connecté à la base fictive iOS existante.

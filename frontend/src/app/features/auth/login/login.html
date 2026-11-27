@@ -14,7 +14,15 @@
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Nom d'utilisateur</mat-label>
-          <input matInput formControlName="username" autocomplete="username" autofocus />
+          <input
+            matInput
+            formControlName="username"
+            autocomplete="username"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            autofocus
+          />
           <mat-icon matSuffix fontSet="material-symbols-outlined" aria-hidden="true">person</mat-icon>
           @if (form.controls.username.hasError('required')) {
             <mat-error>Le nom d'utilisateur est obligatoire</mat-error>

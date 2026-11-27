@@ -63,7 +63,8 @@ export class Login {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    this.auth.login(this.form.getRawValue()).subscribe({
+    const credentials = this.form.getRawValue();
+    this.auth.login({ ...credentials, username: credentials.username.trim() }).subscribe({
       next: (response) => {
         this.loading.set(false);
         const code = braceletCode(this.route.snapshot.fragment);
