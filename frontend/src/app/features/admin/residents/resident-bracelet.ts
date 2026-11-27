@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { MatDialog } from '@angular/material/dialog';
 import { RfidBadgeDialog } from '../rfid-badge-dialog';
 import { DatePipe } from '@angular/common';
@@ -62,7 +63,9 @@ export class ResidentBracelet {
     if (!qrCode?.token) return null;
     try {
       const code = braceletCode(qrCode.token);
-      const link = code ? window.location.origin + BRACELET_PATH + '#' + code : null;
+      const link = code && !Capacitor.isNativePlatform()
+        ? window.location.origin + BRACELET_PATH + '#' + code
+        : null;
       return createQrSvgDataUrl(link && new TextEncoder().encode(link).length <= QR_MAX_BYTE_LENGTH ? link : qrCode.token);
     } catch (error) {
       if (error instanceof RangeError) return null;

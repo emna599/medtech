@@ -75,7 +75,12 @@ export class IdentifyDialog {
   });
 
   protected identify(): void {
-    const code = readBraceletCode(this.code(), window.location.origin, 'http://localhost:4200');
+    const code = readBraceletCode(
+      this.code(),
+      window.location.origin,
+      'http://localhost:4200',
+      'http://localhost:4216',
+    );
     if (!code && this.code().trim()) {
       this.error.set('Ce QR code ne correspond pas à un bracelet MedTech.');
       return;

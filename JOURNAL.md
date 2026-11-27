@@ -5,6 +5,11 @@
 
 ---
 
+## Liens de bracelet de la démo 4216 sur iPhone
+
+- Le scanner médecin accepte les liens de bracelet imprimés depuis `http://localhost:4216` dans le build iOS de la démo. Personnel V2 reconnaît également cette origine. Les nouveaux QR émis dans l’app iOS contiennent directement le code.
+- Vérifié sur l’API 4216 avec le compte médecin : `QR-DEMO-001` identifie Jeanne Martin et `QR-DEMO-002` identifie Michel Durand. Build iOS synchronisé. Lecture caméra sur iPhone à confirmer.
+
 ## Signature iOS de la démo avec une équipe personnelle
 
 - Le profil personnel utilisé pour la recette n’autorise pas le lecteur NFC natif. La capacité est désormais activable par réglage de build. Le build par défaut conserve la caméra QR et la saisie des codes.

@@ -6,12 +6,12 @@ export function braceletCode(fragment: string | null): string | null {
   return fragment;
 }
 
-export function readBraceletCode(text: string, origin: string, braceletOrigin = ''): string {
+export function readBraceletCode(text: string, origin: string, ...braceletOrigins: string[]): string {
   const value = text.trim();
   if (value.length <= CODE_MAX_LENGTH && !value.includes('://')) return value;
   try {
     const url = new URL(value);
-    if ((url.origin === origin || url.origin === braceletOrigin) && !url.username && !url.password &&
+    if ((url.origin === origin || braceletOrigins.includes(url.origin)) && !url.username && !url.password &&
         url.pathname === BRACELET_PATH && !url.search) {
       return braceletCode(url.hash.slice(1)) ?? '';
     }
