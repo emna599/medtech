@@ -5,6 +5,11 @@
 
 ---
 
+## Lecture du numéro de série NFC sur iPhone
+
+- Le lecteur natif de la démo 4216 lit les données NDEF lorsqu’elles existent et utilise le numéro de série en l’absence de texte ou lien lisible. Le formulaire d’attribution ouvre désormais ce lecteur sur les appareils compatibles.
+- Le code Swift et le build web sont vérifiés. L’installation avec signature NFC et la lecture de la carte physique restent à vérifier sur iPhone.
+
 ## En-tête Personnel V2 sur iPhone
 
 - Appliqué les marges de sécurité iOS à l’interface Personnel V2, y compris aux tables. Sur petit écran, l’en-tête conserve la fonction de l’agent, le thème et la déconnexion. Les commandes flottantes et le panneau de table évitent l’indicateur d’accueil.

@@ -34,7 +34,7 @@ final class MedTechBridgeViewController: CAPBridgeViewController {
 }
 
 @objc(MedTechNfcPlugin)
-final class MedTechNfcPlugin: CAPPlugin, CAPBridgedPlugin, NFCNDEFReaderSessionDelegate {
+final class MedTechNfcPlugin: CAPPlugin, CAPBridgedPlugin, NFCTagReaderSessionDelegate {
     let identifier = "MedTechNfcPlugin"
     let jsName = "MedTechNfc"
     let pluginMethods: [CAPPluginMethod] = [
@@ -42,12 +42,12 @@ final class MedTechNfcPlugin: CAPPlugin, CAPBridgedPlugin, NFCNDEFReaderSessionD
         CAPPluginMethod(name: "cancel", returnType: CAPPluginReturnPromise)
     ]
 
-    private var session: NFCNDEFReaderSession?
+    private var session: NFCTagReaderSession?
     private var pendingCall: CAPPluginCall?
 
     @objc func scan(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
-            guard NFCNDEFReaderSession.readingAvailable else {
+            guard NFCTagReaderSession.readingAvailable else {
                 call.reject("La lecture NFC est indisponible sur cet iPhone.")
                 return
             }
@@ -55,7 +55,10 @@ final class MedTechNfcPlugin: CAPPlugin, CAPBridgedPlugin, NFCNDEFReaderSessionD
                 call.reject("Une lecture NFC est déjà en cours.")
                 return
             }
-            let session = NFCNDEFReaderSession(delegate: self, queue: .main, invalidateAfterFirstRead: true)
+            guard let session = NFCTagReaderSession(pollingOption: [.iso14443, .iso15693], delegate: self, queue: .main) else {
+                call.reject("Impossible de démarrer la lecture NFC.")
+                return
+            }
             session.alertMessage = "Approchez le haut de l’iPhone du badge ou du bracelet NFC."
             self.session = session
             self.pendingCall = call
@@ -70,22 +73,65 @@ final class MedTechNfcPlugin: CAPPlugin, CAPBridgedPlugin, NFCNDEFReaderSessionD
         }
     }
 
-    func readerSession(_ session: NFCNDEFReaderSession, didDetectNDEFs messages: [NFCNDEFMessage]) {
+    func tagReaderSessionDidBecomeActive(_ session: NFCTagReaderSession) {}
+
+    func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
         guard self.session === session else { return }
-        let call = pendingCall
-        pendingCall = nil
-        for record in messages.flatMap({ $0.records }) {
-            let text = record.wellKnownTypeTextPayload().0
-            let url = record.wellKnownTypeURIPayload()?.absoluteString
-            if let code = (text ?? url)?.trimmingCharacters(in: .whitespacesAndNewlines), !code.isEmpty {
-                call?.resolve(["code": code])
+        guard tags.count == 1, let tag = tags.first else {
+            session.alertMessage = "Présentez un seul badge ou bracelet."
+            session.restartPolling()
+            return
+        }
+
+        let ndef: NFCNDEFTag
+        let identifier: Data
+        switch tag {
+        case .miFare(let mifare):
+            ndef = mifare
+            identifier = mifare.identifier
+        case .iso7816(let iso7816):
+            ndef = iso7816
+            identifier = iso7816.identifier
+        case .iso15693(let iso15693):
+            ndef = iso15693
+            identifier = iso15693.identifier
+        default:
+            fail(session, "Cette puce NFC n’est pas prise en charge.")
+            return
+        }
+
+        session.connect(to: tag) { error in
+            guard self.session === session, self.pendingCall != nil else { return }
+            guard error == nil else {
+                self.fail(session, "Connexion à la puce impossible. Approchez-la de nouveau.")
                 return
             }
+            ndef.readNDEF { message, _ in
+                guard self.session === session, let call = self.pendingCall else { return }
+                let text = message?.records.lazy.compactMap { record in
+                    (record.wellKnownTypeTextPayload().0 ?? record.wellKnownTypeURIPayload()?.absoluteString)?
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                }.first { !$0.isEmpty }
+                let serial = identifier.map { String(format: "%02X", $0) }.joined(separator: ":")
+                guard let code = text ?? (serial.isEmpty ? nil : serial) else {
+                    self.fail(session, "Cette puce ne fournit pas de code lisible.")
+                    return
+                }
+                self.pendingCall = nil
+                session.alertMessage = "Puce NFC lue."
+                call.resolve(["code": code])
+                session.invalidate()
+            }
         }
-        call?.reject("Puce détectée, mais aucun code NFC lisible. Saisissez le code indiqué sur le badge.")
     }
 
-    func readerSession(_ session: NFCNDEFReaderSession, didInvalidateWithError error: Error) {
+    private func fail(_ session: NFCTagReaderSession, _ message: String) {
+        pendingCall?.reject(message)
+        pendingCall = nil
+        session.invalidate(errorMessage: message)
+    }
+
+    func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
         guard self.session === session else { return }
         self.session = nil
         let call = pendingCall
@@ -94,7 +140,7 @@ final class MedTechNfcPlugin: CAPPlugin, CAPBridgedPlugin, NFCNDEFReaderSessionD
         if nfcError?.code == .readerSessionInvalidationErrorUserCanceled {
             call?.reject("Lecture NFC annulée.")
         } else {
-            call?.reject("Lecture NFC impossible. Essayez une puce NDEF ou saisissez le code du badge.")
+            call?.reject("Lecture NFC impossible. Saisissez le code du badge si la lecture échoue.")
         }
     }
 }
