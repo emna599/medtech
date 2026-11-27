@@ -56,7 +56,7 @@ Dans **Comptes → Affectations**, choisissez l’étage, le début et la fin du
 
 ### Service en salle
 
-Avec le compte de démonstration **service1**, les tables s’ouvrent après la connexion. Sofia peut consulter le menu, enregistrer les arrivées et départs et gérer les chevalets. Le statut du repas reste visible sur la table. La validation du service se fait depuis la tournée de l’équipe qui y est habilitée.
+Avec le compte de démonstration **service1**, les tables constituent la page d’accueil après la connexion. Sofia peut consulter le menu, enregistrer les arrivées et départs et gérer les chevalets. Le statut du repas reste visible sur la table. La validation du service se fait depuis la tournée de l’équipe qui y est habilitée.
 
 ### Espace Cuisine
 

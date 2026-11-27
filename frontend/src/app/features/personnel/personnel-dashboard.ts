@@ -62,6 +62,7 @@ function rank(status: ServiceStatus): number {
   selector: 'app-personnel-dashboard',
   imports: [
     Kitchen,
+    DiningDialog,
     FormsModule,
     Toolbar,
     DatePipe,
@@ -203,12 +204,7 @@ export class PersonnelDashboard {
         this.kitchenOnly.set(kitchenOnly);
         this.medicationAccess.set(medicationAccess);
         this.diningOnly.set(diningOnly);
-        if (kitchenOnly) return;
-        if (diningOnly) {
-          this.openDining();
-        } else {
-          this.startTour(updates, residentId);
-        }
+        if (!kitchenOnly && !diningOnly) this.startTour(updates, residentId);
       },
       error: () => this.accessError.set(true),
     });
@@ -322,8 +318,7 @@ export class PersonnelDashboard {
   }
 
   protected openDining(): void {
-    this.dialog.open<DiningDialog, { diningOnly: boolean }, { residentId: number; mealId: number }>(DiningDialog, {
-      data: { diningOnly: this.diningOnly() === true },
+    this.dialog.open<DiningDialog, void, { residentId: number; mealId: number }>(DiningDialog, {
       width: '960px',
       maxWidth: '96vw',
     }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((selection) => {

@@ -1,7 +1,8 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -14,7 +15,7 @@ interface DiningSelection { residentId: number; mealId: number }
 
 @Component({
   selector: 'app-dining-dialog',
-  imports: [MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule],
+  imports: [NgTemplateOutlet, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dining-dialog.html',
   styles: `
@@ -28,10 +29,10 @@ interface DiningSelection { residentId: number; mealId: number }
 export class DiningDialog {
   private readonly api = inject(PersonnelService);
   private readonly dialog = inject(MatDialog);
-  private readonly ref = inject<MatDialogRef<DiningDialog, DiningSelection>>(MatDialogRef);
+  private readonly ref = inject<MatDialogRef<DiningDialog, DiningSelection>>(MatDialogRef, { optional: true });
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly diningOnly = inject<{ diningOnly: boolean } | null>(MAT_DIALOG_DATA, { optional: true })?.diningOnly ?? false;
+  protected readonly inDialog = this.ref !== null;
   protected readonly slot = signal<DiningSlot>(new Date().getHours() < 15 ? 'DEJEUNER' : 'DINER');
   protected readonly dining = signal<Dining | null>(null);
   protected readonly busy = signal(false);
@@ -129,7 +130,7 @@ export class DiningDialog {
   }
 
   protected openMeal(seat: DiningSeat): void {
-    if (seat.meal) this.ref.close({ residentId: seat.resident.id, mealId: seat.meal.id });
+    if (seat.meal) this.ref?.close({ residentId: seat.resident.id, mealId: seat.meal.id });
   }
 
   private record(readerCode: string, identity: { residentId: number } | { token: string }, leaving: boolean): void {

@@ -5,6 +5,13 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — accès direct aux tables
+
+- Le profil Service arrive sur les tables intégrées à sa page d’accueil. Le bouton intermédiaire et l’ouverture automatique d’une fenêtre ont été supprimés. Le raccourci depuis les tournées reprend le même tableau dans une fenêtre.
+- Build et 33 tests frontend réussis. Chromium a vérifié les deux accès, le menu et la largeur de 320 px pour le profil Service.
+
+---
+
 ## Relais Codex du 2026-11-27 — aperçu fictif et saisie guidée
 
 - La démo complète les jeux fictifs avec les résidents du lot administratif. Marie Exemple, Odette Fictive, Lucien Imaginaire et Georgette Brouillon disposent d’exemples de dossier, régime, allergies, préférences, poids, observations et notes. Le script versionné cible les codes de démonstration et conserve les valeurs renseignées.

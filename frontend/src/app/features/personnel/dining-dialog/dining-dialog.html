@@ -1,5 +1,21 @@
-<h2 mat-dialog-title><span class="cue-title"><span class="material-symbols-outlined visual-cue" aria-hidden="true">table_restaurant</span><span>Service en salle</span></span></h2>
-<mat-dialog-content>
+@if (inDialog) {
+  <h2 mat-dialog-title>Service en salle</h2>
+  <mat-dialog-content>
+    <ng-container [ngTemplateOutlet]="tables" />
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Fermer</button>
+  </mat-dialog-actions>
+} @else {
+  <main class="work-page">
+    <header class="page-head">
+      <h1>Service en salle</h1>
+    </header>
+    <ng-container [ngTemplateOutlet]="tables" />
+  </main>
+}
+
+<ng-template #tables>
   <div class="tools">
     <button mat-stroked-button [attr.aria-pressed]="slot() === 'DEJEUNER'" [disabled]="busy()" (click)="load('DEJEUNER')">Déjeuner</button>
     <button mat-stroked-button [attr.aria-pressed]="slot() === 'DINER'" [disabled]="busy()" (click)="load('DINER')">Dîner</button>
@@ -80,7 +96,7 @@
                         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ statusIcons[meal.status] }}</mat-icon>
                         {{ labels[meal.status] }}
                       </span>
-                      @if (!diningOnly) {
+                      @if (inDialog) {
                         <button mat-button [disabled]="busy()" (click)="openMeal(seat)">Ouvrir la fiche repas</button>
                       }
                     }
@@ -98,7 +114,4 @@
       </div>
     }
   }
-</mat-dialog-content>
-<mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Fermer</button>
-</mat-dialog-actions>
+</ng-template>
