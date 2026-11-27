@@ -312,7 +312,8 @@ dd {
 
   .detail {
     position: fixed;
-    inset: auto 0 0 0;
+    inset: auto env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px)
+      env(safe-area-inset-left, 0px);
     max-height: 70vh;
     overflow-y: auto;
     border-radius: 24px 24px 0 0;

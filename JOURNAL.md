@@ -5,6 +5,11 @@
 
 ---
 
+## En-tête Personnel V2 sur iPhone
+
+- Appliqué les marges de sécurité iOS à l’interface Personnel V2, y compris aux tables. Sur petit écran, l’en-tête conserve la fonction de l’agent, le thème et la déconnexion. Les commandes flottantes et le panneau de table évitent l’indicateur d’accueil.
+- Bundle iOS reconstruit et fichiers embarqués vérifiés. Rendu et zones tactiles à confirmer sur l’appareil.
+
 ## QR portables affichés sur le site 4216
 
 - Le QR contenant seulement `QR-DEMO-001` a été lu par l’iPhone. Les QR affichés par l’administration web de la 4216 embarquent désormais le code du bracelet sans URL locale. La fiche réaffiche le QR dans ce format après actualisation, sans renouvellement du bracelet.

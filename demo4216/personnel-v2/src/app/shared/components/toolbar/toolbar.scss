@@ -59,8 +59,30 @@
 }
 
 @media (max-width: 600px) {
+  .toolbar {
+    gap: 4px;
+    padding-inline: 8px;
+  }
+
+  .logo {
+    height: 28px;
+  }
+
   .brand .app-sub,
-  .user {
+  .user-name {
     display: none;
+  }
+
+  .user {
+    min-width: 0;
+  }
+
+  .user-role {
+    white-space: normal;
+    text-align: right;
+  }
+
+  .toolbar button {
+    flex: none;
   }
 }

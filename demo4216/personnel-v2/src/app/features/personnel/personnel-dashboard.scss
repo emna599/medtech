@@ -371,8 +371,8 @@ ul.rows {
 
 .assistant-fab {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
+  right: calc(20px + env(safe-area-inset-right, 0px));
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
   z-index: 10;
   display: inline-flex;
   align-items: center;
