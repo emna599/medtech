@@ -33,13 +33,15 @@ public class AdminUserService {
     private final PasswordEncoder passwordEncoder;
     private final AuthSessionStore sessions;
     private final StaffProfileRepository profiles;
+    private final StaffAssignmentService assignments;
 
     public AdminUserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthSessionStore sessions,
-                            StaffProfileRepository profiles) {
+                            StaffProfileRepository profiles, StaffAssignmentService assignments) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.sessions = sessions;
         this.profiles = profiles;
+        this.assignments = assignments;
     }
 
     @Transactional(readOnly = true)
@@ -99,6 +101,10 @@ public class AdminUserService {
                 && (profile == null || profile.getJob() != request.job() || profile.getShift() != request.shift());
         if (user.getRole() != request.role() || user.isEnabled() != request.enabled() || profileChanged) {
             sessions.revokeUser(id);
+        }
+        if (user.getRole() != request.role() || !request.enabled()
+                || (profileChanged && (profile == null || profile.getJob() != request.job()))) {
+            assignments.revokeAll(id, currentUsername);
         }
         user.setFullName(request.fullName().trim());
         user.setRole(request.role());

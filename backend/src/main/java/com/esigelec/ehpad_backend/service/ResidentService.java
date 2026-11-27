@@ -23,15 +23,17 @@ public class ResidentService {
     private final ResidentCardAssembler assembler;
     private final CurrentUserService currentUserService;
     private final AuditService auditService;
+    private final StaffAssignmentService assignments;
 
     public ResidentService(ResidentRepository residentRepository,
                            ResidentCardAssembler assembler,
                            CurrentUserService currentUserService,
-                           AuditService auditService) {
+                           AuditService auditService, StaffAssignmentService assignments) {
         this.residentRepository = residentRepository;
         this.assembler = assembler;
         this.currentUserService = currentUserService;
         this.auditService = auditService;
+        this.assignments = assignments;
     }
 
     /** Liste des résidents actifs, filtrée par un texte (prénom, nom ou numéro de chambre). */
@@ -108,8 +110,9 @@ public class ResidentService {
     @Transactional
     public ResidentCardDto changeMealLocation(Long id, MealLocation location, String username) {
         User user = currentUserService.require(username);
-        Resident resident = residentRepository.findActiveById(id)
+        Resident resident = residentRepository.findByIdForUpdate(id).filter(Resident::isActive)
                 .orElseThrow(() -> new ResourceNotFoundException("Résident introuvable"));
+        assignments.requireFloor(user, resident.getRoom() == null ? null : resident.getRoom().getFloor());
         resident.setMealLocation(location);
         auditService.record(user, "CHANGEMENT_LIEU_" + location.name(), "Resident", resident.getId());
         return assembler.assemble(List.of(resident)).get(resident.getId());

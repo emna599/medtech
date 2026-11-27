@@ -154,7 +154,7 @@
       } @else if (kitchenMeals()[0]; as first) {
         <p><strong>{{ slotText(first.slot) }} · {{ first.scheduledAt | date:'dd/MM/yyyy' }}</strong>
           · Données actualisées à {{ lastRefresh() | date:'HH:mm:ss' }}</p>
-        <p>{{ kitchenMeals().length }} repas à servir, salle et chambres comprises. Vérifiez les consignes individuelles avant de préparer ou d’étiqueter les plateaux.</p>
+        <p>{{ kitchenMeals().length }} repas à servir, dans vos secteurs affectés, salle et chambres comprises. Vérifiez les consignes individuelles avant de préparer ou d’étiqueter les plateaux.</p>
         <table>
           <thead>
             <tr><th scope="col">Texture</th><th scope="col">Régime</th><th scope="col">Total</th><th scope="col">Consignes à vérifier</th></tr>
@@ -191,7 +191,7 @@
       <mat-icon fontSet="material-symbols-outlined" class="state-icon" aria-hidden="true">task_alt</mat-icon>
       <p>
         @if (total() === 0) {
-          Rien de prévu pour le moment.
+          Aucun élément pour vos affectations actives.
         } @else if (statusFilter() === 'A_FAIRE' && !search()) {
           Tout est fait ici. Bravo !
         } @else {

@@ -22,8 +22,10 @@ import com.esigelec.ehpad_backend.service.IdentityDoubtService;
 import com.esigelec.ehpad_backend.service.PochetteScanService;
 import com.esigelec.ehpad_backend.service.ResidentService;
 import com.esigelec.ehpad_backend.service.StaffService;
+import com.esigelec.ehpad_backend.service.StaffAssignmentService;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,6 +53,7 @@ public class PersonnelController {
 
     private final ResidentService residentService;
     private final StaffService staff;
+    private final StaffAssignmentService assignments;
     private final CareService careService;
     private final CareCompletionService completions;
     private final IdentityDoubtService doubtService;
@@ -64,9 +67,10 @@ public class PersonnelController {
                                IdentityDoubtService doubtService,
                                AssistantService assistantService,
                                AppetiteService appetiteService,
-                               PochetteScanService pochetteScanService, StaffService staff) {
+                               PochetteScanService pochetteScanService, StaffService staff, StaffAssignmentService assignments) {
         this.residentService = residentService;
         this.staff = staff;
+        this.assignments = assignments;
         this.careService = careService;
         this.completions = completions;
         this.doubtService = doubtService;
@@ -78,18 +82,27 @@ public class PersonnelController {
     // ------------------------------------------------------------ résidents
 
     @GetMapping("/residents")
-    public List<ResidentCardDto> residents(@RequestParam(required = false) String search) {
-        return residentService.list(search);
+    public List<ResidentCardDto> residents(@RequestParam(required = false) String search, Authentication authentication) {
+        var floors = assignments.activeFloors(authentication.getName());
+        if (floors.isEmpty()) return List.of();
+        return residentService.list(search).stream()
+                .filter(resident -> resident.floor() != null && floors.contains(resident.floor()))
+                .toList();
     }
 
     @GetMapping("/residents/{id}")
-    public ResidentCardDto resident(@PathVariable Long id) {
-        return residentService.get(id);
+    public ResidentCardDto resident(@PathVariable Long id, Authentication authentication) {
+        var resident = residentService.get(id);
+        if (resident.floor() == null || !assignments.activeFloors(authentication.getName()).contains(resident.floor())) {
+            throw new AccessDeniedException("Aucune affectation active pour ce secteur");
+        }
+        return resident;
     }
 
     /** Appétit des derniers jours (7 par défaut, de 3 à 14). */
     @GetMapping("/residents/{id}/appetite")
-    public AppetiteDto appetite(@PathVariable Long id, @RequestParam(defaultValue = "7") int days) {
+    public AppetiteDto appetite(@PathVariable Long id, @RequestParam(defaultValue = "7") int days, Authentication authentication) {
+        resident(id, authentication);
         return appetiteService.forResident(id, days);
     }
 
@@ -110,7 +123,15 @@ public class PersonnelController {
     @PostMapping(value = "/identify/pochette", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public PochetteScanDto identifyByPochette(@RequestPart("photo") MultipartFile photo, Authentication authentication) {
         staff.requireMedicationAccess(authentication.getName());
-        return pochetteScanService.scan(photo, authentication.getName());
+        var result = pochetteScanService.scan(photo, authentication.getName());
+        if (result.resident() != null) {
+            var floors = assignments.activeFloors(authentication.getName());
+            if (result.resident().floor() == null || !floors.contains(result.resident().floor())) {
+                return new PochetteScanDto("NOT_FOUND", "Aucun résultat dans votre secteur actif.",
+                        null, null, null, null, null);
+            }
+        }
+        return result;
     }
 
     // ------------------------------------------------------------ repas et médicaments du jour
@@ -118,7 +139,11 @@ public class PersonnelController {
     @GetMapping("/service")
     public List<ServiceItemDto> service(@RequestParam ServiceKind kind, Authentication authentication) {
         if (kind == ServiceKind.MEDICAMENT) staff.requireMedicationAccess(authentication.getName());
-        return careService.listToday(kind);
+        var floors = assignments.activeFloors(authentication.getName());
+        if (floors.isEmpty()) return List.of();
+        return careService.listToday(kind).stream()
+                .filter(item -> item.resident().floor() != null && floors.contains(item.resident().floor()))
+                .toList();
     }
 
     @PostMapping("/meals/{id}/complete")
@@ -166,6 +191,8 @@ public class PersonnelController {
     /** Répond à une question en français. N'enregistre rien : une action proposée doit être confirmée. */
     @PostMapping("/assistant")
     public AssistantReply assistant(@Valid @RequestBody AssistantRequest request, Authentication authentication) {
-        return assistantService.answer(request.message(), staff.canAccessMedication(authentication.getName()));
+        var floors = assignments.activeFloors(authentication.getName());
+        return assistantService.answer(request.message(), staff.canAccessMedication(authentication.getName()),
+                resident -> resident.floor() != null && floors.contains(resident.floor()));
     }
 }

@@ -45,7 +45,7 @@ public class CareCompletionService {
                 if (!fingerprint.equals(previous)) {
                     throw new ConflictException("Cette référence a déjà été utilisée pour une autre validation.");
                 }
-                return care.currentItem(kind, id);
+                return care.currentItem(kind, id, username);
             }
         }
 

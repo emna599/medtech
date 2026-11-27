@@ -36,7 +36,7 @@ class CareServiceMealRiskTest {
         ResidentCardAssembler assembler = mock(ResidentCardAssembler.class);
         AuditService audit = mock(AuditService.class);
         CareService care = new CareService(meals, distributions, mock(MedicationDoseRepository.class),
-                mock(IdentityDoubtRepository.class), assembler, residents, mock(CurrentUserService.class), audit);
+                mock(IdentityDoubtRepository.class), assembler, residents, mock(CurrentUserService.class), audit, mock(StaffAssignmentService.class));
 
         Resident resident = new Resident();
         ReflectionTestUtils.setField(resident, "id", 1L);

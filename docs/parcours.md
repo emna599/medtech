@@ -17,6 +17,8 @@ Les actions principales sont pleines, les actions secondaires ont un contour fin
 
 Dans **Administration → Comptes**, créez ou modifiez un compte **Personnel** pour lui attribuer une fonction et une équipe de jour ou de nuit. La fonction **Service en salle** ouvre le parcours Tables. Un changement de fonction ou d’équipe ferme les sessions du compte concerné. Demandez à l’agent de se reconnecter.
 
+Dans **Comptes → Affectations**, choisissez l’étage, le début et la fin du créneau de travail. Plusieurs étages nécessitent plusieurs affectations. Pour un remplacement, choisissez **Remplacer** sur le créneau puis un collègue de même fonction. Il récupère la période restante, ou tout le créneau s’il n’a pas encore commencé. Le pointage reste distinct de ce parcours.
+
 ## Médecin
 
 1. Ouvrez **Résidents**, recherchez par nom ou chambre, puis ouvrez la fiche.
@@ -48,7 +50,7 @@ Dans **Administration → Comptes**, créez ou modifiez un compte **Personnel** 
 
 - Dans la démo, un compte Personnel avec la fonction **Infirmier** peut ouvrir et tracer les prises, ainsi qu’utiliser la lecture d’étiquette de pochette.
 - Côté aide-soignant, pour signaler une absence, un refus ou un doute à l’IDE, ouvrez **Outils → Transmettre un écart de prise** et consignez l’information dans la relève. Le registre des médicaments et ses validations sont réservés aux comptes habilités.
-- Ce premier contrôle repose sur la fonction. Le périmètre par secteur et par créneau reste à câbler aux affectations datées.
+- Les tournées et les fiches du personnel s’appuient sur les étages de vos affectations en cours. Un résident sans chambre est hors de ce périmètre. Une affectation expirée ou retirée bloque aussi une validation depuis une fiche déjà ouverte.
 
 ### Service en salle
 

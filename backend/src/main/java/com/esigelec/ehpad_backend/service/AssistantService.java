@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -53,9 +54,9 @@ public class AssistantService {
     }
 
     @Transactional(readOnly = true)
-    public AssistantReply answer(String message, boolean medicationAccess) {
+    public AssistantReply answer(String message, boolean medicationAccess, Predicate<ResidentCardDto> inSector) {
         String text = normalize(message);
-        List<ResidentCardDto> residents = residentService.list(null);
+        List<ResidentCardDto> residents = residentService.list(null).stream().filter(inSector).toList();
         List<ResidentCardDto> mentioned = findMentioned(text, residents);
 
         String slot = requestedSlot(text);
@@ -104,7 +105,7 @@ public class AssistantService {
                     "Doutes d’identité à confirmer", "Aucun doute d’identité en cours.", "DOUTES");
         }
         if (containsAny(text, "plateau", "consignes modifie", "consignes change", "reverifier")) {
-            return residentList(careService.listToday(ServiceKind.REPAS).stream()
+            return residentList(itemsInSector(inSector, ServiceKind.REPAS).stream()
                             .filter(item -> PENDING.contains(item.status()) && matchesSlot(item, slot))
                             .map(ServiceItemDto::resident).filter(r -> r.mealInstructionsChangedAt() != null)
                             .distinct().toList(),
@@ -113,15 +114,15 @@ public class AssistantService {
         }
         if (containsAny(text, "absent", "absence")) {
             return serviceEvents(ServiceStatus.ABSENT, ServiceKind.REPAS, slot, mentioned,
-                    "Absences au repas", "ABSENCES", medicationAccess);
+                    "Absences au repas", "ABSENCES", medicationAccess, inSector);
         }
         if (containsAny(text, "reporte", "plus tard")) {
             return serviceEvents(ServiceStatus.PLUS_TARD, medication ? ServiceKind.MEDICAMENT
                     : containsAny(text, "repas", "dejeuner", "diner") ? ServiceKind.REPAS : null,
-                    slot, mentioned, "Actions reportées", "REPORTS", medicationAccess);
+                    slot, mentioned, "Actions reportées", "REPORTS", medicationAccess, inSector);
         }
         if (containsAny(text, "a risque") && medication) {
-            List<ResidentCardDto> pending = careService.listToday(ServiceKind.MEDICAMENT).stream()
+            List<ResidentCardDto> pending = itemsInSector(inSector, ServiceKind.MEDICAMENT).stream()
                     .filter(item -> item.highRisk() && PENDING.contains(item.status()) && matchesSlot(item, slot))
                     .map(ServiceItemDto::resident).distinct().toList();
             return residentList(pending, "Résidents avec une prise signalée à risque encore en attente",
@@ -131,7 +132,7 @@ public class AssistantService {
         if (text.matches("^(marque|valide|note|enregistre)\\s+.+")
                 && !containsAny(text, " pas ", "jamais", "annule", " ne ")
                 && containsAny(text, "servi", "donne", "fait", "pris")) {
-            return propose(text, mentioned, medication);
+            return propose(text, mentioned, medication, inSector);
         }
         if (containsAny(text, "allergi")) {
             if (mentioned.isEmpty() && text.matches(".*\\b(de|du|pour|chez)\\s+.+")) {
@@ -146,20 +147,20 @@ public class AssistantService {
             return regime(mentioned);
         }
         if (containsAny(text, "reste", "pas encore", "pas mange", "n'a pas", "a servir", "a donner", "en retard", "attente")) {
-            return remaining(medication ? ServiceKind.MEDICAMENT : ServiceKind.REPAS, slot,
+            return remaining(inSector, medication ? ServiceKind.MEDICAMENT : ServiceKind.REPAS, slot,
                     containsAny(text, "salle a manger") ? MealLocation.SALLE
                             : containsAny(text, "en chambre", "les chambres") ? MealLocation.CHAMBRE : null);
         }
         if (containsAny(text, "refus")) {
             return serviceEvents(ServiceStatus.REFUSE, medication ? ServiceKind.MEDICAMENT
                     : containsAny(text, "repas", "dejeuner", "diner") ? ServiceKind.REPAS : null,
-                    slot, mentioned, "Refus enregistrés", "REFUS", medicationAccess);
+                    slot, mentioned, "Refus enregistrés", "REFUS", medicationAccess, inSector);
         }
         if (containsAny(text, "ou est", "chambre", "ou se trouve", "etage")) {
             return where(mentioned);
         }
         if (containsAny(text, "resume", "releve", "bilan", "point sur", "recap")) {
-            return summary(medicationAccess);
+            return summary(medicationAccess, inSector);
         }
         if (mentioned.size() == 1) {
             return card(mentioned.get(0));
@@ -167,10 +168,14 @@ public class AssistantService {
         return reply(HELP, "AIDE");
     }
 
+    private List<ServiceItemDto> itemsInSector(Predicate<ResidentCardDto> inSector, ServiceKind kind) {
+        return careService.listToday(kind).stream().filter(item -> inSector.test(item.resident())).toList();
+    }
+
     // ------------------------------------------------------------------ intentions
 
-    private AssistantReply remaining(ServiceKind kind, String requestedSlot, MealLocation location) {
-        List<ServiceItemDto> all = careService.listToday(kind);
+    private AssistantReply remaining(Predicate<ResidentCardDto> inSector, ServiceKind kind, String requestedSlot, MealLocation location) {
+        List<ServiceItemDto> all = itemsInSector(inSector, kind);
         String slot = requestedSlot == null ? currentSlot(all) : requestedSlot;
         List<ServiceItemDto> todo = all.stream()
                 .filter(item -> item.slot().equals(slot) && PENDING.contains(item.status())
@@ -271,11 +276,11 @@ public class AssistantService {
     }
 
     private AssistantReply serviceEvents(ServiceStatus status, ServiceKind kind, String slot,
-                                         List<ResidentCardDto> mentioned, String title, String intent, boolean medicationAccess) {
+                                         List<ResidentCardDto> mentioned, String title, String intent, boolean medicationAccess, Predicate<ResidentCardDto> inSector) {
         if (mentioned.size() > 1) return ambiguous(mentioned);
         List<ServiceItemDto> items = new ArrayList<>();
-        if (kind != ServiceKind.MEDICAMENT) items.addAll(careService.listToday(ServiceKind.REPAS));
-        if (medicationAccess && kind != ServiceKind.REPAS) items.addAll(careService.listToday(ServiceKind.MEDICAMENT));
+        if (kind != ServiceKind.MEDICAMENT) items.addAll(itemsInSector(inSector, ServiceKind.REPAS));
+        if (medicationAccess && kind != ServiceKind.REPAS) items.addAll(itemsInSector(inSector, ServiceKind.MEDICAMENT));
         List<ServiceItemDto> selected = items.stream()
                 .filter(i -> i.status() == status && matchesSlot(i, slot))
                 .filter(i -> mentioned.isEmpty() || mentioned.getFirst().id().equals(i.resident().id()))
@@ -294,9 +299,9 @@ public class AssistantService {
                 intent, residents.stream().limit(MAX_LISTED).map(this::ref).toList(), null);
     }
 
-    private AssistantReply summary(boolean medicationAccess) {
-        List<ServiceItemDto> meals = careService.listToday(ServiceKind.REPAS);
-        List<ServiceItemDto> doses = medicationAccess ? careService.listToday(ServiceKind.MEDICAMENT) : List.of();
+    private AssistantReply summary(boolean medicationAccess, Predicate<ResidentCardDto> inSector) {
+        List<ServiceItemDto> meals = itemsInSector(inSector, ServiceKind.REPAS);
+        List<ServiceItemDto> doses = medicationAccess ? itemsInSector(inSector, ServiceKind.MEDICAMENT) : List.of();
         String slot = currentSlot(meals);
         List<ServiceItemDto> mealsNow = meals.stream().filter(i -> i.slot().equals(slot)).toList();
         long mealsDone = mealsNow.stream().filter(i -> i.status() == ServiceStatus.FAIT).count();
@@ -318,7 +323,7 @@ public class AssistantService {
     }
 
     /** Prépare une validation. Rien n'est enregistré avant la confirmation du soignant. */
-    private AssistantReply propose(String text, List<ResidentCardDto> mentioned, boolean medication) {
+    private AssistantReply propose(String text, List<ResidentCardDto> mentioned, boolean medication, Predicate<ResidentCardDto> inSector) {
         if (mentioned.isEmpty()) {
             return reply("Pour quel résident ? Par exemple : « marque le repas de M. Durand comme servi ».", "ACTION");
         }
@@ -332,7 +337,7 @@ public class AssistantService {
                     List.of(ref(r)), null);
         }
         ServiceKind kind = medication ? ServiceKind.MEDICAMENT : ServiceKind.REPAS;
-        List<ServiceItemDto> items = careService.listToday(kind).stream()
+        List<ServiceItemDto> items = itemsInSector(inSector, kind).stream()
                 .filter(i -> i.resident().id().equals(r.id()) && PENDING.contains(i.status()))
                 .sorted(Comparator.comparing(ServiceItemDto::scheduledAt))
                 .toList();

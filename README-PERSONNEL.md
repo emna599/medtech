@@ -186,6 +186,8 @@ Ouvrir <http://localhost:4200>.
 | `service1` | `Demo1234!` | Sofia Service, tables et menu |
 | `admin`, `medecin` | `Demo1234!` | Autres espaces |
 
+Sur une base fictive, les affectations de démo sont valables pour la journée de la base. Pour les renouveler le lendemain sur la démo locale uniquement, exécutez `docker compose exec -T db psql -U postgres -d medtech -v ON_ERROR_STOP=1 -f /sql/seed_staff_assignments.sql`, ou ajoutez les créneaux via **Administration → Comptes → Affectations**.
+
 Codes de bracelet de démonstration : `DEMO-001` à `DEMO-012`.
 
 ---

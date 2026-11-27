@@ -14,7 +14,7 @@ Cette proposition sert à la revue avec un médecin, une IDE et l’établisseme
 
 ## Habilitations validées pour la démo
 
-La tournée Médicaments est réservée aux comptes Personnel avec la fonction Infirmier. L’aide-soignant transmet les écarts par la relève. Les affectations datées restent à intégrer pour appliquer la restriction par secteur. La source des prescriptions et les étapes de dispensation restent à définir.
+La tournée Médicaments est réservée aux comptes Personnel avec la fonction Infirmier. L’aide-soignant transmet les écarts par la relève. Les affectations datées limitent maintenant la tournée aux étages couverts pendant le créneau de travail. La source des prescriptions et les étapes de dispensation restent à définir.
 
 ## Habilitations à préciser
 

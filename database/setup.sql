@@ -19,4 +19,6 @@ BEGIN;
 \ir tour_updates.sql
 \ir seed_service.sql
 \ir seed_dining_accounts.sql
+\ir staff_assignments.sql
+\ir seed_staff_assignments.sql
 COMMIT;

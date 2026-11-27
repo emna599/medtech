@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — affectations par étage et créneau
+
+- **Administration → Comptes → Affectations** permet d’accorder une plage par étage, de la retirer et de transférer atomiquement la période restante à un collègue actif de même fonction.
+- Les tournées, leur validation et leurs rejeux, les fiches et l’appétit côté Personnel, les changements de lieu, l’OCR de pochette et l’Assistant appliquent le périmètre actif. Les autorisations du Service en salle et les transmissions de relève suivent leurs circuits propres. Les résidents sans chambre sont exclus des secteurs.
+- Migration additive `staff_assignments.sql` et jeu fictif renouvelable par jour. Vérifié sur PostgreSQL isolé : accès avant/après créneau, refus hors étage, remplacement et refus du rejeu après transfert. Chromium a vérifié l’ajout depuis Comptes. 36 tests backend et 33 tests frontend réussis. Le volume local garde les repas datés du 26 novembre et a reçu les affectations du 27.
+
+---
+
 ## Relais Codex du 2026-11-27 — droits médicaments par fonction
 
 - Lecture et validation des prises ainsi que l’OCR de pochette réservés aux comptes Personnel avec fonction INFIRMIER. La validation vérifie la fonction avant tout reçu idempotent. Les écrans et l’Assistant suivent le même droit.

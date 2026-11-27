@@ -52,6 +52,7 @@ public class CareService {
     private final ResidentRepository residentRepository;
     private final CurrentUserService currentUserService;
     private final AuditService auditService;
+    private final StaffAssignmentService assignments;
 
     public CareService(MealRepository mealRepository,
                        MealDistributionRepository distributionRepository,
@@ -60,7 +61,7 @@ public class CareService {
                        ResidentCardAssembler assembler,
                        ResidentRepository residentRepository,
                        CurrentUserService currentUserService,
-                       AuditService auditService) {
+                       AuditService auditService, StaffAssignmentService assignments) {
         this.mealRepository = mealRepository;
         this.distributionRepository = distributionRepository;
         this.doseRepository = doseRepository;
@@ -69,6 +70,7 @@ public class CareService {
         this.residentRepository = residentRepository;
         this.currentUserService = currentUserService;
         this.auditService = auditService;
+        this.assignments = assignments;
     }
 
     // ------------------------------------------------------------------ lecture
@@ -122,6 +124,7 @@ public class CareService {
         Resident resident = lockActiveResident(residentId);
         Meal meal = mealRepository.findByIdForUpdate(mealId)
                 .orElseThrow(() -> new ResourceNotFoundException("Repas introuvable"));
+        requireAssignment(user, resident);
         ResidentCardDto card = assembler.assemble(List.of(resident)).get(resident.getId());
         validate(request, meal.getStatus(), resident.getId());
         requireMealRiskAck(request, card);
@@ -154,6 +157,7 @@ public class CareService {
         User user = currentUserService.require(username);
         Meal meal = mealRepository.findByIdForUpdate(mealId).orElseThrow(() -> new ResourceNotFoundException("Repas introuvable"));
         Resident resident = requireActive(meal.getResident());
+        requireAssignment(user, resident);
         if (meal.getStatus() != ServiceStatus.FAIT) {
             throw new ConflictException("La quantité ne peut être saisie que pour un repas servi");
         }
@@ -176,6 +180,7 @@ public class CareService {
         Resident resident = lockActiveResident(residentId);
         MedicationDose dose = doseRepository.findByIdForUpdate(doseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Prise introuvable"));
+        requireAssignment(user, resident);
         validate(request, dose.getStatus(), resident.getId());
         requireDoseRiskAck(request, dose);
 
@@ -191,19 +196,27 @@ public class CareService {
         return toDoseItem(dose, assembler.assemble(List.of(resident)).get(resident.getId()));
     }
 
-    @Transactional(readOnly = true)
-    public ServiceItemDto currentItem(ServiceKind kind, Long id) {
+    @Transactional
+    public ServiceItemDto currentItem(ServiceKind kind, Long id, String username) {
+        User user = currentUserService.require(username);
         if (kind == ServiceKind.REPAS) {
             Meal meal = mealRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Repas introuvable"));
             Resident resident = requireActive(meal.getResident());
+            requireAssignment(user, resident);
             return toMealItem(meal, assembler.assemble(List.of(resident)).get(resident.getId()),
                     distributionRepository.findByMealId(id).orElse(null));
         }
         MedicationDose dose = doseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Prise introuvable"));
         Resident resident = requireActive(dose.getResident());
+        requireAssignment(user, resident);
         return toDoseItem(dose, assembler.assemble(List.of(resident)).get(resident.getId()));
     }
+
+    private void requireAssignment(User user, Resident resident) {
+        assignments.requireFloor(user, resident.getRoom() == null ? null : resident.getRoom().getFloor());
+    }
+
 
     // ------------------------------------------------------------------ règles
 

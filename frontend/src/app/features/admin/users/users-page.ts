@@ -1,3 +1,4 @@
+import { AssignmentDialog } from './assignment-dialog';
 import { JOB_LABEL, SHIFT_LABEL } from '../../../shared/models/personnel.model';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, signal, viewChild } from '@angular/core';
@@ -100,6 +101,9 @@ import { UserFormDialog } from './user-form-dialog';
               <p><strong>Créé le</strong> · {{ u.createdAt | date:'dd/MM/yyyy' }}</p>
             </mat-card-content>
             <mat-card-actions align="end">
+              @if (u.role === 'PERSONNEL' && u.job !== 'SERVICE') {
+                <button mat-button type="button" (click)="openAssignments(u)">Affectations</button>
+              }
               <button mat-button type="button" (click)="openForm(u)">Modifier</button>
               <button mat-icon-button type="button" [attr.aria-label]="'Changer le mot de passe de ' + u.fullName" (click)="openPassword(u)">
                 <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">key</mat-icon>
@@ -163,6 +167,12 @@ export class UsersPage {
 
   protected labelOf(user: AdminUser): string {
     return ROLE_LABEL[user.role];
+  }
+
+  protected openAssignments(user: AdminUser): void {
+    const candidates = this.users().filter(candidate => candidate.id !== user.id && candidate.enabled
+      && candidate.role === 'PERSONNEL' && (candidate.job ?? 'AIDE_SOIGNANT') === (user.job ?? 'AIDE_SOIGNANT'));
+    this.dialog.open(AssignmentDialog, { data: { user, candidates }, width: '520px', maxWidth: '96vw' });
   }
 
   protected openForm(user?: AdminUser): void {
