@@ -33,12 +33,54 @@
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ active() ? 'contactless' : 'sensors_off' }}</mat-icon>
       <span>{{ active() ? 'Relire' : 'Lire' }}</span>
     </button>
+    @if (nfcOk) {
+      <label class="pick" title="Ce téléphone joue le lecteur de cette table">
+        <span>Ce téléphone =</span>
+        <select [ngModel]="phoneReaderCode()" (ngModelChange)="phoneReader.set($event)">
+          @for (t of raw()?.tables ?? []; track t.id) {
+            @if (t.readerCode) {
+              <option [value]="t.readerCode">{{ t.label }}</option>
+            }
+          }
+        </select>
+      </label>
+    }
     @if (active()) {
       <button mat-icon-button type="button" aria-label="Éteindre les lecteurs" title="Éteindre les lecteurs" (click)="stop()">
         <mat-icon fontSet="material-symbols-outlined">power_settings_new</mat-icon>
       </button>
     }
   </section>
+
+  @if (nfcHint) {
+    <p class="nfc-hint" role="alert">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">nfc</mat-icon>
+      {{ nfcHint }}
+    </p>
+  }
+
+  @if (scanning()) {
+    <p class="nfc-banner" role="status">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">nfc</mat-icon>
+      Approchez la carte du téléphone ({{ phoneTableLabel() }})…
+    </p>
+  }
+
+  @if (unknownCard()) {
+    <section class="link-card" aria-label="Carte inconnue">
+      <p><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon> Carte inconnue : à qui est-elle ?</p>
+      <input class="link-input" list="link-residents" autocomplete="off" placeholder="Nom du résident" [ngModel]="linkQuery()" (ngModelChange)="linkQuery.set($event)" />
+      <datalist id="link-residents">
+        @for (resident of linkResidents(); track resident.id) {
+          <option [value]="residentLabel(resident)"></option>
+        }
+      </datalist>
+      <button mat-flat-button type="button" (click)="linkAndSeat()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">link</mat-icon>
+        <span>Associer</span>
+      </button>
+    </section>
+  }
 
   @if (dining(); as data) {
     <section class="summary" aria-live="polite">

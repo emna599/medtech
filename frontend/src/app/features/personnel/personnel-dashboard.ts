@@ -32,6 +32,7 @@ import { ResidentsDialog, ResidentsResult } from './residents-dialog/residents-d
 import { TeamDialog } from './team-dialog/team-dialog';
 import { ReleveDialog } from './releve-dialog/releve-dialog';
 import { IdentifyDialog, IdentifyResult, ScanDialogData } from './identify-dialog/identify-dialog';
+import { LabelCheckDialog } from './label-check-dialog/label-check-dialog';
 import { NotesDialog } from './notes-dialog/notes-dialog';
 import { PlanningDialog, PlanningResult } from './planning-dialog/planning-dialog';
 import { ResidentSheet, ResidentSheetData, ResidentSheetResult } from './resident-sheet/resident-sheet';
@@ -310,6 +311,21 @@ export class PersonnelDashboard {
   }
 
   /** Scanner : QR code pendant les repas, puce NFC pour les médicaments. */
+  /** Étiquette d'un médicament (infirmier) : photo de l'étiquette, photo du résident, puis confirmation par le bracelet. */
+  protected openLabel(): void {
+    const ref = this.dialog.open<LabelCheckDialog, undefined, IdentifyResult>(LabelCheckDialog, {
+      width: '560px',
+      maxWidth: '100vw',
+      autoFocus: false,
+    });
+    ref.afterClosed().subscribe((result) => {
+      if (result) {
+        this.setKind('MEDICAMENT');
+        this.openResident(result.residentId);
+      }
+    });
+  }
+
   protected openScan(): void {
     const ref = this.dialog.open<IdentifyDialog, ScanDialogData, IdentifyResult>(IdentifyDialog, {
       data: { mode: this.kind() === 'REPAS' ? 'QR' : 'NFC' },

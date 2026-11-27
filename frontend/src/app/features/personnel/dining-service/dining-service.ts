@@ -24,6 +24,7 @@ import {
   seatSlots,
   ServiceStatus,
 } from '../../../shared/models/personnel.model';
+import { nfcProblem, nfcSupported, scanNfcOnce } from '../components/nfc-reader';
 import { ResidentAvatar } from '../components/resident-avatar';
 import { IdentifyDialog, IdentifyResult, ScanDialogData } from '../identify-dialog/identify-dialog';
 import { MenuDialog } from '../menu-dialog/menu-dialog';
@@ -172,15 +173,80 @@ export class DiningService {
   /** Résidents qui viennent de s'asseoir (mis en évidence quelques secondes). */
   protected readonly fresh = signal<Set<number>>(new Set());
 
-  /** Bouton « Lire » : allume les lecteurs, relit les bracelets captés par les tables et annonce le résultat. */
+  // ---------- Téléphone = table : la carte de cantine (NFC) joue le bracelet du résident ----------
+
+  protected readonly nfcOk = nfcSupported();
+  protected readonly nfcHint = nfcProblem();
+  /** Lecteur RFID joué par ce téléphone (vide = première table). */
+  protected readonly phoneReader = signal('');
+  protected readonly scanning = signal(false);
+  protected readonly unknownCard = signal<string | null>(null);
+  protected readonly linkQuery = signal('');
+  protected readonly linkResidents = signal<ResidentCard[]>([]);
+  private cancelScan: (() => void) | null = null;
+
+  protected readonly phoneReaderCode = computed(
+    () => this.phoneReader() || this.raw()?.tables.find((table) => table.readerCode)?.readerCode || '',
+  );
+  protected readonly phoneTableLabel = computed(
+    () => this.raw()?.tables.find((table) => table.readerCode === this.phoneReaderCode())?.label ?? '',
+  );
+
+  /** Bouton « Lire » : allume les lecteurs et écoute UNE carte sur le NFC du téléphone (rien n'est lu avant l'appui). */
   protected read(): void {
     const first = !this.active();
     this.active.set(true);
     this.load(true, true, first);
+    if (this.nfcOk) {
+      this.startScan();
+    }
+  }
+
+  private startScan(): void {
+    this.cancelScan?.();
+    this.unknownCard.set(null);
+    this.scanning.set(true);
+    this.cancelScan = scanNfcOnce({
+      tag: (token) => {
+        this.scanning.set(false);
+        this.sendReading(this.phoneReaderCode(), null, false, token);
+      },
+      error: (message) => {
+        this.scanning.set(false);
+        this.snackBar.open(message, 'OK', { duration: 6000 });
+      },
+    });
+  }
+
+  /** Carte inconnue : on l'associe au résident choisi, puis il s'assoit à la table de ce téléphone. */
+  protected linkAndSeat(): void {
+    const token = this.unknownCard();
+    const label = normalize(this.linkQuery());
+    const resident = this.linkResidents().find((r) => normalize(`${r.lastName} ${r.firstName}`) === label);
+    if (!token || !resident) {
+      this.snackBar.open('Choisissez un résident dans la liste.', 'OK', { duration: 4000 });
+      return;
+    }
+    this.api.linkNfc(resident.id, token).subscribe({
+      next: () => {
+        this.unknownCard.set(null);
+        this.linkQuery.set('');
+        this.sendReading(this.phoneReaderCode(), null, false, token);
+      },
+      error: (err) => this.snackBar.open(errorMessage(err), 'OK', { duration: 6000 }),
+    });
+  }
+
+  protected residentLabel(resident: ResidentCard): string {
+    return `${resident.lastName} ${resident.firstName}`;
   }
 
   /** Éteint les lecteurs : les tables se vident à l'écran. */
   protected stop(): void {
+    this.cancelScan?.();
+    this.cancelScan = null;
+    this.scanning.set(false);
+    this.unknownCard.set(null);
     this.active.set(false);
     this.selected.set(null);
     this.fresh.set(new Set());
@@ -286,13 +352,13 @@ export class DiningService {
     this.sendReading(table.readerCode, seat.resident.id, true);
   }
 
-  private sendReading(readerCode: string | null, residentId: number, leaving: boolean): void {
+  private sendReading(readerCode: string | null, residentId: number | null, leaving: boolean, token?: string): void {
     if (!readerCode || this.busy()) {
       this.snackBar.open('Choisissez une table avec un lecteur RFID.', 'OK', { duration: 4000 });
       return;
     }
     this.busy.set(true);
-    this.api.sendReading(readerCode, residentId, leaving).subscribe({
+    this.api.sendReading(readerCode, residentId, leaving, token).subscribe({
       next: (reading: Reading) => {
         this.busy.set(false);
         this.snackBar.open(reading.message, 'OK', { duration: 3000 });
@@ -300,6 +366,13 @@ export class DiningService {
       },
       error: (err) => {
         this.busy.set(false);
+        if (token && err?.status === 404 && String(errorMessage(err)).toLowerCase().includes('bracelet')) {
+          this.unknownCard.set(token);
+          if (this.linkResidents().length === 0) {
+            this.api.listResidents().subscribe({ next: (list) => this.linkResidents.set(list), error: () => undefined });
+          }
+          return;
+        }
         this.snackBar.open(errorMessage(err), 'OK', { duration: 6000 });
       },
     });

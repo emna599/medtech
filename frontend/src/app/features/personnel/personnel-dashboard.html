@@ -80,6 +80,13 @@
       </button>
     }
 
+    @if (me()?.job === 'INFIRMIER') {
+      <button mat-stroked-button type="button" class="releve" (click)="openLabel()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">label</mat-icon>
+        <span>Étiquette</span>
+      </button>
+    }
+
     <button mat-flat-button type="button" class="scan" (click)="openScan()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ kind() === 'REPAS' ? 'qr_code_scanner' : 'nfc' }}</mat-icon>
       <span>Scanner</span>

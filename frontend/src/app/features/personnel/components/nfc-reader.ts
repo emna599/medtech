@@ -30,6 +30,18 @@ export function nfcSupported(): boolean {
   return readerCtor() !== null;
 }
 
+/** Pourquoi le NFC n'est pas disponible sur un téléphone Android (null sinon, ou sur un ordinateur). */
+export function nfcProblem(): string | null {
+  if (typeof window === 'undefined' || readerCtor() !== null || !/Android/i.test(navigator.userAgent)) {
+    return null;
+  }
+  if (!window.isSecureContext) {
+    return 'Page non sécurisée : dans Chrome, ouvrez chrome://flags/#unsafely-treat-insecure-origin-as-secure, ajoutez ' +
+      window.location.origin + ', activez puis relancez Chrome.';
+  }
+  return 'Ce navigateur ne lit pas le NFC : utilisez Chrome sur Android.';
+}
+
 /** Contenu texte d'une puce : premier enregistrement texte ou adresse, sinon son numéro de série. */
 export function tagValue(event: NdefReadingEventLike): string | null {
   for (const record of event.message?.records ?? []) {
@@ -41,6 +53,65 @@ export function tagValue(event: NdefReadingEventLike): string | null {
     }
   }
   return event.serialNumber?.trim() || null;
+}
+
+/**
+ * Écoute le NFC du téléphone pour UNE carte, puis s'arrête (appelé quand on appuie sur « Lire »).
+ * Renvoie une fonction qui annule l'écoute. Le NFC n'est donc actif que le temps de la lecture.
+ */
+export function scanNfcOnce(
+  handlers: { tag: (value: string) => void; error: (message: string) => void },
+  timeoutMs = 30_000,
+): () => void {
+  const Reader = readerCtor();
+  const abort = new AbortController();
+  let finished = false;
+  const finish = () => {
+    finished = true;
+    clearTimeout(timer);
+    abort.abort();
+  };
+  const timer = setTimeout(() => {
+    if (!finished) {
+      finish();
+      handlers.error('Aucune carte détectée. Appuyez sur « Lire » pour réessayer.');
+    }
+  }, timeoutMs);
+  if (!Reader) {
+    finish();
+    handlers.error("Le NFC n'est pas disponible sur cet appareil (Chrome sur Android, HTTPS ou localhost).");
+    return () => undefined;
+  }
+  const reader = new Reader();
+  reader.addEventListener('reading', (event) => {
+    const value = tagValue(event as NdefReadingEventLike);
+    if (value && !finished) {
+      finish();
+      handlers.tag(value);
+    }
+  });
+  reader.addEventListener('readingerror', () => {
+    if (!finished) {
+      handlers.error('Carte illisible : rapprochez-la du dos du téléphone.');
+    }
+  });
+  reader.scan({ signal: abort.signal }).catch((error: unknown) => {
+    if (finished) {
+      return;
+    }
+    finish();
+    const name = error instanceof DOMException ? error.name : '';
+    handlers.error(
+      name === 'NotAllowedError'
+        ? 'Le NFC est refusé : autorisez-le dans le navigateur.'
+        : 'Impossible de démarrer le NFC : activez-le dans les réglages du téléphone.',
+    );
+  });
+  return () => {
+    if (!finished) {
+      finish();
+    }
+  };
 }
 
 /** Lecteur de puce NFC : le soignant approche la tablette du bracelet, la lecture est automatique. */

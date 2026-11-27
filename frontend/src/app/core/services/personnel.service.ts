@@ -91,8 +91,13 @@ export class PersonnelService {
   }
 
   /** Lecture d'un bracelet par le lecteur d'une table (ici simulée à partir de l'identifiant du résident). */
-  sendReading(readerCode: string, residentId: number, leaving = false): Observable<Reading> {
-    return this.http.post<Reading>(`${this.base}/dining/readings`, { readerCode, residentId, leaving });
+  sendReading(readerCode: string, residentId: number | null, leaving = false, token?: string): Observable<Reading> {
+    return this.http.post<Reading>(`${this.base}/dining/readings`, { readerCode, residentId, token, leaving });
+  }
+
+  /** Associe une carte NFC (numéro de série lu par le téléphone) à un résident. */
+  linkNfc(residentId: number, token: string): Observable<ResidentCard> {
+    return this.http.post<ResidentCard>(`${this.base}/residents/${residentId}/nfc`, { token });
   }
 
   /** Menu de la semaine qui contient la date (AAAA-MM-JJ), par défaut cette semaine. */
