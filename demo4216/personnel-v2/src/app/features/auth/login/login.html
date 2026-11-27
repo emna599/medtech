@@ -1,0 +1,57 @@
+<main class="login-page">
+  <mat-card class="login-card" appearance="outlined">
+    <mat-card-content>
+      <div class="brand">
+        <mat-icon class="brand-icon" fontSet="material-symbols-outlined" aria-hidden="true">medical_services</mat-icon>
+        <h1 class="brand-title">MedTech EHPAD</h1>
+        <p class="brand-subtitle">Connectez-vous pour accéder à votre espace</p>
+      </div>
+
+      @if (errorMessage(); as message) {
+        <p class="error-banner" role="alert">{{ message }}</p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nom d'utilisateur</mat-label>
+          <input matInput formControlName="username" autocomplete="username" autofocus />
+          <mat-icon matSuffix fontSet="material-symbols-outlined" aria-hidden="true">person</mat-icon>
+          @if (form.controls.username.hasError('required')) {
+            <mat-error>Le nom d'utilisateur est obligatoire</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mot de passe</mat-label>
+          <input
+            matInput
+            formControlName="password"
+            autocomplete="current-password"
+            [type]="hidePassword() ? 'password' : 'text'"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            aria-label="Afficher ou masquer le mot de passe"
+            [attr.aria-pressed]="!hidePassword()"
+            (click)="togglePasswordVisibility()"
+          >
+            <mat-icon fontSet="material-symbols-outlined">{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (form.controls.password.hasError('required')) {
+            <mat-error>Le mot de passe est obligatoire</mat-error>
+          }
+        </mat-form-field>
+
+        <button mat-flat-button class="submit-button" type="submit" [disabled]="loading()">
+          @if (loading()) {
+            <mat-progress-spinner mode="indeterminate" diameter="22" aria-label="Connexion en cours" />
+          } @else {
+            Se connecter
+          }
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</main>

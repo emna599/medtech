@@ -5,6 +5,11 @@
 
 ---
 
+## Version GitHub de la démo 4216
+
+- Versionné l’assemblage de `personnel-v2` (`e29a20b`) avec la connexion, le médecin, l’administration et l’API d’`integration`. La démo s’exécute avec `docker-compose.4216.yml` et le PostgreSQL du projet. Elle propose Aide-soignant, Infirmier et Service en salle.
+- Le script `seed_demo_4216.sql` complète le jeu fictif du jour et ajoute trois codes de pointage aux comptes de démo dépourvus de badge. La procédure et les comptes figurent dans `demo4216/Parcours.md`.
+
 ## Présentation Personnel V2
 
 - Repris le gabarit de tournée de `feature/personnel-v2`, notamment les groupes de boutons, la grille de portraits et les lignes de chambre. Les alertes et la feuille de préparation restent disponibles. Les tables reprennent les panneaux de la branche avec les commandes de service déjà intégrées. La tête distante `e29a20b` ne contient pas de vue Cuisine dédiée.
