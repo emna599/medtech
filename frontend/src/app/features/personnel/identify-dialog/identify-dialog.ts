@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
 import { fullName, ResidentIdentity } from '../../../shared/models/personnel.model';
 import { decodeQrFromFile, QrReader } from '../components/qr-reader';
+import { environment } from '../../../../environments/environment';
 import { readBraceletCode } from '../../../shared/utils/bracelet-link';
 import { ResidentAvatar } from '../components/resident-avatar';
 
@@ -67,7 +68,7 @@ export class IdentifyDialog {
   }
 
   protected identify(): void {
-    const code = readBraceletCode(this.code(), window.location.origin);
+    const code = readBraceletCode(this.code(), window.location.origin, environment.braceletOrigin);
     if (!code && this.code().trim()) {
       this.error.set('Ce QR code ne correspond pas à un bracelet MedTech de cet établissement.');
       return;

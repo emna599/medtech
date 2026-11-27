@@ -10,6 +10,13 @@ describe('Bracelet link', () => {
     expect(readBraceletCode(' ' + code + ' ', origin)).toBe(code);
   });
 
+  it('accepts the configured bracelet issuer in the native app', () => {
+    const issuer = 'http://localhost:4200';
+    expect(readBraceletCode(`${issuer}/b#${code}`, 'capacitor://localhost', issuer)).toBe(code);
+    expect(readBraceletCode(`${issuer}/b#${code}`, origin)).toBe('');
+    expect(readBraceletCode(`http://localhost:4201/b#${code}`, origin, issuer)).toBe('');
+  });
+
   it('rejects different origins, paths, query strings and invalid fragments', () => {
     expect(readBraceletCode(`https://other.example/b#${code}`, origin)).toBe('');
     expect(readBraceletCode(`${origin}/other#${code}`, origin)).toBe('');

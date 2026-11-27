@@ -5,6 +5,13 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — lecture des bracelets imprimés depuis le site
+
+- Le scanner iPhone lit le QR du site, puis la validation de l’origine rejetait le lien de la démo imprimé avec `http://localhost:4200`. L’origine du site émetteur est désormais configurable pour le build iOS. L’app extrait le code et le vérifie auprès de l’API habituelle.
+- Build iOS resynchronisé avec l’origine de la démo et 34 tests frontend réussis. La lecture du bracelet sur l’appareil reste à confirmer après installation de cette version.
+
+---
+
 ## Relais Codex du 2026-11-27 — autorisation caméra sur iPhone
 
 - Le lecteur QR existant demande le flux vidéo de la caméra. Ajout de la déclaration d’usage dans le projet iOS, requise pour que l’iPhone puisse demander l’accès. Fichier validé avec plutil. Recompiler dans Xcode et vérifier la lecture d’un QR fictif sur l’appareil.

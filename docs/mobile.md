@@ -76,6 +76,8 @@ Le projet Xcode est dans `frontend/ios/App/App.xcodeproj`. Capacitor embarque le
    npx cap open ios
    ```
 
+   Pour lire dans l’app des QR qui contiennent l’URL du site web, ajoutez `MEDTECH_IOS_BRACELET_ORIGIN` à la commande de synchronisation. Indiquez l’origine exacte utilisée pour imprimer les bracelets, par exemple `http://localhost:4200` pour la démo locale. Lors du scan, l’app extrait le code sans ouvrir l’URL et le vérifie auprès de l’API configurée.
+
 4. Branchez et déverrouillez l’iPhone. Confirmez **Faire confiance** si iOS le demande. Dans Xcode, sélectionnez la cible **App**, activez **Automatically manage signing** et choisissez votre équipe ou **Personal Team**. Sélectionnez l’iPhone comme destination et lancez **Run**. Activez le **Mode développeur** sur l’iPhone si Xcode le demande.
 5. Ouvrez **MedTech EHPAD** depuis l’écran d’accueil et connectez-vous avec `service1` et `Demo1234!`. Vérifiez l’arrivée sur **Tables** et reprenez la recette fictive par rôle.
 
