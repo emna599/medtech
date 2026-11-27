@@ -42,6 +42,19 @@ public class ResidentService {
         return List.copyOf(assembler.assemble(residents).values());
     }
 
+    /** Associe une carte NFC (numéro de série ou texte lu) à un résident, pour la démonstration comme en production. */
+    @Transactional
+    public ResidentCardDto linkNfc(Long residentId, String rawToken, String username) {
+        User user = currentUserService.require(username);
+        Resident resident = residentRepository.findActiveById(residentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Résident introuvable"));
+        String token = rawToken == null ? "" : rawToken.trim().toUpperCase(Locale.ROOT);
+        residentRepository.unlinkNfcTag(token);
+        residentRepository.linkNfcTag(token, resident.getId());
+        auditService.record(user, "NFC_ASSOCIATION", "Resident", resident.getId());
+        return get(resident.getId());
+    }
+
     @Transactional(readOnly = true)
     public ResidentCardDto get(Long id) {
         Resident resident = residentRepository.findActiveById(id)

@@ -332,3 +332,26 @@ par plat, la liste des résidents concernés (ex. vendredi : « Frites »). Règ
   infirmiers et aides-soignants peuvent aider depuis le même écran (onglet « Petit-déjeuner » de la liste des repas).
   Le service ouvre sur la salle ; le bouton « Chambres » mène à la tournée, « Tables » y retourne.
 - Les listes de tournée sont triées **par étage puis par numéro de chambre croissant** (titres d'étage dans la liste des chambres).
+
+### 7septies. Démonstration « téléphone = table, carte de cantine = bracelet »
+
+Sans antenne RFID, un téléphone Android joue le lecteur d'une table et une carte NFC joue le bracelet :
+1. Ouvrir l'application dans **Chrome pour Android** (le NFC web exige HTTPS ou `localhost` : brancher le téléphone en USB, activer le
+   débogage USB, puis `adb reverse tcp:4200 tcp:4200` et `adb reverse tcp:8080 tcp:8080`, et ouvrir `http://localhost:4200` sur le téléphone).
+2. Écran Service : choisir « Ce téléphone = Table 1 », appuyer sur **Lire** : le NFC n'écoute qu'**une carte**, puis s'arrête (30 s maximum).
+3. Approcher la carte du dos du téléphone : le résident associé apparaît à la table choisie (`POST /dining/readings` avec le jeton de la carte).
+4. Carte inconnue : l'écran propose « À qui est-elle ? » ; le choix d'un résident l'associe (`POST /residents/{id}/nfc`) et le place à table.
+Limite : Web NFC ne lit que les cartes au format NDEF (cartes NTAG/MIFARE Ultralight, ou cartes vierges formatées). Certaines cartes de cantine
+MIFARE Classic ne sont pas lisibles par Chrome.
+
+### 7octies. Étiquette de médicament (infirmier) : photo → résident → bracelet
+
+Bouton **Étiquette** (réservé aux infirmiers) :
+1. Photographier l'étiquette : les caractères sont lus **dans le navigateur** (Tesseract.js, français ; au premier usage il télécharge son
+   lecteur de texte, donc internet est nécessaire une fois). Le nom et le prénom lus sont comparés aux résidents de la base (tolérance à une lettre
+   mal lue ; la chambre et l'âge départagent deux résidents proches).
+2. La photo du résident s'affiche, avec ses allergies et les médicaments lus sur l'étiquette.
+3. **Scanner son bracelet** (NFC du téléphone, ou code saisi sur ordinateur) : si le bracelet est celui du résident de l'étiquette, « Identité confirmée »
+   puis « Donner les médicaments » ; sinon « Ce n'est pas la bonne personne ». Un bracelet inconnu peut être associé au résident de l'étiquette (démonstration).
+Étiquettes de test : `database/etiquettes_demo/` (12 résidents de la base, un PNG chacune + `planche_etiquettes_A4.pdf` à imprimer, ou à afficher à l'écran).
+Après `npm install` (nouvelle dépendance `tesseract.js`). Les étiquettes dépendent des données de `demo_du_jour.ps1` (prises de 8 h du jour).

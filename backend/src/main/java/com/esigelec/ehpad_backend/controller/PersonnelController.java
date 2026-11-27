@@ -12,6 +12,7 @@ import com.esigelec.ehpad_backend.dto.IdentifyRequest;
 import com.esigelec.ehpad_backend.dto.LocationRequest;
 import com.esigelec.ehpad_backend.dto.MeDto;
 import com.esigelec.ehpad_backend.dto.NoteDto;
+import com.esigelec.ehpad_backend.dto.NfcLinkRequest;
 import com.esigelec.ehpad_backend.dto.NoteRequest;
 import com.esigelec.ehpad_backend.dto.PlanningDto;
 import com.esigelec.ehpad_backend.dto.QuantityRequest;
@@ -202,6 +203,14 @@ public class PersonnelController {
                                               @Valid @RequestBody LocationRequest request,
                                               Authentication authentication) {
         return residentService.changeMealLocation(id, request.mealLocation(), authentication.getName());
+    }
+
+    /** Associe une carte NFC au résident (la carte de cantine joue le bracelet dans la démonstration). */
+    @PostMapping("/residents/{id}/nfc")
+    public ResidentCardDto linkNfc(@PathVariable Long id,
+                                   @Valid @RequestBody NfcLinkRequest request,
+                                   Authentication authentication) {
+        return residentService.linkNfc(id, request.token(), authentication.getName());
     }
 
     /** Identification par le code anonyme d'un bracelet ou d'un badge (facultatif). */
