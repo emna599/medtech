@@ -2,8 +2,6 @@
 
 [Recette par compte et par fonctionnalité](recette.md) · [Exercice de saisie champ par champ](saisie-guidee.md) · [Cadrage Android et iOS](mobile.md)
 
-La [démo 4216](../demo4216/Parcours.md) combine les écrans Personnel V2 avec les comptes et l’API d’intégration.
-
 ## Présenter l’application
 
 - Sur la base fictive, utilisez `admin`, `medecin`, `personnel`, `personnel2`, `personnel3` ou `service1`. Le mot de passe de démonstration est `Demo1234!`.
