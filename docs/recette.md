@@ -19,6 +19,8 @@ La relance le même jour ajoute les éléments manquants. Elle conserve les repa
 
 ## 2. Ouvrir les sessions
 
+Sur iPhone, ouvrez d’abord la [démo fictive sur le Wi-Fi du Mac](mobile.md#recette-safari-sur-le-wi-fi-du-mac).
+
 Ouvrez la démo dans des profils de navigateur distincts pour comparer deux rôles en parallèle. Une fenêtre par rôle suffit pour les scénarios de contrôle.
 
 | Compte | Rôle attendu | Contrôle rapide |

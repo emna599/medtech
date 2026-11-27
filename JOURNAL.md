@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — démo Safari sur iPhone
+
+- Le build Docker utilise une API de même origine via nginx, avec transmission sans tampon du flux des tournées. Le serveur Angular de développement conserve son URL locale habituelle.
+- Le [guide mobile](docs/mobile.md#recette-safari-sur-le-wi-fi-du-mac) lance une stack fictive isolée sur le Wi-Fi privé du Mac. La stack `medtech-iphone` tourne sur le port 4201 à la fin de la session pour la recette Safari.
+- Compilation Docker et 33 tests frontend réussis. Depuis le Mac, page de connexion chargée via son IP Wi-Fi, authentification des huit comptes, flux des tournées reçu et accès Administration refusé au compte Service. L’ouverture depuis l’iPhone reste à vérifier sur l’appareil. La version native iOS reste à construire avec Xcode.
+
+---
+
 ## Relais Codex du 2026-11-27 — cadrage Android et iOS
 
 - `integration` synchronisée en fast-forward sur le relais `829a170` avant l’audit. Le [cadrage mobile](docs/mobile.md) compare PWA, Capacitor et client séparé. Il propose de tester le site responsive sur téléphone, puis d’embarquer Angular dans Capacitor pour conserver les parcours et contrôles existants.

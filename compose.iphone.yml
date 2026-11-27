@@ -1,0 +1,8 @@
+# Recette sur un Wi-Fi privé, avec un projet Compose et un volume dédiés.
+services:
+  backend:
+    ports: !reset []
+  frontend:
+    ports: !override
+      - "${MEDTECH_LAN_IP:?Indiquez l’adresse Wi-Fi du Mac}:4201:80"
+      - "127.0.0.1:4201:80"

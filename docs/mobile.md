@@ -16,7 +16,22 @@ Commencer la recette sur le site responsive depuis les téléphones, puis vérif
 
 ## Accès depuis un téléphone
 
-Le build actuel appelle `http://localhost:8080` et Docker publie le site et l’API sur la boucle locale du Mac. Préparer une URL HTTPS de démo joignable sur le réseau de recette, avec un certificat reconnu par les deux téléphones. Exposer le site et `/api/` via le même reverse proxy et laisser PostgreSQL sur le réseau privé. Pour le site, utiliser une URL d’API relative et laisser passer le flux des tournées sans mise en tampon. Pour l’application embarquée, configurer l’URL HTTPS absolue de l’API par environnement et autoriser uniquement les origines exactes des WebViews dans Spring. Vérifier la politique CSP et tester l’authentification, les requêtes CORS et le flux authentifié sur les deux plateformes. Le flux utilise directement `fetch`, en plus des appels Angular HttpClient.
+### Recette Safari sur le Wi-Fi du Mac
+
+Sur un Wi-Fi privé, relevez l’adresse IP Wi-Fi du Mac dans **Réglages Système → Wi-Fi → Détails → TCP/IP**. Depuis le dépôt, remplacez l’adresse de l’exemple et démarrez une base fictive dédiée avec Docker Compose.
+
+```sh
+export MEDTECH_LAN_IP=192.168.1.57
+docker compose -p medtech-iphone -f docker-compose.yml -f compose.iphone.yml up -d --build
+```
+
+Sur l’iPhone connecté au même Wi-Fi, ouvrez `http://192.168.1.57:4201` dans Safari avec l’adresse du Mac. Connectez-vous avec `service1` et `Demo1234!`. Sofia doit arriver directement sur **Tables**. Si Safari ne charge pas la page, vérifiez qu’elle s’ouvre sur le Mac à `http://127.0.0.1:4201`, que l’adresse Wi-Fi du Mac n’a pas changé et que le réseau et le pare-feu autorisent les connexions vers ce port. Vous pouvez utiliser **Partager → Sur l’écran d’accueil** pour créer un raccourci.
+
+Cette instance utilise HTTP et des données fictives. Arrêtez-la après la recette avec la même commande Compose en remplaçant `up -d --build` par `down`. Le volume fictif est conservé.
+
+### Recette installée sur iPhone et Android
+
+Le site Docker utilise désormais une URL relative pour `/api/`, et nginx transmet le flux des tournées sans mise en tampon. Pour un build natif, prévoir une URL HTTPS absolue par environnement avec un certificat reconnu par les deux téléphones. Autoriser uniquement les origines exactes des WebViews dans Spring, ajuster la politique CSP et vérifier l’authentification et le flux sur les deux plateformes. Le flux utilise directement `fetch`, en plus des appels Angular HttpClient.
 
 ## Session et réseau
 
