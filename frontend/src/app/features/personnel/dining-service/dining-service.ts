@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -11,7 +10,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { interval } from 'rxjs';
 import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
 import {
   Dining,
@@ -71,7 +69,24 @@ export class DiningService {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  protected readonly dining = signal<Dining | null>(null);
+  private readonly raw = signal<Dining | null>(null);
+  /**
+   * Les lecteurs RFID des tables sont éteints au départ (pour économiser leur batterie) :
+   * tant qu'on n'a pas appuyé sur « Lire », aucun résident n'est affiché à table.
+   */
+  protected readonly active = signal(false);
+  protected readonly dining = computed<Dining | null>(() => {
+    const data = this.raw();
+    if (!data || this.active()) {
+      return data;
+    }
+    return {
+      ...data,
+      seated: 0,
+      served: 0,
+      tables: data.tables.map((table) => ({ ...table, present: 0, served: 0, seats: [] })),
+    };
+  });
   protected readonly slot = signal<DiningSlot | null>(null);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
@@ -109,13 +124,6 @@ export class DiningService {
 
   constructor() {
     this.load();
-    interval(30_000)
-      .pipe(takeUntilDestroyed(inject(DestroyRef)))
-      .subscribe(() => {
-        if (!this.busy()) {
-          this.load(true);
-        }
-      });
   }
 
   private matches(seat: DiningSeat, query: string): boolean {
@@ -130,23 +138,63 @@ export class DiningService {
     this.load();
   }
 
-  protected load(silent = false): void {
+  /** Résidents qui viennent de s'asseoir (mis en évidence quelques secondes). */
+  protected readonly fresh = signal<Set<number>>(new Set());
+
+  /** Bouton « Lire » : allume les lecteurs, relit les bracelets captés par les tables et annonce le résultat. */
+  protected read(): void {
+    const first = !this.active();
+    this.active.set(true);
+    this.load(true, true, first);
+  }
+
+  /** Éteint les lecteurs : les tables se vident à l'écran. */
+  protected stop(): void {
+    this.active.set(false);
+    this.selected.set(null);
+    this.fresh.set(new Set());
+  }
+
+  protected load(silent = false, announce = false, first = false): void {
     if (!silent) {
       this.loading.set(true);
     }
     this.api.dining(this.slot() ?? undefined).subscribe({
       next: (dining) => {
-        this.dining.set(dining);
+        const before = new Set(this.raw()?.tables.flatMap((t) => t.seats.map((s) => s.resident.id)) ?? []);
+        const arrivals = dining.tables.flatMap((table) =>
+          table.seats.filter((s) => !before.has(s.resident.id)).map((s) => ({ table: table.label, name: fullName(s.resident), id: s.resident.id })),
+        );
+        this.raw.set(dining);
         this.slot.set(dining.slot);
         this.error.set(null);
         this.loading.set(false);
         this.refreshSelection(dining);
+        if (!first && this.active()) {
+          this.highlight(arrivals.map((a) => a.id));
+        }
+        if (announce) {
+          const text = first
+            ? `${dining.seated} résident${dining.seated > 1 ? 's' : ''} à table`
+            : arrivals.length === 0
+            ? 'Aucun nouveau résident'
+            : arrivals.slice(0, 3).map((a) => `${a.name} → ${a.table}`).join(' · ') + (arrivals.length > 3 ? ` (+${arrivals.length - 3})` : '');
+          this.snackBar.open(text, 'OK', { duration: 5000 });
+        }
       },
       error: (err) => {
         this.error.set(errorMessage(err));
         this.loading.set(false);
       },
     });
+  }
+
+  private highlight(ids: number[]): void {
+    if (ids.length === 0) {
+      return;
+    }
+    this.fresh.set(new Set(ids));
+    setTimeout(() => this.fresh.set(new Set()), 8000);
   }
 
   private refreshSelection(dining: Dining): void {
@@ -242,7 +290,7 @@ export class DiningService {
       return { ...table, seats, served: done };
     });
     const next = { ...dining, tables, served };
-    this.dining.set(next);
+    this.raw.set(next);
     this.refreshSelection(next);
   }
 

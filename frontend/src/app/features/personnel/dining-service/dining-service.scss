@@ -507,3 +507,37 @@ dd {
   font-size: 1rem;
   font-weight: 600;
 }
+
+.tool.read {
+  --mat-button-filled-container-color: var(--app-ok);
+}
+
+.seat.fresh {
+  animation: arrival 1.2s ease-out 3;
+  background: var(--app-teal-tint);
+}
+
+@keyframes arrival {
+  0% {
+    box-shadow: inset 0 0 0 3px var(--brand-teal);
+  }
+  100% {
+    box-shadow: inset 0 0 0 0 transparent;
+  }
+}
+
+.tool.read.off {
+  --mat-button-filled-container-color: var(--app-chip-ink);
+}
+
+.off-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: var(--app-chip-bg);
+  color: var(--app-chip-ink);
+  font-weight: 700;
+}

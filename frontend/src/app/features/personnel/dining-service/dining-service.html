@@ -30,12 +30,18 @@
       <span>Planning</span>
     </button>
     <button mat-stroked-button type="button" class="tool" (click)="toggleSimulator()" [attr.aria-expanded]="simOpen()">
-      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">sensors</mat-icon>
-      <span>Bracelet</span>
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">science</mat-icon>
+      <span>Test</span>
     </button>
-    <button mat-icon-button type="button" aria-label="Actualiser" (click)="load()">
-      <mat-icon fontSet="material-symbols-outlined">refresh</mat-icon>
+    <button mat-flat-button type="button" class="tool read" [class.off]="!active()" (click)="read()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ active() ? 'contactless' : 'sensors_off' }}</mat-icon>
+      <span>{{ active() ? 'Relire' : 'Lire' }}</span>
     </button>
+    @if (active()) {
+      <button mat-icon-button type="button" aria-label="Éteindre les lecteurs" title="Éteindre les lecteurs" (click)="stop()">
+        <mat-icon fontSet="material-symbols-outlined">power_settings_new</mat-icon>
+      </button>
+    }
   </section>
 
   @if (simOpen()) {
@@ -94,6 +100,16 @@
     </mat-form-field>
   }
 
+  @if (!active()) {
+    <p class="off-banner" role="status">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">sensors_off</mat-icon>
+      Lecteurs éteints
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">arrow_forward</mat-icon>
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">contactless</mat-icon>
+      Lire
+    </p>
+  }
+
   @if (loading()) {
     <div class="center"><mat-spinner diameter="40" /></div>
   } @else if (error()) {
@@ -120,6 +136,7 @@
                     class="seat"
                     [class.dim]="!slotEntry.match"
                     [class.finished]="isFinished(seat.meal)"
+                    [class.fresh]="fresh().has(seat.resident.id)"
                     [class.active]="selected()?.seat?.resident?.id === seat.resident.id"
                   >
                     <button type="button" class="who" (click)="select(entry.table, seat)">
