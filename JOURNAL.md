@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — aperçu fictif et saisie guidée
+
+- La démo complète les jeux fictifs avec les résidents du lot administratif. Marie Exemple, Odette Fictive, Lucien Imaginaire et Georgette Brouillon disposent d’exemples de dossier, régime, allergies, préférences, poids, observations et notes. Le script versionné cible les codes de démonstration et conserve les valeurs renseignées.
+- La [saisie guidée](docs/saisie-guidee.md) donne les valeurs à entrer et les résultats attendus par formulaire. Élise Démonstration sert à la saisie manuelle et n’est pas précréée dans la démo locale. Les tournées et les plateaux d’exercice utilisent des repas ou prises déjà planifiés.
+- Vérifié sur PostgreSQL isolé et dans la démo locale : chargement et réexécution sans doublon des données d’aperçu. Chromium a vérifié le dossier de Marie, puis la création de la chambre, d’Élise et de son dossier par les formulaires sur la base isolée.
+
+---
+
 ## Relais Codex du 2026-11-27 — planning publié, relève ciblée et cuisine
 
 - Le planning regroupe les affectations par jour et équipe. Un brouillon ne figure dans aucun créneau agent et n’ouvre aucun accès. La publication et le remplacement sont disponibles depuis l’administration. **Mes services** montre les créneaux publiés. La vue planning indique les étages sans affectation publiée dans la sélection.

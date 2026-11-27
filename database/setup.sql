@@ -11,7 +11,6 @@ BEGIN;
 \ir resident_daily.sql
 \ir medical_record_version.sql
 \ir seed_personnel.sql
-\ir seed_care.sql
 \ir personnel_service.sql
 \ir chevalet.sql
 \ir resident_photo.sql
@@ -22,5 +21,6 @@ BEGIN;
 \ir kitchen.sql
 \ir seed_kitchen.sql
 \ir seed_recette.sql
+\ir seed_apercu.sql
 \ir seed_staff_assignments.sql
 COMMIT;

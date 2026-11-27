@@ -1,5 +1,7 @@
 # Recette MedTech sur données fictives
 
+[Valeurs à saisir dans les formulaires et vérifications attendues](saisie-guidee.md)
+
 ## 1. Préparer les données
 
 Sur une base de démonstration neuve, le démarrage Docker initialise 24 résidents, 16 chambres, des tables, un menu, des repas et des prises fictifs, des consignes alimentaires et l’historique de consommation. Il ajoute aussi un brouillon de garde de nuit et une transmission destinée à cette équipe. Les comptes ci-dessous utilisent `Demo1234!`.
