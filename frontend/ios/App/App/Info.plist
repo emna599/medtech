@@ -27,6 +27,8 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>MedTech EHPAD utilise la caméra pour lire le QR code d’un bracelet de résident.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>MedTech EHPAD se connecte au serveur de démonstration sur votre réseau local.</string>
 	<key>LSRequiresIPhoneOS</key>

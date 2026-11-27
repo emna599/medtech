@@ -5,6 +5,12 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — autorisation caméra sur iPhone
+
+- Le lecteur QR existant demande le flux vidéo de la caméra. Ajout de la déclaration d’usage dans le projet iOS, requise pour que l’iPhone puisse demander l’accès. Fichier validé avec plutil. Recompiler dans Xcode et vérifier la lecture d’un QR fictif sur l’appareil.
+
+---
+
 ## Relais Codex du 2026-11-27 — saisie de connexion sur iPhone
 
 - L’accès Tailscale à la démo est confirmé sur iPhone. L’API accepte le compte fictif `personnel2`, bien qu’un essai sur l’appareil ait été refusé.
