@@ -15,7 +15,7 @@ Depuis la branche `feature/demo-4216`, démarrez la démo avec Docker Compose. L
 docker compose -f docker-compose.yml -f docker-compose.4216.yml up -d --build frontend-4216
 ```
 
-Ouvrez [la démo](http://localhost:4216/login). Cette commande est destinée à une base fictive. Le chargement est rejouable et complète les repas, le menu, les affectations et la relève de recette. Les badges existants sont conservés.
+Ouvrez [la démo](http://localhost:4216/login). Le premier démarrage charge le jeu fictif d’origine de `personnel-v2` (`e29a20b`) dans un volume PostgreSQL dédié à 4216. Il contient 80 résidents, 80 chambres, 160 repas et 136 prises pour la date d’initialisation, ainsi que les avatars, les QR, le menu et 10 tables. Le démarrage ajoute aussi les affectations et les badges de test nécessaires à l’API commune. Le volume conserve les modifications entre les redémarrages.
 
 | Compte de démonstration | Profil | Code de badge fictif |
 | --- | --- | --- |
@@ -27,4 +27,4 @@ Ouvrez [la démo](http://localhost:4216/login). Cette commande est destinée à 
 
 Les cinq comptes fictifs utilisent `Demo1234!`. Dans **Scanner**, essayez `NFC-DEMO-002`. Dans **Pointage RFID**, saisissez le code du badge du compte connecté.
 
-Deux personnes qui ouvrent la même instance travaillent sur la même base. Chaque installation Docker indépendante possède son propre volume PostgreSQL et les mêmes jeux de données fictives.
+Deux personnes qui ouvrent la même instance travaillent sur la même base. Chaque installation Docker indépendante possède son propre volume PostgreSQL et un jeu initial identique. Après le passage de l’ancienne démo à ce volume dédié, reconnectez-vous pour ouvrir une session sur cette base.

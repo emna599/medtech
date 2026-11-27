@@ -1,7 +1,5 @@
 -- Données fictives de la démo 4216. Ne pas importer dans une base d’établissement.
 BEGIN;
-\ir seed_dining_accounts.sql
-\ir seed_recette.sql
 \ir seed_staff_assignments.sql
 
 INSERT INTO staff_rfid_badge (user_id, token_hash)

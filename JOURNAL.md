@@ -5,6 +5,10 @@
 
 ---
 
+## Jeu de données original Personnel V2
+
+- La démo 4216 sur `feature/demo-4216` charge le SQL de données de `personnel-v2` (`e29a20b`) à l’initialisation d’un volume dédié. La base contient 80 résidents, 80 chambres, 160 repas et 136 prises du jour, ainsi que 10 tables et 24 présences à table. Le schéma reste compatible avec l’API commune aux profils, et l’ancienne base d’intégration est conservée.
+
 ## Branche dédiée à la démo 4216
 
 - La version 4216 est conservée sur `feature/demo-4216`. Le commit d’annulation `6ed3484` remet le contenu d’`integration` à l’état `c6203a3`.

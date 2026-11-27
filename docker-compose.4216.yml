@@ -1,4 +1,13 @@
+name: medtech-demo-4216
 services:
+  db:
+    volumes:
+      - ./demo4216/initdb:/docker-entrypoint-initdb.d:ro
+      - medtech_personnel_v2:/var/lib/postgresql/data
+
+  backend:
+    ports: !reset []
+
   db-demo-4216:
     image: postgres:17
     environment:
@@ -22,3 +31,6 @@ services:
         condition: service_completed_successfully
     ports:
       - "127.0.0.1:${MEDTECH_DEMO_PORT:-4216}:80"
+
+volumes:
+  medtech_personnel_v2:
