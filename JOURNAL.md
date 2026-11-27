@@ -5,6 +5,13 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — accès privé iPhone hors du Wi-Fi de la maison
+
+- Le Mac et l’iPhone sont connectés au même réseau Tailscale. Tailscale Serve fournit une origine HTTPS privée et transmet les requêtes au relais du Mac sur `127.0.0.1:8767`, connecté à la base fictive iOS existante.
+- Page de test HTTPS et connexion fictive Service vérifiées depuis le Mac. Bundle Angular iOS reconstruit et synchronisé avec l’origine Tailscale. L’installation de cette version avec Xcode et sa connexion depuis l’iPhone restent à vérifier.
+
+---
+
 ## Relais Codex du 2026-11-27 — zone sûre iPhone
 
 - La capture iPhone confirme l’arrivée de Sofia sur les tables. La barre d’état iOS recouvrait l’en-tête.
