@@ -5,6 +5,13 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — test réseau natif depuis la connexion iOS
+
+- L’autorisation réseau local n’a pas résolu l’erreur de connexion signalée. Le journal HTTP ne montre aucune requête de connexion de l’application.
+- Une erreur réseau sur la page de connexion iOS déclenche désormais un GET natif via Capacitor vers la page de test, sans transmettre les identifiants. Son résultat ou l’erreur système est affiché sur l’iPhone pour distinguer l’accès HTTPS du comportement de la vue web. Bundle iOS resynchronisé et 33 tests frontend réussis. Résultat sur l’appareil en attente.
+
+---
+
 ## Relais Codex du 2026-11-27 — accès réseau local dans l’application iOS
 
 - La page de test HTTPS s’affiche dans Safari sur l’iPhone. Le dernier essai depuis l’application ne figure pas dans le journal HTTP, dont le fonctionnement est confirmé depuis le Mac.

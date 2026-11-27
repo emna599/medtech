@@ -7,6 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Capacitor, CapacitorHttp } from '@capacitor/core';
+import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Logo } from '../../../shared/components/logo/logo';
 import { BRACELET_PATH, braceletCode } from '../../../shared/utils/bracelet-link';
@@ -73,9 +75,32 @@ export class Login {
       },
       error: (error: unknown) => {
         this.loading.set(false);
-        this.errorMessage.set(this.toMessage(error));
+        const message = this.toMessage(error);
+        this.errorMessage.set(message);
+        if (error instanceof HttpErrorResponse && error.status === 0 &&
+            Capacitor.getPlatform() === 'ios') {
+          void this.diagnoseIosConnection(message);
+        }
       },
     });
+  }
+
+  private async diagnoseIosConnection(message: string): Promise<void> {
+    let diagnostic: string;
+    try {
+      const response = await CapacitorHttp.get({
+        url: `${environment.apiUrl}/connexion-test`,
+        connectTimeout: 5000,
+        readTimeout: 5000,
+      });
+      diagnostic = `Test réseau iOS : le serveur répond (HTTP ${response.status}).`;
+    } catch (error: unknown) {
+      const detail = error instanceof Error ? error.message : '';
+      diagnostic = detail ? `Test réseau iOS : ${detail}` : 'Le test réseau iOS a échoué.';
+    }
+    if (this.errorMessage() === message) {
+      this.errorMessage.set(`${message} ${diagnostic}`);
+    }
   }
 
   private toMessage(error: unknown): string {
