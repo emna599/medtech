@@ -27,6 +27,8 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>MedTechNfcEntitlements</key>
+	<string>$(MEDTECH_NFC_ENTITLEMENTS)</string>
 	<key>NFCReaderUsageDescription</key>
 	<string>MedTech EHPAD lit le code NFC du badge ou du bracelet que vous présentez.</string>
 	<key>NSCameraUsageDescription</key>

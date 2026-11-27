@@ -5,6 +5,10 @@
 
 ---
 
+## Signature iOS de la démo avec une équipe personnelle
+
+- Le profil personnel utilisé pour la recette n’autorise pas le lecteur NFC natif. La capacité est désormais activable par réglage de build. Le build par défaut conserve la caméra QR et la saisie des codes.
+
 ## Lecture NFC native dans la démo 4216
 
 - Core NFC lit les enregistrements Texte et URL NDEF sur iPhone pour le scanner de résident et le pointage. Le serveur conserve la vérification du code. La saisie reste disponible et le lecteur Web NFC est conservé sur Android.

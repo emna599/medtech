@@ -33,7 +33,9 @@ function readerCtor(): NdefReaderCtor | null {
 
 /** Le NFC du navigateur (Web NFC) n'existe que sur Chrome pour Android, en HTTPS ou sur localhost. */
 export function nfcSupported(): boolean {
-  return Capacitor.getPlatform() === 'ios' || readerCtor() !== null;
+  return Capacitor.getPlatform() === 'ios'
+    ? Capacitor.isPluginAvailable('MedTechNfc')
+    : readerCtor() !== null;
 }
 
 /** Contenu texte d'une puce : premier enregistrement texte ou adresse, sinon son numéro de série. */

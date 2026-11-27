@@ -26,7 +26,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 final class MedTechBridgeViewController: CAPBridgeViewController {
     override func capacitorDidLoad() {
-        bridge?.registerPluginInstance(MedTechNfcPlugin())
+        let entitlements = Bundle.main.object(forInfoDictionaryKey: "MedTechNfcEntitlements") as? String
+        if entitlements == "App/App.entitlements" {
+            bridge?.registerPluginInstance(MedTechNfcPlugin())
+        }
     }
 }
 
