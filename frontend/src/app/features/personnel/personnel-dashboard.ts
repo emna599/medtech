@@ -1,3 +1,4 @@
+import { Kitchen } from './kitchen/kitchen';
 import { DatePipe } from '@angular/common';
 import { DiningDialog } from './dining-dialog/dining-dialog';
 import { NotesDialog } from './notes-dialog/notes-dialog';
@@ -60,6 +61,7 @@ function rank(status: ServiceStatus): number {
 @Component({
   selector: 'app-personnel-dashboard',
   imports: [
+    Kitchen,
     FormsModule,
     Toolbar,
     DatePipe,
@@ -188,6 +190,7 @@ export class PersonnelDashboard {
     ),
   );
 
+  protected readonly kitchenOnly = signal(false);
   protected readonly diningOnly = signal<boolean | null>(null);
   protected readonly medicationAccess = signal(false);
   protected readonly accessError = signal(false);
@@ -196,9 +199,11 @@ export class PersonnelDashboard {
     const residentId = inject(Router).currentNavigation()?.extras.state?.['identifiedResidentId'];
     const updates = inject(TourUpdatesService);
     this.api.access().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: ({ diningOnly, medicationAccess }) => {
+      next: ({ diningOnly, kitchenOnly, medicationAccess }) => {
+        this.kitchenOnly.set(kitchenOnly);
         this.medicationAccess.set(medicationAccess);
         this.diningOnly.set(diningOnly);
+        if (kitchenOnly) return;
         if (diningOnly) {
           this.openDining();
         } else {
@@ -379,7 +384,9 @@ export class PersonnelDashboard {
   }
 
   protected openReleve(): void {
-    this.dialog.open(ReleveDialog, { maxWidth: '100vw', autoFocus: false });
+    this.dialog.open(ReleveDialog, {
+      data: { medicationAccess: this.medicationAccess() }, maxWidth: '100vw', autoFocus: false,
+    });
   }
 
   protected openAssistant(): void {

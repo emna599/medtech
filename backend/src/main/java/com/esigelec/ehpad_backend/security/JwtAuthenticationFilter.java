@@ -29,6 +29,7 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     public static final String DINING_AUTHORITY = "ROLE_DINING_SERVICE";
+    public static final String KITCHEN_AUTHORITY = "ROLE_KITCHEN";
     private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtService jwtService;
@@ -71,9 +72,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
     private SimpleGrantedAuthority authorityFor(User user) {
-        if (user.getRole() == Role.PERSONNEL
-                && profiles.findById(user.getId()).filter(profile -> profile.getJob() == Job.SERVICE).isPresent()) {
-            return new SimpleGrantedAuthority(DINING_AUTHORITY);
+        if (user.getRole() == Role.PERSONNEL) {
+            Job job = profiles.findById(user.getId()).map(profile -> profile.getJob()).orElse(null);
+            if (job == Job.SERVICE) return new SimpleGrantedAuthority(DINING_AUTHORITY);
+            if (job == Job.CUISINE) return new SimpleGrantedAuthority(KITCHEN_AUTHORITY);
         }
         return new SimpleGrantedAuthority("ROLE_" + user.getRole().name());
     }

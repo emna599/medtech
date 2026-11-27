@@ -2,7 +2,7 @@
   <header class="head">
     <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">calendar_clock</mat-icon>
     <div class="titles">
-      <h2 class="title">Organisation type</h2>
+      <h2 class="title">Mes services</h2>
       <p class="sub">{{ title() }}</p>
     </div>
     <button mat-icon-button type="button" aria-label="Fermer" (click)="close()">
@@ -19,6 +19,13 @@
         <button mat-stroked-button type="button" (click)="load()">Réessayer</button>
       </div>
     } @else if (planning(); as plan) {
+      <h3>Créneaux publiés</h3>
+      <ul>
+        @for (entry of assignments(); track entry.id) {
+          <li>Étage {{ entry.floor }} · {{ entry.startsAt | date:'dd/MM HH:mm' }} → {{ entry.endsAt | date:'dd/MM HH:mm' }}</li>
+        } @empty { <li>Aucun créneau publié à venir.</li> }
+      </ul>
+      <h3>Organisation type</h3>
       @if (plan.tasks.length === 0) {
         <p class="state">Aucun planning défini pour votre fonction et votre équipe.</p>
       } @else {

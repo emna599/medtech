@@ -1,6 +1,8 @@
 <app-toolbar />
 
-@if (diningOnly() === true) {
+@if (kitchenOnly()) {
+  <app-kitchen />
+} @else if (diningOnly() === true) {
   <main class="work-page">
     <h1>Service en salle</h1>
     <button mat-flat-button type="button" (click)="openDining()">Ouvrir les tables</button>
@@ -50,7 +52,7 @@
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon> Relève
       </button>
       <button mat-menu-item type="button" (click)="openPlanning()">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">calendar_today</mat-icon> Organisation type
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">calendar_today</mat-icon> Mes services
       </button>
       <button mat-menu-item type="button" (click)="openTeam()">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">diversity_3</mat-icon> Équipe

@@ -17,8 +17,10 @@ BEGIN;
 \ir resident_photo.sql
 \ir care_completion.sql
 \ir tour_updates.sql
-\ir seed_service.sql
 \ir seed_dining_accounts.sql
 \ir staff_assignments.sql
+\ir kitchen.sql
+\ir seed_kitchen.sql
+\ir seed_recette.sql
 \ir seed_staff_assignments.sql
 COMMIT;

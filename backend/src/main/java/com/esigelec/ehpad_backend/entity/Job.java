@@ -5,5 +5,6 @@ public enum Job {
     INFIRMIER,
     AIDE_SOIGNANT,
     /** Service en salle à manger : sert les repas aux tables, ne s'occupe pas des soins ni des médicaments. */
-    SERVICE
+    SERVICE,
+    CUISINE
 }

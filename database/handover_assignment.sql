@@ -5,3 +5,6 @@ BEGIN
     ALTER TABLE handover_action ADD COLUMN IF NOT EXISTS assignment_version BIGINT NOT NULL DEFAULT 0;
 END;
 $migration$;
+
+ALTER TABLE handover_action ADD COLUMN IF NOT EXISTS target_shift varchar(10)
+    CHECK (target_shift IN ('JOUR', 'NUIT'));

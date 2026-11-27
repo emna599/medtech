@@ -108,7 +108,7 @@ public class TeamService {
         Map<Job, List<User>> byJob = new TreeMap<>();
         for (User user : users.values()) {
             Job job = staffService.jobOf(user);
-            if (job != Job.SERVICE) {  // le service en salle ne prend pas en charge de résidents
+            if (job != Job.SERVICE && job != Job.CUISINE) {  // le service en salle ne prend pas en charge de résidents
                 byJob.computeIfAbsent(job, key -> new ArrayList<>()).add(user);
             }
         }

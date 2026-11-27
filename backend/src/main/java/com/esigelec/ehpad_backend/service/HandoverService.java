@@ -4,6 +4,8 @@ import com.esigelec.ehpad_backend.dto.HandoverActionDto;
 import com.esigelec.ehpad_backend.dto.HandoverRequest;
 import com.esigelec.ehpad_backend.entity.Resident;
 import com.esigelec.ehpad_backend.entity.User;
+import com.esigelec.ehpad_backend.entity.Shift;
+import org.springframework.security.access.AccessDeniedException;
 import com.esigelec.ehpad_backend.exception.BadRequestException;
 import com.esigelec.ehpad_backend.exception.ConflictException;
 import com.esigelec.ehpad_backend.exception.ResourceNotFoundException;
@@ -18,24 +20,28 @@ import java.util.Objects;
 
 @Service
 public class HandoverService {
-    public record Board(List<HandoverActionDto> open, List<HandoverActionDto> recentlyCompleted) {}
+    public record Board(List<HandoverActionDto> open, List<HandoverActionDto> recentlyCompleted, Shift shift) {}
 
     private final HandoverRepository handovers;
     private final ResidentRepository residents;
     private final CurrentUserService users;
     private final AuditService audit;
+    private final StaffService staff;
 
     public HandoverService(HandoverRepository handovers, ResidentRepository residents,
-                           CurrentUserService users, AuditService audit) {
+                           CurrentUserService users, AuditService audit, StaffService staff) {
         this.handovers = handovers;
         this.residents = residents;
         this.users = users;
         this.audit = audit;
+        this.staff = staff;
     }
 
     @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
-    public Board board() {
-        return new Board(handovers.listOpen(), handovers.listRecentlyCompleted());
+    public Board board(String username) {
+        User user = users.require(username);
+        Shift shift = staff.shiftOf(user);
+        return new Board(handovers.listOpen(user.getId(), shift), handovers.listRecentlyCompleted(user.getId(), shift), shift);
     }
 
     @Transactional
@@ -46,16 +52,16 @@ public class HandoverService {
         Long residentId = request.residentId();
         var existing = handovers.findByRequest(user.getId(), request.requestId());
         if (existing.isPresent()) {
-            return sameRequest(existing.get(), residentId, observation, action);
+            return sameRequest(existing.get(), residentId, observation, action, request.targetShift());
         }
         if (residentId != null) {
             residents.findByIdForUpdate(residentId).filter(Resident::isActive)
                     .orElseThrow(() -> new ResourceNotFoundException("Résident actif introuvable"));
         }
-        var inserted = handovers.insert(user.getId(), request.requestId(), residentId, observation, action);
+        var inserted = handovers.insert(user.getId(), request.requestId(), residentId, observation, action, request.targetShift());
         if (inserted.isEmpty()) {
             return sameRequest(handovers.findByRequest(user.getId(), request.requestId()).orElseThrow(),
-                    residentId, observation, action);
+                    residentId, observation, action, request.targetShift());
         }
         long id = inserted.get();
         audit.record(user, "RELEVE_CREEE", "HandoverAction", id);
@@ -71,6 +77,7 @@ public class HandoverService {
     public HandoverActionDto assign(long id, AssignmentRequest request, String username) {
         User user = users.require(username);
         HandoverActionDto entry = find(id);
+        requireTargetTeam(entry, user);
         Long assignee = entry.assignedTo();
         if (entry.completedAt() != null || entry.assignmentVersion() != request.version()) {
             throw new ConflictException("L’attribution de cette action a changé. Actualisez la relève.");
@@ -103,6 +110,7 @@ public class HandoverService {
     @Transactional
     public HandoverActionDto complete(long id, CompletionRequest request, String username) {
         User user = users.require(username);
+        requireTargetTeam(find(id), user);
         if (!handovers.complete(id, user.getId(), request.version())) {
             find(id);
             throw new ConflictException("Cette action a changé ou vous n’en êtes plus le titulaire.");
@@ -111,13 +119,19 @@ public class HandoverService {
         return find(id);
     }
 
+    private void requireTargetTeam(HandoverActionDto entry, User user) {
+        if (entry.targetShift() != null && entry.targetShift() != staff.shiftOf(user)) {
+            throw new AccessDeniedException("Cette transmission est réservée à l’équipe destinataire");
+        }
+    }
+
     private HandoverActionDto find(long id) {
         return handovers.find(id).orElseThrow(() -> new ResourceNotFoundException("Transmission introuvable"));
     }
 
     private static HandoverActionDto sameRequest(HandoverActionDto entry, Long residentId,
-                                                  String observation, String action) {
-        if (!Objects.equals(entry.residentId(), residentId)
+                                                  String observation, String action, Shift shift) {
+        if (!Objects.equals(entry.residentId(), residentId) || entry.targetShift() != shift
                 || !entry.observation().equals(observation) || !entry.expectedAction().equals(action)) {
             throw new ConflictException("Ce formulaire a déjà été enregistré avec un autre contenu.");
         }

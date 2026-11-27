@@ -1,3 +1,5 @@
+import { DatePipe } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -9,6 +11,7 @@ import {
   JOB_LABEL,
   Planning,
   PlanningTask,
+  ScheduledAssignment,
   ServiceKind,
   SHIFT_LABEL,
 } from '../../../shared/models/personnel.model';
@@ -29,7 +32,7 @@ const KIND_ICON: Record<PlanningTask['kind'], string> = {
 /** Planning type du soignant (fixe, selon sa fonction et son équipe), avec la plage en cours mise en avant. */
 @Component({
   selector: 'app-planning-dialog',
-  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [DatePipe, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './planning-dialog.html',
   styleUrl: './planning-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,6 +41,7 @@ export class PlanningDialog {
   private readonly api = inject(PersonnelService);
   private readonly ref = inject<MatDialogRef<PlanningDialog, PlanningResult>>(MatDialogRef);
 
+  protected readonly assignments = signal<ScheduledAssignment[]>([]);
   protected readonly planning = signal<Planning | null>(null);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
@@ -64,8 +68,9 @@ export class PlanningDialog {
   protected load(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.api.planning().subscribe({
-      next: (planning) => {
+    forkJoin({ planning: this.api.planning(), assignments: this.api.myAssignments() }).subscribe({
+      next: ({ planning, assignments }) => {
+        this.assignments.set(assignments);
         this.planning.set(planning);
         this.loading.set(false);
       },

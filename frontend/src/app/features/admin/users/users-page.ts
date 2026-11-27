@@ -1,3 +1,4 @@
+import { ScheduleDialog } from './schedule-dialog';
 import { AssignmentDialog } from './assignment-dialog';
 import { JOB_LABEL, SHIFT_LABEL } from '../../../shared/models/personnel.model';
 import { DatePipe } from '@angular/common';
@@ -45,6 +46,7 @@ import { UserFormDialog } from './user-form-dialog';
         <h1 class="cue-title"><span class="material-symbols-outlined visual-cue cue--violet" aria-hidden="true">manage_accounts</span><span>Comptes utilisateurs</span></h1>
         <p>{{ filtered().length }} compte(s) affiché(s) sur {{ users().length }}</p>
       </div>
+      <button mat-stroked-button type="button" (click)="openSchedule()">Planning</button>
       <button mat-flat-button type="button" (click)="openForm()">
         <mat-icon fontSet="material-symbols-outlined">person_add</mat-icon> Nouveau compte
       </button>
@@ -101,7 +103,7 @@ import { UserFormDialog } from './user-form-dialog';
               <p><strong>Créé le</strong> · {{ u.createdAt | date:'dd/MM/yyyy' }}</p>
             </mat-card-content>
             <mat-card-actions align="end">
-              @if (u.role === 'PERSONNEL' && u.job !== 'SERVICE') {
+              @if (u.role === 'PERSONNEL' && u.job !== 'SERVICE' && u.job !== 'CUISINE') {
                 <button mat-button type="button" (click)="openAssignments(u)">Affectations</button>
               }
               <button mat-button type="button" (click)="openForm(u)">Modifier</button>
@@ -167,6 +169,10 @@ export class UsersPage {
 
   protected labelOf(user: AdminUser): string {
     return ROLE_LABEL[user.role];
+  }
+
+  protected openSchedule(): void {
+    this.dialog.open(ScheduleDialog, { width: '720px', maxWidth: '96vw' });
   }
 
   protected openAssignments(user: AdminUser): void {

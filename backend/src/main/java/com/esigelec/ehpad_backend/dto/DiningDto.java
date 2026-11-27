@@ -28,5 +28,5 @@ public record DiningDto(
 
     public record Identity(Long id, String firstName, String lastName, String room) {}
 
-    public record Meal(Long id, ServiceStatus status) {}
+    public record Meal(Long id, ServiceStatus status, String preparation) {}
 }

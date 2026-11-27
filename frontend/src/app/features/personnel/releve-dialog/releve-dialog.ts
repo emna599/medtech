@@ -3,9 +3,9 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Observable, forkJoin, timeout, timer } from 'rxjs';
+import { Observable, forkJoin, of, timeout, timer } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -17,7 +17,7 @@ import { createRequestId } from '../../../shared/utils/request-id';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ConfirmDialog } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { errorMessage, PersonnelService } from '../../../core/services/personnel.service';
-import { Doubt, HandoverAction, HandoverAssignment, HandoverBoard, HandoverRequest, ResidentCard, fullName, ServiceItem, slotLabel } from '../../../shared/models/personnel.model';
+import { Doubt, HandoverAction, HandoverAssignment, HandoverBoard, HandoverRequest, ResidentCard, Shift, SHIFT_LABEL, fullName, ServiceItem, slotLabel } from '../../../shared/models/personnel.model';
 
 interface SlotLine {
   slot: string;
@@ -43,6 +43,8 @@ interface Alert {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReleveDialog {
+  protected readonly shiftLabel = SHIFT_LABEL;
+  private readonly medicationAccess = inject<{ medicationAccess: boolean } | null>(MAT_DIALOG_DATA, { optional: true })?.medicationAccess ?? false;
   private readonly dialog = inject(MatDialog);
   protected readonly currentUser = inject(AuthService).currentUser;
   private readonly api = inject(PersonnelService);
@@ -63,6 +65,7 @@ export class ReleveDialog {
   protected readonly residents = signal<ResidentCard[]>([]);
   protected readonly residentError = signal(false);
   protected readonly form = this.formBuilder.group({
+    targetShift: this.formBuilder.control<Shift | null>(null),
     residentId: this.formBuilder.control<number | null>(null),
     observation: this.formBuilder.nonNullable.control('', [
       Validators.required, Validators.maxLength(1200), Validators.pattern(/\S/),
@@ -126,7 +129,7 @@ export class ReleveDialog {
 
     forkJoin({
       meals: this.api.listService('REPAS'),
-      doses: this.api.listService('MEDICAMENT'),
+      doses: this.medicationAccess ? this.api.listService('MEDICAMENT') : of([]),
       doubts: this.api.openDoubts(),
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: ({ meals, doses, doubts }) => {
@@ -167,9 +170,10 @@ export class ReleveDialog {
       return;
     }
 
-    const { residentId, observation, expectedAction } = this.form.getRawValue();
+    const { targetShift, residentId, observation, expectedAction } = this.form.getRawValue();
     const request: HandoverRequest = {
       requestId: this.draftId ??= createRequestId(),
+      targetShift,
       residentId,
       observation: observation.trim(),
       expectedAction: expectedAction.trim(),
@@ -182,7 +186,7 @@ export class ReleveDialog {
       next: () => {
         this.finishSaving();
         this.draftId = null;
-        formDirective.resetForm({ residentId: null, observation: '', expectedAction: '' });
+        formDirective.resetForm({ targetShift: null, residentId: null, observation: '', expectedAction: '' });
         this.snackBar.open('Transmission enregistrée', 'Fermer', { duration: 2500 });
         this.loadBoard();
       },

@@ -1,5 +1,7 @@
 # Parcours MedTech EHPAD
 
+[Recette par compte et par fonctionnalité](recette.md)
+
 ## Présenter l’application
 
 - Sur la base fictive, utilisez `admin`, `medecin`, `personnel`, `personnel2`, `personnel3` ou `service1`. Le mot de passe de démonstration est `Demo1234!`.
@@ -17,7 +19,7 @@ Les actions principales sont pleines, les actions secondaires ont un contour fin
 
 Dans **Administration → Comptes**, créez ou modifiez un compte **Personnel** pour lui attribuer une fonction et une équipe de jour ou de nuit. La fonction **Service en salle** ouvre le parcours Tables. Un changement de fonction ou d’équipe ferme les sessions du compte concerné. Demandez à l’agent de se reconnecter.
 
-Dans **Comptes → Affectations**, choisissez l’étage, le début et la fin du créneau de travail. Plusieurs étages nécessitent plusieurs affectations. Pour un remplacement, choisissez **Remplacer** sur le créneau puis un collègue de même fonction. Il récupère la période restante, ou tout le créneau s’il n’a pas encore commencé. Le pointage reste distinct de ce parcours.
+Dans **Comptes → Affectations**, choisissez l’étage, le début et la fin du créneau et enregistrez le brouillon. Publiez-le depuis le compte ou depuis **Comptes → Planning**. L’agent le voit dans **Outils → Mes services**. Plusieurs étages nécessitent plusieurs affectations. Pour un remplacement, choisissez **Remplacer** sur le créneau puis un collègue de même fonction. Il récupère la période restante, ou tout le créneau s’il n’a pas encore commencé. Le pointage reste distinct de ce parcours.
 
 ## Médecin
 
@@ -56,6 +58,10 @@ Dans **Comptes → Affectations**, choisissez l’étage, le début et la fin du
 
 Avec le compte de démonstration **service1**, les tables s’ouvrent après la connexion. Sofia peut consulter le menu, enregistrer les arrivées et départs et gérer les chevalets. Le statut du repas reste visible sur la table. La validation du service se fait depuis la tournée de l’équipe qui y est habilitée.
 
+### Espace Cuisine
+
+Le compte de démonstration **cuisine1** ouvre les plateaux et la publication du menu. La préparation enregistre la version des consignes et du menu du créneau. Une modification remet le plateau **À revérifier**. Après correction, actualisez les tables dans Service en salle pour voir l’état **Corrigé**.
+
 ### Préparation cuisine
 
 1. Ouvrez **Repas**, sélectionnez le créneau et choisissez **Outils → Feuille de préparation**.
@@ -75,8 +81,8 @@ Avant de formaliser les droits, préciser qui attribue les accès par secteur, q
 
 ### Organisation de l’équipe
 
-- Dans **Outils → Équipe**, le pointage affiche les présences déclarées. Pour les actions confiées, consultez la relève.
-- Dans **Outils → Organisation type**, consultez un exemple de déroulement par fonction et par équipe. Les gardes et remplacements se vérifient auprès du responsable de service.
+- Dans **Outils → Équipe**, le pointage affiche les présences déclarées. Pour les actions confiées, consultez la relève. Lors d’une nouvelle transmission, vous pouvez désigner l’équipe de jour ou de nuit comme destinataire.
+- Dans **Outils → Mes services**, consultez vos créneaux publiés et l’organisation type. Les gardes et remplacements se vérifient auprès du responsable de service.
 - L’annuaire **Résidents** présente une ligne par personne. Recherchez par nom ou chambre, repérez le régime et les alertes, puis ouvrez la fiche.
 
 ## Matériel à vérifier avec l’équipe

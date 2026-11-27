@@ -72,6 +72,9 @@
                       </form>
                     }
                     @if (seat.meal; as meal) {
+                      <span class="work-status" [class.work-alert-danger]="meal.preparation === 'A_REVERIFIER'">
+                        Cuisine · {{ preparationLabel[meal.preparation] }}
+                      </span>
                       <span class="work-status" [class.work-alert]="meal.status === 'PLUS_TARD'"
                         [class.work-alert-danger]="meal.status === 'REFUSE'" [class.inactive]="meal.status === 'ABSENT'">
                         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ statusIcons[meal.status] }}</mat-icon>

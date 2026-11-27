@@ -32,7 +32,7 @@ import { AdminUserService, StaffAssignment } from './admin-user.service';
           <mat-label>Fin du créneau (heure locale)</mat-label>
           <input matInput type="datetime-local" name="end" [(ngModel)]="endsAt" required />
         </mat-form-field>
-        <button mat-flat-button type="submit" [disabled]="form.invalid || busy()">Ajouter l’affectation</button>
+        <button mat-flat-button type="submit" [disabled]="form.invalid || busy()">Enregistrer le brouillon</button>
       </form>
       @if (error()) {
         <p role="alert">{{ error() }}</p>
@@ -47,6 +47,10 @@ import { AdminUserService, StaffAssignment } from './admin-user.service';
             } @else if (expired(entry)) {
               <span>Expirée</span>
             } @else {
+              <span>{{ entry.publishedAt ? 'Publié' : 'Brouillon' }}</span>
+              @if (!entry.publishedAt) {
+                <button mat-flat-button type="button" [disabled]="busy()" (click)="publish(entry)">Publier</button>
+              }
               <button mat-stroked-button type="button" [disabled]="busy()" (click)="revoke(entry)">Retirer</button>
               @if (replacementFor() === entry.id) {
                 <mat-form-field appearance="outline">
@@ -61,7 +65,7 @@ import { AdminUserService, StaffAssignment } from './admin-user.service';
                   Confirmer le remplacement
                 </button>
                 <button mat-button type="button" (click)="replacementFor.set(null)">Annuler</button>
-              } @else if (candidates.length) {
+              } @else if (entry.publishedAt && candidates.length) {
                 <button mat-button type="button" [disabled]="busy()" (click)="chooseReplacement(entry)">Remplacer</button>
               }
             }
@@ -113,6 +117,10 @@ export class AssignmentDialog {
 
   protected revoke(entry: StaffAssignment): void {
     this.refresh(this.api.revokeAssignment(this.user.id, entry.id));
+  }
+
+  protected publish(entry: StaffAssignment): void {
+    this.refresh(this.api.publishAssignment(this.user.id, entry.id));
   }
 
   protected chooseReplacement(entry: StaffAssignment): void {

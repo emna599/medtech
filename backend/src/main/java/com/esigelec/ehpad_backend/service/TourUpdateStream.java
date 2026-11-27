@@ -68,7 +68,7 @@ public class TourUpdateStream {
                     where s.id = ? and u.username = ? and s.expires_at > now()
                       and u.enabled and u.role in ('PERSONNEL', 'ADMIN')
                       and (u.role = 'ADMIN' or not exists (
-                          select 1 from staff_profile p where p.user_id = u.id and p.job = 'SERVICE'
+                          select 1 from staff_profile p where p.user_id = u.id and p.job in ('SERVICE', 'CUISINE')
                       ))
                 )
                 """, Boolean.class, session.id(), session.username()));

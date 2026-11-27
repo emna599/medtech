@@ -52,6 +52,7 @@ public class DiningService {
     private final AuditService auditService;
     private final JdbcTemplate jdbc;
     private final ChevaletService chevaletService;
+    private final KitchenService kitchen;
 
     public DiningService(DiningTableRepository tableRepository,
                          MealRepository mealRepository,
@@ -60,7 +61,7 @@ public class DiningService {
                          TablePresenceRepository presenceRepository,
                          ResidentRepository residentRepository,
                          CurrentUserService currentUserService,
-                         AuditService auditService, JdbcTemplate jdbc, ChevaletService chevaletService) {
+                         AuditService auditService, JdbcTemplate jdbc, ChevaletService chevaletService, KitchenService kitchen) {
         this.tableRepository = tableRepository;
         this.mealRepository = mealRepository;
         this.menuRepository = menuRepository;
@@ -71,6 +72,7 @@ public class DiningService {
         this.auditService = auditService;
         this.jdbc = jdbc;
         this.chevaletService = chevaletService;
+        this.kitchen = kitchen;
     }
 
     /** Repas affiché par défaut : le déjeuner jusqu'à 15 h, le dîner ensuite. */
@@ -114,6 +116,7 @@ public class DiningService {
             return result;
         });
 
+        var preparation = kitchen.statuses(meal);
         Map<Long, List<DiningDto.Seat>> byTable = new HashMap<>();
         for (TablePresence presence : presences) {
             Resident resident = residents.get(presence.getResidentId());
@@ -127,7 +130,8 @@ public class DiningService {
                     new DiningDto.Identity(resident.getId(), resident.getFirstName(), resident.getLastName(),
                             resident.getRoom() == null ? null : resident.getRoom().getNumber()),
                     chevalets.get(resident.getId()),
-                    planned == null ? null : new DiningDto.Meal(planned.getId(), planned.getStatus())));
+                    planned == null ? null : new DiningDto.Meal(planned.getId(), planned.getStatus(),
+                            preparation.getOrDefault(planned.getId(), KitchenService.PlateStatus.A_PREPARER).name())));
         }
 
         List<DiningDto.Table> tables = new ArrayList<>();

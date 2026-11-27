@@ -11,6 +11,7 @@ import {
   Note,
   NoteCategory,
   Planning,
+  ScheduledAssignment,
   Reading,
   Team,
   WeeklyMenu,
@@ -56,8 +57,12 @@ export class PersonnelService {
     return this.http.post<Reading>(`${this.base}/dining/readings`, { readerCode, ...identity, leaving });
   }
 
-  access(): Observable<{ diningOnly: boolean; medicationAccess: boolean }> {
-    return this.http.get<{ diningOnly: boolean; medicationAccess: boolean }>(`${this.base}/access`);
+  access(): Observable<{ diningOnly: boolean; kitchenOnly: boolean; medicationAccess: boolean }> {
+    return this.http.get<{ diningOnly: boolean; kitchenOnly: boolean; medicationAccess: boolean }>(`${this.base}/access`);
+  }
+
+  myAssignments(): Observable<ScheduledAssignment[]> {
+    return this.http.get<ScheduledAssignment[]>(`${this.base}/my-assignments`);
   }
 
   planning(): Observable<Planning> {

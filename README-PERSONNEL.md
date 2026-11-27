@@ -194,6 +194,8 @@ Codes de bracelet de démonstration : `DEMO-001` à `DEMO-012`.
 
 ## 5. Parcours de test
 
+Voir la [recette complète par compte](docs/recette.md) pour le planning publié, la relève jour/nuit et le parcours Cuisine.
+
 Le [guide des parcours](docs/parcours.md#personnel) décrit les écrans actuels, les confirmations et les essais reportés. Sur grand écran, l’affichage s’adapte automatiquement. Le pied de page donne un accès rapide aux tournées et au retour en haut. Dans la tournée, le menu **Outils** regroupe l’annuaire, la relève, le planning, l’équipe, les notes et l’assistant.
 
 Dans **Service en salle**, installez un résident après vérification de son identité. Sélectionnez **Associer un chevalet**, saisissez le numéro imprimé et confirmez. Le chevalet s’affiche sur la carte. Pour le rendre disponible, confirmez sa libération ou enregistrez le départ. **Ouvrir la fiche repas** mène à la validation habituelle du plateau. Le portrait ajouté par l’administration apparaît sur cette fiche quand il est disponible.

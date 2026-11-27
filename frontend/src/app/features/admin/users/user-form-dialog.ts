@@ -134,7 +134,7 @@ export class UserFormDialog {
 
   protected readonly roles = ALL_ROLES;
   protected readonly roleLabel = ROLE_LABEL;
-  protected readonly jobs: Job[] = ['INFIRMIER', 'AIDE_SOIGNANT', 'SERVICE'];
+  protected readonly jobs: Job[] = ['INFIRMIER', 'AIDE_SOIGNANT', 'SERVICE', 'CUISINE'];
   protected readonly shifts: Shift[] = ['JOUR', 'NUIT'];
   protected readonly jobLabel = JOB_LABEL;
   protected readonly shiftLabel = SHIFT_LABEL;

@@ -162,6 +162,7 @@ export interface HandoverAction {
   assignedTo: number | null;
   assigneeName: string | null;
   assignmentVersion: number;
+  targetShift?: Shift | null;
   completedBy: string | null;
   completedAt: string | null;
 }
@@ -169,10 +170,12 @@ export interface HandoverAction {
 export interface HandoverBoard {
   open: HandoverAction[];
   recentlyCompleted: HandoverAction[];
+  shift?: Shift;
 }
 
 export interface HandoverRequest {
   requestId: string;
+  targetShift?: Shift | null;
   residentId: number | null;
   observation: string;
   expectedAction: string;
@@ -182,7 +185,7 @@ export type HandoverAssignment = 'CLAIM' | 'RELEASE' | 'TAKE_OVER';
 
 // ------------------------------------------------------------------ fonction, planning, notes
 
-export type Job = 'INFIRMIER' | 'AIDE_SOIGNANT' | 'SERVICE';
+export type Job = 'INFIRMIER' | 'AIDE_SOIGNANT' | 'SERVICE' | 'CUISINE';
 export type Shift = 'JOUR' | 'NUIT';
 export type NoteCategory = 'TRACABILITE' | 'OBSERVATION' | 'INCIDENT';
 
@@ -194,6 +197,13 @@ export interface PlanningTask {
   kind: 'TRANSMISSION' | 'TOURNEE' | 'REPAS' | 'SOINS' | 'PAUSE';
   /** Service à ouvrir pendant cette plage, s'il y en a un. */
   focus: ServiceKind | null;
+}
+
+export interface ScheduledAssignment {
+  id: number;
+  floor: number;
+  startsAt: string;
+  endsAt: string;
 }
 
 export interface Planning {
@@ -216,6 +226,7 @@ export const JOB_LABEL: Record<Job, string> = {
   INFIRMIER: 'Infirmier(ère)',
   AIDE_SOIGNANT: 'Aide-soignant(e)',
   SERVICE: 'Service en salle',
+  CUISINE: 'Cuisine',
 };
 
 export const SHIFT_LABEL: Record<Shift, string> = {
@@ -289,9 +300,19 @@ export interface Team {
 
 export type DiningSlot = 'DEJEUNER' | 'DINER';
 
+export type PlateStatus = 'A_PREPARER' | 'PREPARE' | 'A_REVERIFIER' | 'CORRIGE';
+
+export const PLATE_STATUS_LABEL: Record<PlateStatus, string> = {
+  A_PREPARER: 'À préparer',
+  PREPARE: 'Préparé',
+  A_REVERIFIER: 'À revérifier',
+  CORRIGE: 'Corrigé',
+};
+
 export interface DiningMeal {
   id: number;
   status: ServiceStatus;
+  preparation: PlateStatus;
 }
 
 /** Un résident à table (numéro d'arrivée de 1 à 8), son chevalet et le repas à lui servir. */

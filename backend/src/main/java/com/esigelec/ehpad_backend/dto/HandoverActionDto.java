@@ -1,5 +1,7 @@
 package com.esigelec.ehpad_backend.dto;
 
+import com.esigelec.ehpad_backend.entity.Shift;
+
 import java.time.OffsetDateTime;
 
 public record HandoverActionDto(
@@ -14,5 +16,5 @@ public record HandoverActionDto(
         String assigneeName,
         long assignmentVersion,
         String completedBy,
-        OffsetDateTime completedAt) {
+        OffsetDateTime completedAt, Shift targetShift) {
 }

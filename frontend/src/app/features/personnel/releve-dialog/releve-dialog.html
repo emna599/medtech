@@ -31,12 +31,14 @@
                 <span class="work-status"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ entry.assignedTo ? 'person' : 'pending_actions' }}</mat-icon> {{ entry.assignedTo ? 'En cours' : 'À faire' }}</span>
               </div>
               <p class="muted">{{ entry.authorName }} · {{ entry.createdAt | date:'dd/MM HH:mm' }}</p>
+              @if (entry.targetShift) { <p class="muted">Destinataire · {{ shiftLabel[entry.targetShift] }}</p> }
               @if (entry.assigneeName) {
                 <p class="muted">Pris en charge par {{ entry.assigneeName }}</p>
               }
               <p class="handover-text">{{ entry.observation }}</p>
               <p class="handover-text"><strong>Action attendue</strong><br />{{ entry.expectedAction }}</p>
             </mat-card-content>
+            @if (!entry.targetShift || entry.targetShift === current.shift) {
             <mat-card-actions align="end">
               @if (entry.assignedTo === null) {
                 <button mat-button type="button" [disabled]="closing() !== null || saving()" (click)="assign(entry, 'CLAIM')">
@@ -55,6 +57,7 @@
                 </button>
               }
             </mat-card-actions>
+            }
           </mat-card>
         } @empty {
           <p class="muted">Aucune action en attente.</p>
@@ -68,6 +71,14 @@
   <section aria-labelledby="handover-new-title">
     <h3 id="handover-new-title">Nouvelle transmission</h3>
     <form class="handover-form" [formGroup]="form" #handoverForm="ngForm" (ngSubmit)="save(handoverForm)">
+      <mat-form-field appearance="outline">
+        <mat-label>Équipe destinataire</mat-label>
+        <mat-select formControlName="targetShift" [canSelectNullableOptions]="true">
+          <mat-option [value]="null">Toutes les équipes</mat-option>
+          <mat-option value="JOUR">Équipe de jour</mat-option>
+          <mat-option value="NUIT">Équipe de nuit</mat-option>
+        </mat-select>
+      </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>Résident</mat-label>
         <mat-select formControlName="residentId" [canSelectNullableOptions]="true">

@@ -23,8 +23,8 @@ public class HandoverController {
     }
 
     @GetMapping
-    public HandoverService.Board board() {
-        return service.board();
+    public HandoverService.Board board(Authentication auth) {
+        return service.board(auth.getName());
     }
 
     @PostMapping

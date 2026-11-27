@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { PersonnelService, errorMessage } from '../../../core/services/personnel.service';
-import { Dining, DiningSeat, DiningSlot, DiningTable, ServiceStatus } from '../../../shared/models/personnel.model';
+import { Dining, DiningSeat, DiningSlot, DiningTable, PLATE_STATUS_LABEL, ServiceStatus } from '../../../shared/models/personnel.model';
 import { IdentifyDialog, IdentifyDialogData, IdentifyResult } from '../identify-dialog/identify-dialog';
 import { MenuDialog } from '../menu-dialog/menu-dialog';
 
@@ -42,6 +42,7 @@ export class DiningDialog {
   protected readonly editingChevalet = signal<number | null>(null);
   protected readonly chevaletNumber = signal('');
   protected readonly chevaletPattern = /^[1-9][0-9]{0,3}$/;
+  protected readonly preparationLabel = PLATE_STATUS_LABEL;
   protected readonly labels: Record<ServiceStatus, string> = {
     A_FAIRE: 'À faire', FAIT: 'Servi', ABSENT: 'Absent', REFUSE: 'Refusé', PLUS_TARD: 'Plus tard',
   };

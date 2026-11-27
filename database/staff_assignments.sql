@@ -12,3 +12,7 @@ CREATE TABLE IF NOT EXISTS staff_assignment (
 
 CREATE INDEX IF NOT EXISTS staff_assignment_active_idx
     ON staff_assignment (user_id, starts_at, ends_at) WHERE revoked_at IS NULL;
+
+-- Les affectations historiques étaient immédiatement actives.
+ALTER TABLE staff_assignment ADD COLUMN IF NOT EXISTS published_at timestamptz DEFAULT now();
+ALTER TABLE staff_assignment ADD COLUMN IF NOT EXISTS published_by bigint REFERENCES users(id) ON DELETE SET NULL;

@@ -1,6 +1,7 @@
 package com.esigelec.ehpad_backend.repository;
 
 import com.esigelec.ehpad_backend.dto.HandoverActionDto;
+import com.esigelec.ehpad_backend.entity.Shift;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -23,13 +24,14 @@ public class HandoverRepository {
             """;
     private static final RowMapper<HandoverActionDto> MAPPER = (row, index) -> {
         Long residentId = row.getObject("resident_id", Long.class);
+        String shift = row.getString("target_shift");
         return new HandoverActionDto(
                 row.getLong("id"), residentId, residentId == null ? null : row.getString("resident_name"),
                 row.getString("observation"), row.getString("expected_action"), row.getString("author_name"),
                 row.getObject("created_at", OffsetDateTime.class),
                 row.getObject("assigned_to", Long.class), row.getString("assignee_name"),
                 row.getLong("assignment_version"), row.getString("closer_name"),
-                row.getObject("completed_at", OffsetDateTime.class));
+                row.getObject("completed_at", OffsetDateTime.class), shift == null ? null : Shift.valueOf(shift));
     };
 
     private final JdbcTemplate jdbc;
@@ -38,13 +40,16 @@ public class HandoverRepository {
         this.jdbc = jdbc;
     }
 
-    public List<HandoverActionDto> listOpen() {
-        return jdbc.query(SELECT_ACTION + " where h.completed_at is null order by h.created_at, h.id", MAPPER);
+    public List<HandoverActionDto> listOpen(long userId, Shift shift) {
+        return jdbc.query(SELECT_ACTION + " where h.completed_at is null"
+                + " and (h.target_shift is null or h.target_shift = ? or h.created_by = ?)"
+                + " order by h.created_at, h.id", MAPPER, shift.name(), userId);
     }
 
-    public List<HandoverActionDto> listRecentlyCompleted() {
+    public List<HandoverActionDto> listRecentlyCompleted(long userId, Shift shift) {
         return jdbc.query(SELECT_ACTION + " where h.completed_at is not null"
-                + " order by h.completed_at desc, h.id desc limit 30", MAPPER);
+                + " and (h.target_shift is null or h.target_shift = ? or h.created_by = ?)"
+                + " order by h.completed_at desc, h.id desc limit 30", MAPPER, shift.name(), userId);
     }
 
     public Optional<HandoverActionDto> find(long id) {
@@ -56,13 +61,13 @@ public class HandoverRepository {
                 MAPPER, userId, requestId).stream().findFirst();
     }
 
-    public Optional<Long> insert(long userId, UUID requestId, Long residentId, String observation, String action) {
+    public Optional<Long> insert(long userId, UUID requestId, Long residentId, String observation, String action, Shift shift) {
         return jdbc.query("""
-                insert into handover_action (created_by, request_id, resident_id, observation, expected_action)
-                values (?, ?, ?, ?, ?)
+                insert into handover_action (created_by, request_id, resident_id, observation, expected_action, target_shift)
+                values (?, ?, ?, ?, ?, ?)
                 on conflict (created_by, request_id) do nothing
                 returning id
-                """, (row, index) -> row.getLong("id"), userId, requestId, residentId, observation, action)
+                """, (row, index) -> row.getLong("id"), userId, requestId, residentId, observation, action, shift == null ? null : shift.name())
                 .stream().findFirst();
     }
 

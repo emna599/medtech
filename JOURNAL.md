@@ -5,6 +5,16 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — planning publié, relève ciblée et cuisine
+
+- Le planning regroupe les affectations par jour et équipe. Un brouillon ne figure dans aucun créneau agent et n’ouvre aucun accès. La publication et le remplacement sont disponibles depuis l’administration. **Mes services** montre les créneaux publiés. La vue planning indique les étages sans affectation publiée dans la sélection.
+- La relève peut cibler Jour ou Nuit. Son auteur voit la transmission et l’équipe destinataire peut la prendre en charge et la clôturer. Le résumé de l’aide-soignant continue de fonctionner sans interroger les prises.
+- L’espace Cuisine a une autorité serveur propre, une publication de menu et un suivi des plateaux par version des consignes et du menu. Service en salle voit les états sur ses tables après actualisation. Une confirmation obsolète est rejetée.
+- Recette sur PostgreSQL isolé : huit comptes, publication et garde à cheval sur deux jours, relève Nuit, refus interrôles, cycle Préparé → À revérifier → Corrigé et nouvelle revérification après publication du menu. Chromium a ouvert les huit comptes et vérifié le planning, la relève, les tables et la correction d’un plateau sur mobile. 36 tests backend et 33 frontend passent.
+- Le script fictif `seed_recette.sql` complète la base locale sans effacer l’historique. La démo existante contient 12 résidents et chambres, 10 tables, 24 repas et 12 prises du jour. Une base fictive neuve contient 24 résidents, 16 chambres et davantage de repas. La [fiche de recette](docs/recette.md) détaille les essais manuels et les vérifications restantes.
+
+---
+
 ## Relais Codex du 2026-11-27 — affectations par étage et créneau
 
 - **Administration → Comptes → Affectations** permet d’accorder une plage par étage, de la retirer et de transférer atomiquement la période restante à un collègue actif de même fonction.
