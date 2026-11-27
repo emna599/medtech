@@ -5,6 +5,16 @@
 
 ---
 
+## Relais du 2026-11-27 — démarrage du chantier mobile
+
+- Le site web de référence est sur `integration`. Le dernier changement fonctionnel est `0422f34` : Sofia ouvre les tables directement après connexion et les soignants y accèdent depuis leur tournée. Vérifié dans Chromium, dont l’accueil Service à 320 px. Les 33 tests frontend passent. Le dernier lot planning, relève et Cuisine a aussi passé les 36 tests backend et été vérifié avec les huit comptes fictifs.
+- La base de démonstration locale avait 24 résidents, 16 chambres et 44 repas lors de la dernière recette. Les repas, les prises et les affectations sont datés. Utiliser les scripts fictifs versionnés décrits dans la recette pour compléter le jour du test sans réinitialiser le volume.
+- Guides de référence : [parcours par rôle](docs/parcours.md), [recette par compte](docs/recette.md), [valeurs à saisir](docs/saisie-guidee.md), [circuit du plateau](docs/circuit-plateau.md) et [prescriptions](docs/prescriptions.md). Marie Exemple sert de référence remplie. Élise Démonstration est l’exercice de saisie manuelle.
+- Objectif de la prochaine session : créer une application mobile à partir du site Angular existant et de son API Spring Boot. Comparer d’abord la réutilisation du frontend dans une enveloppe mobile et un client séparé selon les besoins Android/iOS, caméra et RFID. Garder l’API et les autorisations serveur comme référence. Prévoir l’accès à l’API depuis un téléphone réel, la gestion de session, le retour réseau et les parcours propres à chaque rôle. Aucun choix de technologie mobile n’a été arrêté.
+- Les prescriptions et leur logiciel de référence restent à cadrer avec l’établissement. Les essais caméra et RFID physiques restent reportés. La recette manuelle complète reste à dérouler.
+
+---
+
 ## Relais Codex du 2026-11-27 — accès direct aux tables
 
 - Le profil Service arrive sur les tables intégrées à sa page d’accueil. Le bouton intermédiaire et l’ouverture automatique d’une fenêtre ont été supprimés. Le raccourci depuis les tournées reprend le même tableau dans une fenêtre.
