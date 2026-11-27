@@ -1,9 +1,13 @@
 # Journal de travail — MedTech EHPAD
 
 > Journal des travaux réalisés sur le projet (intégration, corrections, design, analyse).
-> Tenu à jour au fil des sessions. Branche de travail : `integration`.
+> Tenu à jour au fil des sessions. Branche de travail de la démo : `feature/demo-4216`.
 
 ---
+
+## Branche dédiée à la démo 4216
+
+- La version 4216 est conservée sur `feature/demo-4216`. Le commit d’annulation `6ed3484` remet le contenu d’`integration` à l’état `c6203a3`.
 
 ## Version GitHub de la démo 4216
 

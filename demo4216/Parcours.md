@@ -9,7 +9,7 @@ La démo partage l’API d’intégration. Une lecture par code ou clavier perme
 
 ## Relancer depuis GitHub
 
-Depuis la branche `integration`, démarrez la démo avec Docker Compose. Le navigateur utilise un seul point d’entrée et l’API les mêmes données PostgreSQL pour tous les profils.
+Depuis la branche `feature/demo-4216`, démarrez la démo avec Docker Compose. Le navigateur utilise un seul point d’entrée et l’API les mêmes données PostgreSQL pour tous les profils.
 
 ```sh
 docker compose -f docker-compose.yml -f docker-compose.4216.yml up -d --build frontend-4216
