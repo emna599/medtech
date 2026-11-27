@@ -1,6 +1,6 @@
 import { RfidPointage } from './rfid-pointage';
 import { Kitchen } from './kitchen/kitchen';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { DiningDialog } from './dining-dialog/dining-dialog';
 import { NotesDialog } from './notes-dialog/notes-dialog';
 import { PlanningDialog, PlanningResult } from './planning-dialog/planning-dialog';
@@ -14,6 +14,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -67,10 +69,13 @@ function rank(status: ServiceStatus): number {
     FormsModule,
     Toolbar,
     DatePipe,
+    NgTemplateOutlet,
     MatButtonModule,
     MatMenuModule,
     MatButtonToggleModule,
     MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
     ResidentAvatar,

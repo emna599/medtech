@@ -5,6 +5,10 @@
 
 ---
 
+## Présentation Personnel V2
+
+- Repris le gabarit de tournée de `feature/personnel-v2`, notamment les groupes de boutons, la grille de portraits et les lignes de chambre. Les alertes et la feuille de préparation restent disponibles. Les tables reprennent les panneaux de la branche avec les commandes de service déjà intégrées. La tête distante `e29a20b` ne contient pas de vue Cuisine dédiée.
+
 ## Repères de Personnel V2 sur les trois espaces métier
 
 - Rapproché l’en-tête de tournée et les commandes du service en salle de `feature/personnel-v2`. Adapté les mêmes repères à Cuisine, dont la branche de référence ne dispose pas. Le formulaire de publication s’ouvre à la demande sous les plateaux.

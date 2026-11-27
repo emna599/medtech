@@ -22,7 +22,34 @@ interface DiningSelection { residentId: number; mealId: number }
   templateUrl: './dining-dialog.html',
   styles: `
     .tools, .arrival { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-block: 8px 16px; }
-    article { padding: 12px; border: 1px solid var(--mat-sys-outline-variant); border-radius: var(--app-radius); }
+.tables {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+  gap: 14px;
+}
+
+.table {
+  background: var(--app-surface);
+  border: 2px solid var(--app-line-soft);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-shadow);
+  overflow: hidden;
+}
+
+.table.complete {
+  border-color: var(--app-ok);
+}
+
+.table-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--app-teal-tint);
+  color: var(--app-ink);
+}
+
+    .table > :not(header) { margin-inline: 12px; }
     ul { list-style: none; margin: 8px 0; padding: 0; }
     li { display: grid; gap: 4px; padding: 8px 0; border-top: 1px solid var(--mat-sys-outline-variant); }
     .summary, .seat-identity { display: flex; align-items: center; gap: 10px; }

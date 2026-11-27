@@ -9,14 +9,8 @@
 } @else if (diningOnly() === null) {
   <main class="work-page"><p role="status">Chargement de votre espace…</p></main>
 } @else {
-<main class="work-page service-page">
-  <header class="page-head tour-heading">
-    <div class="tour-title">
-      <span class="tour-mark" aria-hidden="true">
-        <mat-icon fontSet="material-symbols-outlined">{{ kind() === 'REPAS' ? 'restaurant' : 'medication' }}</mat-icon>
-      </span>
-      <h1>{{ kind() === 'REPAS' ? 'Tournée des repas' : 'Tournée des médicaments' }}</h1>
-    </div>
+<main class="page" [attr.aria-label]="kind() === 'REPAS' ? 'Tournée des repas' : 'Tournée des médicaments'">
+  <section class="top">
     <mat-button-toggle-group
       class="kind"
       aria-label="Type de service"
@@ -35,24 +29,52 @@
       </mat-button-toggle>
       }
     </mat-button-toggle-group>
-    <div class="heading-actions">
-      <button mat-flat-button type="button" (click)="openIdentify()">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
-        Identifier un résident
-      </button>
-      <button mat-button type="button" (click)="openDining()">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon>
-        Tables
-      </button>
-      <button mat-button type="button" (click)="openResidents()">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
-        Résidents
-      </button>
-      <button mat-stroked-button type="button" [matMenuTriggerFor]="serviceTools">
-        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">apps</mat-icon>
-        Outils
-      </button>
-    </div>
+
+    <button mat-stroked-button type="button" class="releve" (click)="openDining()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon>
+      <span>Tables</span>
+    </button>
+
+    <button mat-stroked-button type="button" class="releve residents" (click)="openResidents()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
+      <span>Résidents</span>
+    </button>
+
+    <button
+      mat-stroked-button
+      type="button"
+      class="releve team"
+      (click)="openTeam()"
+    >
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">diversity_3</mat-icon>
+      <span>Équipe</span>
+    </button>
+
+    <button mat-stroked-button type="button" class="releve" (click)="openPlanning()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">calendar_clock</mat-icon>
+      <span>Planning</span>
+    </button>
+
+    <button mat-stroked-button type="button" class="releve" (click)="openNotes()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">edit_note</mat-icon>
+      <span>Notes</span>
+    </button>
+
+    <button mat-stroked-button type="button" class="releve" (click)="openReleve()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">swap_horiz</mat-icon>
+      <span>Relève</span>
+    </button>
+
+    <button mat-stroked-button type="button" [matMenuTriggerFor]="serviceTools">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">apps</mat-icon>
+      Outils
+    </button>
+    <button mat-flat-button type="button" class="scan" (click)="openIdentify()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ kind() === 'REPAS' ? 'qr_code_scanner' : 'nfc' }}</mat-icon>
+      <span>Scanner</span>
+    </button>
+  </section>
+
     <mat-menu #serviceTools="matMenu">
       @if (kind() === 'REPAS') {
         <button mat-menu-item type="button" (click)="kitchenSheetOpen.set(!kitchenSheetOpen())">
@@ -85,7 +107,6 @@
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">support_agent</mat-icon> Assistant
       </button>
     </mat-menu>
-  </header>
 
   @if (refreshUnavailable()) {
     <p class="meal-change" role="status">
@@ -103,61 +124,82 @@
     </aside>
   }
 
-  <div class="tour-controls">
-    <div class="tour-context">
-      @if (total() > 0) {
-        <div class="progress">
-          @if (lastRefresh(); as refreshed) {
-            <small>Actualisé à {{ refreshed | date:'HH:mm:ss' }}</small>
-          }
-          <div class="progress-text">
-            <strong>{{ finished() }} / {{ total() }}</strong>
-            {{ kind() === 'REPAS' ? 'repas traités' : 'prises traitées' }}
-          </div>
-          <mat-progress-bar mode="determinate" [value]="progress()" aria-label="Avancement du service" />
-        </div>
+  @if (slots().length > 1) {
+    <div class="slots" role="tablist" aria-label="Créneau">
+      @for (slot of slots(); track slot) {
+        <button
+          type="button"
+          role="tab"
+          class="slot"
+          [attr.aria-selected]="slot === currentSlot()"
+          [class.slot-on]="slot === currentSlot()"
+          (click)="setSlot(slot)"
+        >
+          {{ slotText(slot) }}
+        </button>
       }
     </div>
-    <div class="controls" aria-label="Filtres de la tournée" role="group">
-      <fieldset class="locations">
-        <legend>Lieu</legend>
-        <mat-button-toggle-group
-          aria-label="Lieu de la tournée"
-          [hideSingleSelectionIndicator]="true"
-          [value]="location()"
-          (change)="setLocation($event.value)"
-        >
-          <mat-button-toggle value="SALLE">
-            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon>
-            Salle <span class="location-count">{{ remainingSalle() }}</span>
-          </mat-button-toggle>
-          <mat-button-toggle value="CHAMBRE">
-            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
-            Chambres <span class="location-count">{{ remainingChambre() }}</span>
-          </mat-button-toggle>
-        </mat-button-toggle-group>
-      </fieldset>
-      <label>
-        <span>Créneau</span>
-        <select [ngModel]="currentSlot()" (ngModelChange)="setSlot($event)" [disabled]="slots().length === 0">
-          @if (slots().length === 0) { <option [ngValue]="null">Aucun créneau</option> }
-          @for (slot of slots(); track slot) { <option [ngValue]="slot">{{ slotText(slot) }}</option> }
-        </select>
-      </label>
-      <label class="status-filter">
-        <span>Afficher</span>
-        <select [ngModel]="statusFilter()" (ngModelChange)="setStatusFilter($event)">
-          <option value="A_FAIRE">À faire</option>
-          <option value="FAIT">Traités</option>
-          <option value="TOUS">Tous</option>
-        </select>
-      </label>
-      <label class="search">
-        <span>Rechercher un résident</span>
-        <input type="search" placeholder="Nom ou chambre" autocomplete="off" [ngModel]="search()" (ngModelChange)="search.set($event)" />
-      </label>
+  } @else if (currentSlot(); as only) {
+    <p class="only-slot">{{ slotText(only) }}</p>
+  }
+
+  @if (total() > 0) {
+    <div class="progress">
+      <div class="progress-text">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ kind() === 'REPAS' ? 'restaurant' : 'medication' }}</mat-icon>
+        <strong>{{ finished() }} / {{ total() }}</strong>
+      </div>
+      <mat-progress-bar mode="determinate" [value]="progress()" aria-label="Avancement du service" />
     </div>
-  </div>
+  }
+
+  <section class="controls">
+    <mat-button-toggle-group
+      class="where"
+      aria-label="Lieu"
+      [hideSingleSelectionIndicator]="true"
+      [value]="location()"
+      (change)="setLocation($event.value)"
+    >
+      <mat-button-toggle value="SALLE" aria-label="Salle à manger">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">dining</mat-icon>
+        {{ remainingSalle() }}
+      </mat-button-toggle>
+      <mat-button-toggle value="CHAMBRE" aria-label="Chambres">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
+        {{ remainingChambre() }}
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    <mat-button-toggle-group
+      class="filter"
+      aria-label="Filtre"
+      [hideSingleSelectionIndicator]="true"
+      [value]="statusFilter()"
+      (change)="setStatusFilter($event.value)"
+    >
+      <mat-button-toggle value="A_FAIRE" aria-label="À faire">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">hourglass_top</mat-icon>
+      </mat-button-toggle>
+      <mat-button-toggle value="FAIT" aria-label="Faits">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">check_circle</mat-icon>
+      </mat-button-toggle>
+      <mat-button-toggle value="TOUS" aria-label="Tous">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">apps</mat-icon>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
+      <mat-label>Rechercher</mat-label>
+      <input
+        matInput
+        type="search"
+        autocomplete="off"
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+      />
+      <mat-icon matSuffix fontSet="material-symbols-outlined" aria-hidden="true">search</mat-icon>
+    </mat-form-field>
+  </section>
 
   @if (kitchenSheetOpen() && kind() === 'REPAS') {
     <section class="kitchen-sheet" aria-labelledby="kitchen-sheet-title">
@@ -188,10 +230,10 @@
     </section>
   }
 
-  @if (location() === 'CHAMBRE' && statusFilter() === 'A_FAIRE' && !search().trim() && nextPending(); as next) {
+  @if (location() === 'CHAMBRE' && statusFilter() === 'A_FAIRE' && !search().trim() && nextPending()) {
     <button mat-flat-button type="button" class="start" (click)="openNext()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">play_arrow</mat-icon>
-      Ouvrir la prochaine fiche · {{ name(next) }}
+      Démarrer la tournée
     </button>
   }
 
@@ -206,109 +248,115 @@
     <div class="state">
       <mat-icon fontSet="material-symbols-outlined" class="state-icon" aria-hidden="true">task_alt</mat-icon>
       <p>
-        @if (total() === 0) {
-          Aucun élément pour vos affectations actives.
-        } @else if (statusFilter() === 'A_FAIRE' && !search()) {
-          Tout est traité pour ce lieu et ce créneau.
+        @if (statusFilter() === 'A_FAIRE' && !search() && total() > 0) {
+          Tout est fait !
         } @else {
-          Aucun résident ne correspond à ces filtres.
+          Rien à afficher
         }
       </p>
     </div>
+  } @else if (location() === 'SALLE') {
+    <ul class="grid">
+      @for (item of visible(); track item.id) {
+        <li>
+          <button type="button" class="tile" [class]="'tile ' + statusClass(item)" (click)="open(item)">
+            <app-resident-avatar
+              [photoUrl]="item.resident.photoUrl"
+              [firstName]="item.resident.firstName"
+              [lastName]="item.resident.lastName"
+              [showPersonIcon]="true"
+              [size]="104"
+            />
+            <span class="tile-name">{{ name(item) }}</span>
+            <span class="tile-meta">
+              {{ item.kind === 'REPAS' ? ((item.resident.texture ?? '') + (item.resident.regime ? ' · ' + item.resident.regime : '')) : item.label }}
+              @if (item.kind === 'MEDICAMENT' && item.detail) { · {{ item.detail }} }
+            </span>
+            <ng-container [ngTemplateOutlet]="safetyAlerts" [ngTemplateOutletContext]="{ $implicit: item }" />
+            <span class="status">{{ statusText(item) }}</span>
+          </button>
+        </li>
+      }
+    </ul>
   } @else {
-    <div class="roster-heading">
-      <h2>{{ location() === 'CHAMBRE' ? 'En chambre' : 'En salle à manger' }}</h2>
-      <span>{{ visible().length }} {{ kind() === 'REPAS' ? 'repas' : (visible().length === 1 ? 'prise' : 'prises') }}</span>
-    </div>
-    <div class="register" [class.in-room]="location() === 'CHAMBRE'">
-      <div class="register-columns" aria-hidden="true">
-        <span>Résident</span><span>Chambre</span><span>Consignes et alertes</span><span>Statut</span><span></span>
-      </div>
-      <ul class="register-list" role="list">
-        @for (item of visible(); track item.id) {
-          <li>
-            <button type="button" [class]="'tile ' + statusClass(item)" (click)="open(item)">
-              <span class="tile-identity">
-                <app-resident-avatar
-                  [photoUrl]="item.resident.photoUrl"
-                  [firstName]="item.resident.firstName"
-                  [lastName]="item.resident.lastName"
-                  [showPersonIcon]="true"
-                  [size]="56"
-                />
-                <span class="work-card-name tile-name">{{ name(item) }}</span>
+    <ul class="rows">
+      @for (item of visible(); track item.id) {
+        <li>
+          <button type="button" [class]="'row ' + statusClass(item)" (click)="open(item)">
+            <span class="room">{{ item.resident.room ?? '—' }}</span>
+            <app-resident-avatar
+              [photoUrl]="item.resident.photoUrl"
+              [firstName]="item.resident.firstName"
+              [lastName]="item.resident.lastName"
+              [showPersonIcon]="true"
+              [size]="56"
+            />
+            <span class="row-main">
+              <span class="row-name">{{ name(item) }}</span>
+              <span class="row-meta">
+                {{ item.kind === 'REPAS' ? (item.resident.regime || item.label) : item.label + (item.detail ? ' · ' + item.detail : '') }}
               </span>
-              <span class="work-card-room tile-room">
-                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
-                @if (item.resident.room; as room) { Chambre {{ room }} } @else { Sans chambre }
-              </span>
-              <span class="tile-guidance">
-                <span class="tile-alerts">
-                  @if (item.resident.identityDoubt) {
-                    <span class="work-status work-alert work-alert-danger">
-                      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">person_alert</mat-icon>
-                      Doute d’identité
-                    </span>
-                  }
-                  @for (allergy of item.resident.allergies; track $index) {
-                    <span class="work-status work-alert work-alert-danger">
-                      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
-                      À éviter · {{ allergy.name }}
-                    </span>
-                  }
-                  @if (item.kind === 'REPAS') {
-                    @if (item.resident.mealTextureConflict) {
-                      <span class="work-status work-alert work-alert-danger">
-                        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
-                        Textures contradictoires
-                      </span>
-                    }
-                    @if (item.resident.texture && item.resident.texture !== 'Normale') {
-                      <span class="work-status work-alert">
-                        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
-                        Texture {{ item.resident.texture }}
-                      </span>
-                    }
-                    @if (item.resident.mealInstructionsChangedAt && (item.status === 'A_FAIRE' || item.status === 'PLUS_TARD')) {
-                      <span class="work-status work-alert">
-                        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">assignment_late</mat-icon>
-                        Plateau à revérifier
-                      </span>
-                    }
-                    @if (item.resident.needsHelp) {
-                      <span class="work-status">
-                        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">volunteer_activism</mat-icon>
-                        Aide au repas
-                      </span>
-                    }
-                  }
-                  @if (item.highRisk) {
-                    <span class="work-status work-alert work-alert-danger">
-                      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
-                      Prise à risque
-                    </span>
-                  }
-                </span>
-                @if (item.kind === 'MEDICAMENT') {
-                  <span class="tile-detail">{{ item.label }}@if (item.detail) { · {{ item.detail }} }</span>
-                } @else if (item.resident.texture === 'Normale' || item.resident.regime) {
-                  <span class="tile-detail">
-                    @if (item.resident.texture === 'Normale') { Texture normale }
-                    @if (item.resident.texture === 'Normale' && item.resident.regime) { · }
-                    @if (item.resident.regime; as regime) { Régime {{ regime }} }
-                  </span>
-                }
-              </span>
-              <span class="work-status tile-status">
-                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ statusIcon(item) }}</mat-icon>
-                {{ statusText(item) }}
-              </span>
-              <mat-icon class="tile-arrow" fontSet="material-symbols-outlined" aria-hidden="true">chevron_right</mat-icon>
-            </button>
-          </li>
-        }
-      </ul>
-    </div>
+            </span>
+            <ng-container [ngTemplateOutlet]="safetyAlerts" [ngTemplateOutletContext]="{ $implicit: item }" />
+            <span class="status">{{ statusText(item) }}</span>
+          </button>
+        </li>
+      }
+    </ul>
   }
 </main>
+
+<button type="button" class="assistant-fab" aria-label="Ouvrir l'assistant" (click)="openAssistant()">
+  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">support_agent</mat-icon>
+  Assistant
+</button>
 }
+
+<ng-template #safetyAlerts let-item>
+  <span class="v2-alerts">
+    @if (item.resident.identityDoubt) {
+      <span class="work-status work-alert work-alert-danger">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">person_alert</mat-icon>
+        Doute d’identité
+      </span>
+    }
+    @for (allergy of item.resident.allergies; track $index) {
+      <span class="work-status work-alert work-alert-danger">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+        À éviter · {{ allergy.name }}
+      </span>
+    }
+    @if (item.kind === 'REPAS') {
+      @if (item.resident.mealTextureConflict) {
+        <span class="work-status work-alert work-alert-danger">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+          Textures contradictoires
+        </span>
+      }
+      @if (item.resident.texture && item.resident.texture !== 'Normale') {
+        <span class="work-status work-alert">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
+          Texture {{ item.resident.texture }}
+        </span>
+      }
+      @if (item.resident.mealInstructionsChangedAt && (item.status === 'A_FAIRE' || item.status === 'PLUS_TARD')) {
+        <span class="work-status work-alert">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">assignment_late</mat-icon>
+          Plateau à revérifier
+        </span>
+      }
+      @if (item.resident.needsHelp) {
+        <span class="work-status">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">volunteer_activism</mat-icon>
+          Aide au repas
+        </span>
+      }
+    }
+    @if (item.highRisk) {
+      <span class="work-status work-alert work-alert-danger">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+        Prise à risque
+      </span>
+    }
+  </span>
+</ng-template>

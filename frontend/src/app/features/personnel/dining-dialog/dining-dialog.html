@@ -47,10 +47,10 @@
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
         <span><strong>{{ board.seated }}</strong> à table · <strong>{{ board.served }}</strong> servis</span>
       </p>
-      <div class="work-card-grid">
+      <div class="tables">
         @for (table of board.tables; track table.id) {
-          <article class="work-card">
-            <header class="work-card-heading">
+          <article class="table" [class.complete]="table.present > 0 && table.served === table.present">
+            <header class="table-head">
               <h3 class="cue-title"><span class="material-symbols-outlined visual-cue" aria-hidden="true">table_restaurant</span><span>{{ table.label }}</span></h3>
               <span class="work-status">
                 <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
