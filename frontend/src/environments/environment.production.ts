@@ -2,4 +2,5 @@
 export const environment = {
   apiUrl: '',
   braceletOrigin: '',
+  portableBraceletQr: false,
 };

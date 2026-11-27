@@ -5,6 +5,11 @@
 
 ---
 
+## QR portables affichés sur le site 4216
+
+- Le QR contenant seulement `QR-DEMO-001` a été lu par l’iPhone. Les QR affichés par l’administration web de la 4216 embarquent désormais le code du bracelet sans URL locale. La fiche réaffiche le QR dans ce format après actualisation, sans renouvellement du bracelet.
+- Les 37 tests frontend passent. Relecture du QR affiché par la démo sur le Mac à vérifier avec l’iPhone.
+
 ## Liens de bracelet de la démo 4216 sur iPhone
 
 - Le scanner médecin accepte les liens de bracelet imprimés depuis `http://localhost:4216` dans le build iOS de la démo. Personnel V2 reconnaît également cette origine. Les nouveaux QR émis dans l’app iOS contiennent directement le code.

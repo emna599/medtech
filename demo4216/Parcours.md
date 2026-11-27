@@ -39,6 +39,10 @@ MEDTECH_DEMO_IOS_API_URL=https://mac.tailnet.ts.net/demo4216 npm run ios:demo421
 
 Branchez l’iPhone, sélectionnez-le dans Xcode et lancez **Run**. Le projet utilise le même identifiant iOS que l’application de démo précédente. Cette installation remplace donc sa version sur l’iPhone. Pour vérifier la démo, connectez-vous avec `personnel2` pour la tournée Personnel V2 ou `service1` pour les tables.
 
+### Scanner sur iPhone un bracelet affiché sur le Mac
+
+Dans l’administration de la démo 4216, ouvrez la fiche du résident puis **Bracelet d’identification**. Affichez le QR actif après actualisation de la page. La démo 4216 encode directement le code du bracelet. Vous pouvez conserver le bracelet actif, puis scanner ce QR dans l’app iPhone connectée à la même base 4216.
+
 ### Tester le NFC sur iPhone
 
 Dans **Pointage RFID**, touchez **Lire le badge NFC** et approchez le haut de l’iPhone d’une étiquette NFC contenant un enregistrement Texte NDEF avec `BADGE-DEMO-AIDE`. Avec `personnel2`, vérifiez le code affiché, puis confirmez l’arrivée ou le départ. Pour l’identification d’un résident, ouvrez **Scanner → NFC** et utilisez une étiquette de test contenant `NFC-DEMO-002`.
