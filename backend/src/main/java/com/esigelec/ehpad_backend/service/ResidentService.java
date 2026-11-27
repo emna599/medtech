@@ -68,9 +68,14 @@ public class ResidentService {
                 .orElse(null);
         String action = "IDENTIFICATION_QR";
         if (resident == null) {
-            resident = residentRepository.findActiveByIdentityCode(token)
-                    .orElseThrow(() -> new ResourceNotFoundException("Aucun résident associé à ce code"));
+            resident = residentRepository.findActiveByIdentityCode(token).orElse(null);
             action = "IDENTIFICATION_CODE";
+        }
+        if (resident == null) {
+            resident = residentRepository.findResidentIdByActiveNfcToken(token)
+                    .flatMap(residentRepository::findActiveById)
+                    .orElseThrow(() -> new ResourceNotFoundException("Aucun résident associé à ce code"));
+            action = "IDENTIFICATION_RFID";
         }
         auditService.record(user, action, "Resident", resident.getId());
         String room = resident.getRoom() == null ? null : resident.getRoom().getNumber();

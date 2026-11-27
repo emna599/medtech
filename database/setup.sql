@@ -19,6 +19,7 @@ BEGIN;
 \ir seed_dining_accounts.sql
 \ir staff_assignments.sql
 \ir kitchen.sql
+\ir rfid_badges.sql
 \ir seed_kitchen.sql
 \ir seed_recette.sql
 \ir seed_apercu.sql

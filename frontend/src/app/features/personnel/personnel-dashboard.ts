@@ -1,3 +1,4 @@
+import { RfidPointage } from './rfid-pointage';
 import { Kitchen } from './kitchen/kitchen';
 import { DatePipe } from '@angular/common';
 import { DiningDialog } from './dining-dialog/dining-dialog';
@@ -315,6 +316,10 @@ export class PersonnelDashboard {
     } else if (announceEnd) {
       this.snackBar.open('Tournée terminée', 'OK', { duration: 4000 });
     }
+  }
+
+  protected openRfidPointage(): void {
+    this.dialog.open(RfidPointage, { width: '520px', maxWidth: '96vw' });
   }
 
   protected openDining(): void {

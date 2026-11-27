@@ -5,6 +5,15 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — RFID web, pictogrammes et connexion
+
+- Reprise ciblée de `feature/personnel-v2` : lecteur Web NFC lorsque disponible et pictogrammes avec libellés dans l’identification, la fiche de tournée et les tables. Le code fourni par le lecteur ou saisi au clavier reste utilisable.
+- Admin gère les badges des agents et les bracelets RFID des résidents. Le parcours d’identité reconnaît le RFID du résident et conserve la confirmation, les QR et les codes existants. Le pointage RFID compare le badge au compte connecté et réutilise les présences, sans modifier les habilitations. Les codes agent sont conservés sous forme d’empreinte et ne sont pas retournés. Migration additive `rfid_badges.sql`.
+- La connexion reprend la carte centrée de `feature/personnel-v2` et conserve les comportements de la branche `integration`, dont la reprise après scan.
+- PostgreSQL isolé : attribution, remplacement, révocation, refus d’un badge agent étranger, double pointage, ancien code résident, lecture à table, isolation des profils. 36 tests backend et 37 frontend réussis. Chromium a vérifié l’attribution, le pointage, la confirmation d’identité et la connexion à 1280 et 320 px. Les essais physiques NFC/RFID restent à faire.
+
+---
+
 ## Relais Codex du 2026-11-27 — lecture des bracelets imprimés depuis le site
 
 - Le scanner iPhone lit le QR du site, puis la validation de l’origine rejetait le lien de la démo imprimé avec `http://localhost:4200`. L’origine du site émetteur est désormais configurable pour le build iOS. L’app extrait le code et le vérifie auprès de l’API habituelle.

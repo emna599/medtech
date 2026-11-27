@@ -10,6 +10,10 @@
   <main class="work-page">
     <header class="page-head">
       <h1>Service en salle</h1>
+      <button mat-stroked-button type="button" (click)="pointage.emit()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">badge</mat-icon>
+        Pointage RFID
+      </button>
     </header>
     <ng-container [ngTemplateOutlet]="tables" />
   </main>
@@ -19,7 +23,10 @@
   <div class="tools">
     <button mat-stroked-button [attr.aria-pressed]="slot() === 'DEJEUNER'" [disabled]="busy()" (click)="load('DEJEUNER')">Déjeuner</button>
     <button mat-stroked-button [attr.aria-pressed]="slot() === 'DINER'" [disabled]="busy()" (click)="load('DINER')">Dîner</button>
-    <button mat-stroked-button (click)="openMenu()">Menu de la semaine</button>
+    <button mat-stroked-button (click)="openMenu()">
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant_menu</mat-icon>
+                  Menu de la semaine
+                </button>
     <button mat-button [disabled]="busy()" (click)="load()">Actualiser</button>
   </div>
   @if (error(); as message) { <p class="error" role="alert">{{ message }}</p> }
@@ -40,8 +47,14 @@
             </header>
             @if (table.readerCode; as reader) {
               <div class="arrival">
-                <button mat-button [disabled]="busy()" (click)="confirmArrival(table)">Installer un résident</button>
-                <button mat-button [disabled]="busy()" [attr.aria-expanded]="activeReader() === reader" (click)="toggleReader(reader)">Lecteur RFID {{ reader }}</button>
+                <button mat-button [disabled]="busy()" (click)="confirmArrival(table)">
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">person_add</mat-icon>
+                  Installer un résident
+                </button>
+                <button mat-button [disabled]="busy()" [attr.aria-expanded]="activeReader() === reader" (click)="toggleReader(reader)">
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">nfc</mat-icon>
+                  Lecteur RFID {{ reader }}
+                </button>
               </div>
               @if (activeReader() === reader) {
                 <form class="arrival" (submit)="$event.preventDefault(); readTag(reader)">
@@ -89,6 +102,9 @@
                     }
                     @if (seat.meal; as meal) {
                       <span class="work-status" [class.work-alert-danger]="meal.preparation === 'A_REVERIFIER'">
+                        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">
+                          {{ meal.preparation === 'A_REVERIFIER' ? 'warning' : 'room_service' }}
+                        </mat-icon>
                         Cuisine · {{ preparationLabel[meal.preparation] }}
                       </span>
                       <span class="work-status" [class.work-alert]="meal.status === 'PLUS_TARD'"

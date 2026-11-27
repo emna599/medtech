@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -31,6 +31,8 @@ export class DiningDialog {
   private readonly dialog = inject(MatDialog);
   private readonly ref = inject<MatDialogRef<DiningDialog, DiningSelection>>(MatDialogRef, { optional: true });
   private readonly destroyRef = inject(DestroyRef);
+
+  readonly pointage = output<void>();
 
   protected readonly inDialog = this.ref !== null;
   protected readonly slot = signal<DiningSlot>(new Date().getHours() < 15 ? 'DEJEUNER' : 'DINER');

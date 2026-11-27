@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/personnel/dining/readings").hasAnyRole("PERSONNEL", "DINING_SERVICE")
                         .requestMatchers(HttpMethod.PUT, "/api/personnel/dining/chevalets/*").hasAnyRole("PERSONNEL", "DINING_SERVICE")
                         .requestMatchers(HttpMethod.DELETE, "/api/personnel/dining/chevalets/*/*").hasAnyRole("PERSONNEL", "DINING_SERVICE")
+                        .requestMatchers(HttpMethod.POST, "/api/personnel/team/rfid").hasAnyRole("PERSONNEL", "DINING_SERVICE", "KITCHEN")
                         .requestMatchers("/api/personnel/planning",
                                 "/api/personnel/team", "/api/personnel/team/**",
                                 "/api/personnel/notes", "/api/personnel/dining/**").hasRole("PERSONNEL")

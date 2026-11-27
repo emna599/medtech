@@ -13,6 +13,10 @@
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_2</mat-icon>
       {{ activeQrCode() ? 'Renouveler' : 'Générer' }}
     </button>
+    <button mat-stroked-button type="button" (click)="openRfid()">
+      <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">nfc</mat-icon>
+      Gérer le RFID
+    </button>
   </header>
 
   @if (qrCodes.isLoading()) {

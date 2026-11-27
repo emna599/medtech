@@ -10,6 +10,7 @@ import { fullName, ResidentIdentity } from '../../../shared/models/personnel.mod
 import { decodeQrFromFile, QrReader } from '../components/qr-reader';
 import { environment } from '../../../../environments/environment';
 import { readBraceletCode } from '../../../shared/utils/bracelet-link';
+import { NfcReader, nfcSupported } from '../components/nfc-reader';
 import { ResidentAvatar } from '../components/resident-avatar';
 
 export interface IdentifyDialogData {
@@ -29,7 +30,7 @@ export interface IdentifyResult {
  */
 @Component({
   selector: 'app-identify-dialog',
-  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, QrReader, ResidentAvatar],
+  imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, QrReader, NfcReader, ResidentAvatar],
   templateUrl: './identify-dialog.html',
   styleUrl: './identify-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,6 +44,19 @@ export class IdentifyDialog {
   protected readonly mode = this.data?.mode ?? 'personnel';
   protected readonly confirmationLabel = this.data?.confirmationLabel
     ?? (this.mode === 'admin' ? 'Confirmer et ouvrir la fiche administrative' : 'Confirmer et ouvrir la fiche');
+
+  protected readonly canReadNfc = nfcSupported();
+  protected readonly scanningNfc = signal(false);
+
+  protected onNfc(code: string): void {
+    this.scanningNfc.set(false);
+    this.onQr(code);
+  }
+
+  protected nfcError(message: string): void {
+    this.scanningNfc.set(false);
+    this.error.set(message);
+  }
 
   protected readonly code = signal('');
   protected readonly busy = signal(false);

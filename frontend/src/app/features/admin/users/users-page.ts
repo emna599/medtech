@@ -1,3 +1,4 @@
+import { RfidBadgeDialog } from '../rfid-badge-dialog';
 import { ScheduleDialog } from './schedule-dialog';
 import { AssignmentDialog } from './assignment-dialog';
 import { JOB_LABEL, SHIFT_LABEL } from '../../../shared/models/personnel.model';
@@ -106,6 +107,9 @@ import { UserFormDialog } from './user-form-dialog';
               @if (u.role === 'PERSONNEL' && u.job !== 'SERVICE' && u.job !== 'CUISINE') {
                 <button mat-button type="button" (click)="openAssignments(u)">Affectations</button>
               }
+              @if (u.role === 'PERSONNEL') {
+                <button mat-button type="button" (click)="openBadge(u)">Badge RFID</button>
+              }
               <button mat-button type="button" (click)="openForm(u)">Modifier</button>
               <button mat-icon-button type="button" [attr.aria-label]="'Changer le mot de passe de ' + u.fullName" (click)="openPassword(u)">
                 <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">key</mat-icon>
@@ -179,6 +183,10 @@ export class UsersPage {
     const candidates = this.users().filter(candidate => candidate.id !== user.id && candidate.enabled
       && candidate.role === 'PERSONNEL' && (candidate.job ?? 'AIDE_SOIGNANT') === (user.job ?? 'AIDE_SOIGNANT'));
     this.dialog.open(AssignmentDialog, { data: { user, candidates }, width: '520px', maxWidth: '96vw' });
+  }
+
+  protected openBadge(user: AdminUser): void {
+    this.dialog.open(RfidBadgeDialog, { data: { resource: 'users', id: user.id }, maxWidth: '96vw' });
   }
 
   protected openForm(user?: AdminUser): void {

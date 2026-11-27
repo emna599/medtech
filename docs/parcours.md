@@ -21,6 +21,8 @@ Dans **Administration → Comptes**, créez ou modifiez un compte **Personnel** 
 
 Dans **Comptes → Affectations**, choisissez l’étage, le début et la fin du créneau et enregistrez le brouillon. Publiez-le depuis le compte ou depuis **Comptes → Planning**. L’agent le voit dans **Outils → Mes services**. Plusieurs étages nécessitent plusieurs affectations. Pour un remplacement, choisissez **Remplacer** sur le créneau puis un collègue de même fonction. Il récupère la période restante, ou tout le créneau s’il n’a pas encore commencé. Le pointage reste distinct de ce parcours.
 
+Dans **Administration → Comptes → Badge RFID**, attribuez, remplacez ou révoquez le badge d’un compte Personnel. Dans **Résidents → Bracelet d’identification → Gérer le RFID**, gérez la puce du résident et conservez le QR pour les usages où la lecture RFID n’est pas disponible.
+
 ## Médecin
 
 1. Ouvrez **Résidents**, recherchez par nom ou chambre, puis ouvrez la fiche.
@@ -47,6 +49,11 @@ Dans **Comptes → Affectations**, choisissez l’étage, le début et la fin du
 - Si le serveur signale une consigne modifiée, vérifiez la fiche actualisée et confirmez de nouveau si nécessaire. Si l’actualisation échoue, suivez le circuit de continuité de l’établissement.
 - Dans l’Assistant, **Ouvrir la fiche de tournée** ouvre le repas ou la prise proposé. La validation se fait dans cette fiche.
 
+
+### Identification et pointage RFID
+
+- **Identifier un résident** accepte le code transmis par un lecteur compatible ou la lecture NFC sur un navigateur qui la propose. Vérifiez l’identité affichée avant de confirmer. Le code fonctionne aussi dans le parcours des lecteurs de table.
+- Avec votre compte connecté, ouvrez **Outils → Pointage RFID**, présentez votre badge et choisissez **Pointer l’arrivée** ou **Pointer le départ**. Service en salle et Cuisine ont le bouton dans leur en-tête. Un badge étranger ou révoqué est refusé. Le pointage manuel reste accessible dans **Équipe** pour les soignants.
 
 ### Médicaments et transmissions
 

@@ -65,14 +65,23 @@
           </button>
           <button mat-button type="button" (click)="stopScan()" [disabled]="busy()">Annuler</button>
         </div>
+      } @else if (scanningNfc()) {
+        <app-nfc-reader (scanned)="onNfc($event)" (failed)="nfcError($event)" />
+        <button mat-button type="button" (click)="scanningNfc.set(false)">Annuler la lecture NFC</button>
       } @else {
         <p class="help">
-          Scannez le QR code du bracelet ou du badge, ou saisissez son code.
+          Scannez le QR du bracelet ou utilisez le code lu par un lecteur RFID compatible.
         </p>
         <button mat-flat-button type="button" class="qr" [disabled]="busy()" (click)="startScan()">
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
           Scanner un QR code
         </button>
+        @if (canReadNfc) {
+          <button mat-stroked-button type="button" [disabled]="busy()" (click)="scanningNfc.set(true)">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">nfc</mat-icon>
+            Lire le bracelet NFC
+          </button>
+        }
         <mat-form-field appearance="outline" class="full code-field">
           <mat-label>Ou saisir le code</mat-label>
           <input
@@ -91,7 +100,7 @@
         <p class="error" role="alert">{{ error() }}</p>
       }
 
-      @if (!scanning()) {
+      @if (!scanning() && !scanningNfc()) {
       <button
         mat-flat-button
         type="button"
@@ -103,7 +112,7 @@
       </button>
       }
 
-      @if (!scanning() && mode === 'personnel' && medicationAccess) {
+      @if (!scanning() && !scanningNfc() && mode === 'personnel' && medicationAccess) {
       <p class="or">ou</p>
       <input #photo type="file" accept="image/*" capture="environment" hidden (change)="scanPochette($event)" />
       <button mat-stroked-button type="button" class="pochette" [disabled]="busy()" (click)="photo.click()">

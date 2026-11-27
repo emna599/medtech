@@ -85,16 +85,16 @@
 
   <section class="facts" aria-label="Régime et consignes">
     @if (resident().regime) {
-      <div class="fact"><span class="fact-label">Régime</span><span>{{ resident().regime }}</span></div>
+      <div class="fact"><span class="fact-label"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant_menu</mat-icon> Régime</span><span>{{ resident().regime }}</span></div>
     }
     @if (resident().texture) {
-      <div class="fact"><span class="fact-label">Texture</span><span>{{ resident().texture }}</span></div>
+      <div class="fact"><span class="fact-label"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">blender</mat-icon> Texture</span><span>{{ resident().texture }}</span></div>
     }
     @if (resident().restrictions) {
-      <div class="fact"><span class="fact-label">À éviter</span><span>{{ resident().restrictions }}</span></div>
+      <div class="fact"><span class="fact-label"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">block</mat-icon> À éviter</span><span>{{ resident().restrictions }}</span></div>
     }
     @if (resident().instructions) {
-      <div class="fact"><span class="fact-label">Consignes</span><span>{{ resident().instructions }}</span></div>
+      <div class="fact"><span class="fact-label"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">info</mat-icon> Consignes</span><span>{{ resident().instructions }}</span></div>
     }
     @if (resident().needsHelp) {
       <div class="fact fact-help">

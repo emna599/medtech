@@ -56,4 +56,10 @@ Sur un volume ancien, vérifiez les fonctions dans **Administration → Comptes*
 | 14. Accès croisés | Tester l’API Cuisine avec un compte de soins, Médicaments avec Cuisine et Service, Administration avec Personnel, et une fiche hors secteur. | Chaque accès direct hors périmètre est refusé. |
 | 15. Affichage et matériel | Rejouer recherche et navigation sur ordinateur et mobile, en clair et en sombre. Vérifier la projection réelle quand elle est disponible. | Les libellés opérationnels restent visibles. Caméra et RFID physiques restent à essayer au retour du matériel. |
 
+### Essai RFID avec codes fictifs
+
+1. Admin associe un code unique à un résident depuis sa fiche. Personnel le saisit dans **Identifier un résident**, vérifie l’identité et confirme. Service peut l’utiliser dans **Lecteur RFID** d’une table.
+2. Admin attribue un autre code à un compte Personnel. L’agent pointe son arrivée puis son départ. Répétez avec le compte d’un collègue et vérifiez le refus.
+3. Remplacez ou révoquez les codes côté admin. Vérifiez que les anciens codes RFID échouent et que le QR du résident reste utilisable.
+
 Les étapes de recette ne remplacent pas la validation de l’établissement. Les prescriptions restent à relier au logiciel de référence. Inscrivez pour chaque essai le compte, le scénario, le résultat observé et la version d’`integration`.

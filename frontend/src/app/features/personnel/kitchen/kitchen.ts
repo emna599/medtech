@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -29,6 +29,7 @@ interface Plate {
     <main class="work-page kitchen">
       <header class="page-head">
         <h1>Cuisine</h1>
+        <button mat-button type="button" (click)="pointage.emit()">Pointage RFID</button>
         <button mat-stroked-button (click)="load()" [disabled]="busy()">Actualiser</button>
       </header>
       <label class="slot">Créneau de préparation
@@ -95,6 +96,8 @@ export class Kitchen {
   private readonly http = inject(HttpClient);
   private readonly destroyRef = inject(DestroyRef);
   private readonly base = `${environment.apiUrl}/api/kitchen`;
+  readonly pointage = output<void>();
+
   protected readonly labels = PLATE_STATUS_LABEL;
   protected readonly slot = signal<DiningSlot>('DEJEUNER');
   protected readonly plates = signal<Plate[]>([]);

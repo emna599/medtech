@@ -1,3 +1,5 @@
+import { MatDialog } from '@angular/material/dialog';
+import { RfidBadgeDialog } from '../rfid-badge-dialog';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
 import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -25,6 +27,12 @@ export class ResidentBracelet {
   private readonly residentService = inject(AdminResidentService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly snackBar = inject(MatSnackBar);
+
+  private readonly dialog = inject(MatDialog);
+
+  protected openRfid(): void {
+    this.dialog.open(RfidBadgeDialog, { data: { resource: 'residents', id: this.residentId() }, maxWidth: '96vw' });
+  }
 
   protected readonly qrCodes = rxResource({
     params: this.residentId,
