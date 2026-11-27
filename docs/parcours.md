@@ -31,9 +31,9 @@ Dans **Administration → Comptes → Badge RFID**, attribuez, remplacez ou rév
 
 ## Personnel
 
-1. Ouvrez **Repas** ou **Médicaments**. Les champs **Créneau**, **Lieu**, **Statut** et **Nom ou chambre** filtrent le registre.
-2. Ouvrez la fiche depuis la ligne du résident. Vérifiez le nom, la chambre et les alertes. Le portrait est visible dans la fiche de tournée s’il est renseigné. Utilisez les confirmations demandées pour les repas et les prises à risque.
-3. En salle, ouvrez **Service en salle**, choisissez le créneau et la table, puis **Installer un résident**. Vérifiez l’identité et confirmez sa présence.
+1. Ouvrez **Repas** ou **Médicaments**, puis choisissez **Salle** ou **Chambres**. Les champs **Créneau**, **Statut** et **Nom ou chambre** affinent la liste.
+2. Ouvrez la carte en salle ou la ligne en chambre. En chambre, **Ouvrir la prochaine fiche** affiche le nom du résident quand la liste est sur **À faire** et que la recherche est vide. Le portrait apparaît s’il est renseigné. Sinon, un pictogramme et les initiales accompagnent le nom. Vérifiez le nom, la chambre et les alertes, puis suivez les confirmations demandées.
+3. Pour gérer le placement, ouvrez **Tables**, choisissez le créneau et la table, puis **Installer un résident**. Vérifiez l’identité et confirmez sa présence.
 4. Sur le résident installé, sélectionnez **Associer un chevalet**, saisissez le numéro imprimé de 1 à 9999 et confirmez. Si le numéro est déjà utilisé, vérifiez l’ancienne affectation avec l’équipe. Le chevalet est disponible après **Libérer le chevalet** et confirmation, ou après **Enregistrer le départ**. Un changement de table conserve le chevalet.
 5. Sélectionnez **Ouvrir la fiche repas** pour effectuer la vérification du plateau et enregistrer le service.
 6. Pour transmettre une action à poursuivre, utilisez **Outils → Relève**. Pour une note horodatée de service, utilisez **Outils → Notes de service**.

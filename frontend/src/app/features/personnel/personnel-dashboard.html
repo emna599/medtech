@@ -15,13 +15,13 @@
       <h1>{{ kind() === 'REPAS' ? 'Tournée des repas' : 'Tournée des médicaments' }}</h1>
     </div>
     <div class="heading-actions">
-      <button mat-button type="button" (click)="openIdentify()">
+      <button mat-flat-button type="button" (click)="openIdentify()">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
         Identifier un résident
       </button>
       <button mat-button type="button" (click)="openDining()">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon>
-        Service en salle
+        Tables
       </button>
       <button mat-button type="button" (click)="openResidents()">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
@@ -123,13 +123,24 @@
           @for (slot of slots(); track slot) { <option [ngValue]="slot">{{ slotText(slot) }}</option> }
         </select>
       </label>
-      <label>
-        <span>Lieu</span>
-        <select [ngModel]="location()" (ngModelChange)="setLocation($event)">
-          <option value="SALLE">Salle · {{ remainingSalle() }}</option>
-          <option value="CHAMBRE">Chambres · {{ remainingChambre() }}</option>
-        </select>
-      </label>
+      <fieldset class="locations">
+        <legend>Lieu</legend>
+        <mat-button-toggle-group
+          aria-label="Lieu de la tournée"
+          [hideSingleSelectionIndicator]="true"
+          [value]="location()"
+          (change)="setLocation($event.value)"
+        >
+          <mat-button-toggle value="SALLE">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">table_restaurant</mat-icon>
+            Salle <span class="location-count">{{ remainingSalle() }}</span>
+          </mat-button-toggle>
+          <mat-button-toggle value="CHAMBRE">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon>
+            Chambres <span class="location-count">{{ remainingChambre() }}</span>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </fieldset>
       <label>
         <span>Statut</span>
         <select [ngModel]="statusFilter()" (ngModelChange)="setStatusFilter($event)">
@@ -174,10 +185,10 @@
     </section>
   }
 
-  @if (location() === 'CHAMBRE' && nextPending()) {
+  @if (location() === 'CHAMBRE' && statusFilter() === 'A_FAIRE' && !search().trim() && nextPending(); as next) {
     <button mat-flat-button type="button" class="start" (click)="openNext()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">play_arrow</mat-icon>
-      Démarrer la tournée
+      Ouvrir la prochaine fiche · {{ name(next) }}
     </button>
   }
 
@@ -206,7 +217,7 @@
       <h2>{{ location() === 'CHAMBRE' ? 'En chambre' : 'En salle à manger' }}</h2>
       <span>{{ visible().length }} {{ kind() === 'REPAS' ? 'repas' : (visible().length === 1 ? 'prise' : 'prises') }}</span>
     </div>
-    <div class="register">
+    <div class="register" [class.in-room]="location() === 'CHAMBRE'">
       <div class="register-columns" aria-hidden="true">
         <span>Résident</span><span>Chambre</span><span>Consignes et alertes</span><span>Statut</span><span></span>
       </div>
@@ -219,7 +230,8 @@
                   [photoUrl]="item.resident.photoUrl"
                   [firstName]="item.resident.firstName"
                   [lastName]="item.resident.lastName"
-                  [size]="40"
+                  [showPersonIcon]="true"
+                  [size]="56"
                 />
                 <span class="work-card-name tile-name">{{ name(item) }}</span>
               </span>

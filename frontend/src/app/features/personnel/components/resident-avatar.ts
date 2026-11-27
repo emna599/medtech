@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 
 /** Photo du résident, ou initiales sur fond coloré si la photo est absente ou illisible. */
 @Component({
+  imports: [MatIconModule],
   selector: 'app-resident-avatar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -21,10 +23,15 @@ import { ChangeDetectionStrategy, Component, computed, input, signal } from '@an
         [attr.aria-label]="'Initiales de ' + firstName() + ' ' + lastName()"
         [style.width.px]="size()"
         [style.height.px]="size()"
-        [style.font-size.px]="size() * 0.38"
+        [class.with-person]="showPersonIcon()"
+        [style.font-size.px]="size() * (showPersonIcon() ? 0.23 : 0.38)"
         [style.background]="background()"
-        >{{ initials() }}</span
       >
+        @if (showPersonIcon()) {
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">person</mat-icon>
+        }
+        {{ initials() }}
+      </span>
     }
   `,
   styles: `
@@ -46,6 +53,16 @@ import { ChangeDetectionStrategy, Component, computed, input, signal } from '@an
       letter-spacing: 0.02em;
       user-select: none;
     }
+    .with-person {
+      flex-direction: column;
+      gap: 1px;
+      line-height: 1;
+    }
+    .with-person mat-icon {
+      width: 1.55em;
+      height: 1.55em;
+      font-size: 1.55em;
+    }
   `,
 })
 export class ResidentAvatar {
@@ -53,6 +70,7 @@ export class ResidentAvatar {
   readonly firstName = input.required<string>();
   readonly lastName = input.required<string>();
   readonly size = input(56);
+  readonly showPersonIcon = input(false);
 
   protected readonly failed = signal(false);
 

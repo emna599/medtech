@@ -5,6 +5,11 @@
 
 ---
 
+## Simplification de la tournée Personnel
+
+- Repris de `feature/personnel-v2` les cartes en salle, la liste en chambre et les repères associant icône et libellé. La bascule Salle/Chambres est visible directement et le bouton de tournée affiche le nom du prochain résident à traiter.
+- Les portraits disponibles sont affichés. La tournée et l’annuaire utilisent un pictogramme et les initiales en l’absence de portrait. Les consignes et les contrôles de validation restent ceux de la tournée intégrée.
+
 ## Correction de la source du design de connexion
 
 - Le design de connexion est repris de `feature/admin-users`. Le formulaire et la reprise après lecture d’un bracelet restent ceux de l’intégration.
