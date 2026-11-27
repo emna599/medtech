@@ -48,6 +48,16 @@ docker compose --env-file ../medtech-ios-api.env -p medtech-ios-api \
 openssl x509 -in /tmp/medtech-ios-root.pem -outform DER -out /tmp/MedTech-Demo.cer
 ```
 
+Pour renouveler les affectations, repas et prises après un changement de date, appliquez les scripts de démo au projet iOS. Cette commande conserve les opérations déjà saisies.
+
+```sh
+docker compose --env-file ../medtech-ios-api.env -p medtech-ios-api \
+  -f docker-compose.yml -f compose.ios-api.yml exec -T db \
+  psql -U postgres -d medtech -v ON_ERROR_STOP=1 --single-transaction \
+  -f /sql/seed_dining_accounts.sql -f /sql/seed_kitchen.sql \
+  -f /sql/seed_staff_assignments.sql -f /sql/seed_recette.sql
+```
+
 Le projet dédié héberge uniquement l’API sur le port 8443 et garde la base fictive dans un volume isolé. Caddy conserve son autorité dans un volume dédié. Envoyez uniquement `MedTech-Demo.cer` à l’iPhone, par exemple avec AirDrop. Installez le certificat reçu dans **Réglages**, puis activez sa confiance dans **Général → Informations → Réglages des certificats**. Retirez ce certificat de l’iPhone après la recette. [Confiance des certificats sur iPhone](https://support.apple.com/fr-fr/102390)
 
 Utilisez `https://192.168.1.57:8443`, avec l’IP du Mac, comme `MEDTECH_IOS_API_ORIGIN` dans les étapes USB. L’iPhone doit rester sur le même Wi-Fi. Si l’IP du Mac change, adaptez le fichier d’environnement, relancez le projet et recompilez le bundle iOS avec la nouvelle origine.

@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — données et accès pour la recette iPhone
+
+- Relancé les scripts datés sur la base fictive dédiée iOS sans remise à zéro. L’API HTTPS sert 24 résidents, un dossier médical fictif, 42 repas côté aide-soignant, 12 prises côté infirmier et 22 plateaux au déjeuner. Planning publié, relève Nuit, tables et menu vérifiés par lecture d’API.
+- Les huit comptes se connectent. Vérifié les refus pour les médicaments côté aide-soignant, l’administration côté Service et le dossier médical côté Cuisine. Le guide donne la commande de renouvellement et les essais à rejouer dans l’application installée.
+- L’application iPhone reste à compiler et installer avec Xcode complet, puis à tester sur l’appareil.
+
+---
+
 ## Relais Codex du 2026-11-27 — API iOS HTTPS sur le Mac
 
 - Aucun Raspberry Pi disponible. Le Mac héberge la démo iOS sur son Wi-Fi via Caddy, avec une base et un secret JWT dédiés, une autorité TLS locale et une origine CORS limitée à Capacitor.

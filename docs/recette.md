@@ -19,9 +19,9 @@ La relance le même jour ajoute les éléments manquants. Elle conserve les repa
 
 ## 2. Ouvrir les sessions
 
-Sur iPhone, ouvrez d’abord la [démo fictive sur le Wi-Fi du Mac](mobile.md#recette-safari-sur-le-wi-fi-du-mac).
+Sur iPhone, ouvrez **MedTech EHPAD** après l’[installation USB](mobile.md#installer-lapplication-ios-par-usb). Connectez l’iPhone au Wi-Fi privé du Mac qui héberge l’API. Déconnectez-vous entre deux comptes. Pour les scénarios simultanés ou les changements de rôle pendant une session, utilisez un deuxième appareil ou la démo web configurée sur la même base fictive.
 
-Ouvrez la démo dans des profils de navigateur distincts pour comparer deux rôles en parallèle. Une fenêtre par rôle suffit pour les scénarios de contrôle.
+Pour la recette de l’application installée, commencez par Sofia, puis connectez les autres comptes. Après avoir vérifié les accueils, essayez le retour au premier plan, la déconnexion et la reprise après coupure du Wi-Fi. Sur une tournée, contrôlez l’heure de dernière actualisation après le retour réseau. Les essais matériels et l’impression iOS restent à vérifier sur les appareils concernés.
 
 | Compte | Rôle attendu | Contrôle rapide |
 | --- | --- | --- |
