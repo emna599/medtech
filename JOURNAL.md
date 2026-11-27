@@ -5,6 +5,11 @@
 
 ---
 
+## Relance de la démo avant la refonte
+
+- Reconstruit la démo locale sur `feature/demo-4216` et conservé son volume dédié. Les deux points d’entrée Angular répondent et les cinq comptes fictifs se connectent.
+- Vérifié via l’API du port 4216 le tableau de bord, les 80 résidents de l’annuaire médecin, les 160 repas côté aide-soignant, les 136 prises côté infirmier et les tables du Service en salle. La vérification visuelle du nouveau visage reste à faire.
+
 ## Vérification des autres écrans 4216
 
 - Le bouton Planning des soignants affiche les créneaux publiés et le planning type. Le raccourci Médicaments respecte les droits du compte.
