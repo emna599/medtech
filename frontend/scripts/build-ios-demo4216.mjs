@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -34,7 +34,11 @@ try {
     cpSync(resolve(frontend, path), resolve(integration, path), { recursive: true });
   }
   cpSync(resolve(demo, 'integration'), integration, { recursive: true });
-  cpSync(resolve(demo, 'personnel-v2'), personnel, { recursive: true });
+  cpSync(resolve(demo, 'personnel-v2'), personnel, {
+    recursive: true,
+    filter: (source) => !['node_modules', 'dist', '.angular'].includes(source.split('/').at(-1)),
+  });
+  symlinkSync(resolve(frontend, 'node_modules'), resolve(personnel, 'node_modules'), 'dir');
 
   const define = `MEDTECH_DEMO_IOS_API_URL=${JSON.stringify(api.href.replace(/\/$/, ''))}`;
   const ng = resolve(frontend, 'node_modules/.bin/ng');

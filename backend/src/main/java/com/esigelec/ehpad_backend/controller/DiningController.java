@@ -33,9 +33,13 @@ public class DiningController {
 
     private final ChevaletService chevaletService;
 
-    public DiningController(DiningService diningService, ChevaletService chevaletService) {
+    private final com.esigelec.ehpad_backend.service.CareService care;
+
+    public DiningController(DiningService diningService, ChevaletService chevaletService,
+                            com.esigelec.ehpad_backend.service.CareService care) {
         this.diningService = diningService;
         this.chevaletService = chevaletService;
+        this.care = care;
     }
 
     /** Tables et résidents pour le repas demandé (DEJEUNER ou DINER ; par défaut selon l'heure). */
@@ -48,6 +52,46 @@ public class DiningController {
     @GetMapping("/menu")
     public WeeklyMenuDto menu(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return diningService.menu(date);
+    }
+
+    @GetMapping("/breakfast")
+    public java.util.List<Breakfast> breakfast() {
+        return care.listToday(com.esigelec.ehpad_backend.dto.ServiceKind.REPAS).stream()
+                .filter(item -> "PETIT_DEJEUNER".equals(item.slot()) && item.resident().room() != null)
+                .map(item -> {
+                    var resident = item.resident();
+                    return new Breakfast(item.id(), resident.firstName() + " " + resident.lastName(),
+                            resident.room(), resident.floor(), item.label(), resident.regime(), resident.texture(),
+                            resident.restrictions(), resident.allergies().stream()
+                            .map(com.esigelec.ehpad_backend.dto.AllergyDto::name).toList(),
+                            resident.mealRiskVersion(), item.status().name());
+                }).toList();
+    }
+
+    @PostMapping("/breakfast/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void serveBreakfast(@PathVariable long id, @Valid @RequestBody BreakfastConfirmation request,
+                               Authentication authentication) {
+        care.serveBreakfast(id, request.version(), authentication.getName());
+    }
+
+    public record Breakfast(long id, String name, String room, Integer floor, String meal, String regime,
+                            String texture, String restrictions, java.util.List<String> allergies, String version, String status) {}
+
+    public record BreakfastConfirmation(@jakarta.validation.constraints.NotBlank
+                                        @jakarta.validation.constraints.Size(max = 64) String version) {}
+
+    @GetMapping("/demo-nfc/residents")
+    public java.util.List<DiningDto.Identity> demoNfcResidents(Authentication authentication) {
+        return diningService.demoNfcResidents(authentication.getName());
+    }
+
+    @PostMapping("/demo-nfc/residents/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void linkDemoNfc(@PathVariable long id,
+                            @Valid @RequestBody com.esigelec.ehpad_backend.dto.NfcLinkRequest request,
+                            Authentication authentication) {
+        diningService.linkDemoNfc(id, request.token(), authentication.getName());
     }
 
     /** Lecture d'un bracelet par le lecteur d'une table (lecteur réel ou simulation depuis l'écran). */

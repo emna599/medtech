@@ -16,6 +16,7 @@ import {
   currentTaskIndices,
   doneLabel,
   fullName,
+  Breakfast,
   MealLocation,
   Planning,
   Team,
@@ -32,6 +33,7 @@ import { ResidentsDialog, ResidentsResult } from './residents-dialog/residents-d
 import { TeamDialog } from './team-dialog/team-dialog';
 import { ReleveDialog } from './releve-dialog/releve-dialog';
 import { IdentifyDialog, IdentifyResult, ScanDialogData } from './identify-dialog/identify-dialog';
+import { LabelCheckDialog } from './label-check-dialog/label-check-dialog';
 import { NotesDialog } from './notes-dialog/notes-dialog';
 import { PlanningDialog, PlanningResult } from './planning-dialog/planning-dialog';
 import { ResidentSheet, ResidentSheetData, ResidentSheetResult } from './resident-sheet/resident-sheet';
@@ -87,6 +89,51 @@ export class PersonnelDashboard {
 
   /** Vue « salle à manger » (tables) : toujours pour le service, et sur demande pour un soignant qui aide à servir. */
   protected readonly showDining = signal(new URLSearchParams(window.location.search).get('tables') === '1');
+  protected readonly breakfastOpen = signal(false);
+  protected readonly breakfast = signal<Breakfast[]>([]);
+  protected readonly breakfastError = signal('');
+  protected readonly breakfastLoading = signal(false);
+  protected readonly breakfastConfirmation = signal<number | null>(null);
+  protected readonly breakfastSaving = signal(false);
+
+  protected openBreakfast(): void {
+    this.breakfastError.set('');
+    this.breakfastOpen.set(true);
+    this.loadBreakfast();
+  }
+
+  private loadBreakfast(): void {
+    this.breakfastLoading.set(true);
+    this.api.breakfast().subscribe({
+      next: (items) => {
+        this.breakfast.set(items);
+        this.breakfastLoading.set(false);
+      },
+      error: (error) => {
+        this.breakfastError.set(errorMessage(error));
+        this.breakfastLoading.set(false);
+      },
+    });
+  }
+
+  protected serveBreakfast(item: Breakfast): void {
+    this.breakfastSaving.set(true);
+    this.breakfastError.set('');
+    this.api.serveBreakfast(item.id, item.version).subscribe({
+      next: () => {
+        this.breakfastSaving.set(false);
+        this.breakfastConfirmation.set(null);
+        this.loadBreakfast();
+      },
+      error: (error) => {
+        this.breakfastSaving.set(false);
+        this.breakfastConfirmation.set(null);
+        this.breakfastError.set(errorMessage(error));
+        this.loadBreakfast();
+      },
+    });
+  }
+
   protected readonly diningView = computed(() => this.diningOnly() || this.showDining());
   protected readonly location = signal<MealLocation>('SALLE');
   protected readonly statusFilter = signal<StatusFilter>('A_FAIRE');
@@ -145,6 +192,11 @@ export class PersonnelDashboard {
   /** Le matin (petit-déjeuner, médicaments du matin), tout se passe en chambre : pas de salle à manger. */
   protected readonly morning = computed(() => ['PETIT_DEJEUNER', 'MATIN'].includes(this.currentSlot() ?? ''));
   /** Tournée des chambres : choisie, ou imposée le matin. */
+  /** Titre d'étage affiché avant le premier résident de chaque étage. */
+  protected floorTitle(floor: number | null): string {
+    return floor === null ? 'Étage ?' : floor === 0 ? 'Rez-de-chaussée' : `Étage ${floor}`;
+  }
+
   protected readonly roomTour = computed(() => this.morning() || this.location() === 'CHAMBRE');
 
   private readonly slotItems = computed(() => {
@@ -181,7 +233,9 @@ export class PersonnelDashboard {
         const r = item.resident;
         return normalize(`${r.firstName} ${r.lastName} ${r.room ?? ''}`).includes(needle);
       })
-      .sort((a, b) => rank(a.status) - rank(b.status));
+      .sort((a, b) =>
+        (this.roomTour() ? (a.resident.floor ?? Infinity) - (b.resident.floor ?? Infinity) || 0 : 0)
+        || rank(a.status) - rank(b.status));
   });
 
   protected readonly nextPending = computed(() =>
@@ -191,43 +245,50 @@ export class PersonnelDashboard {
   );
 
   constructor() {
-    this.load();
+    const destroy = inject(DestroyRef);
     this.api.access().subscribe({
       next: (access) => {
+        if (destroy.destroyed) return;
         this.diningOnly.set(access.diningOnly);
         this.medicationAccess.set(access.medicationAccess);
-        // L'infirmier donne surtout les médicaments : c'est son écran de départ (il peut passer aux repas quand il en distribue).
-        if (access.medicationAccess && this.kind() === 'REPAS') {
+        if (access.diningOnly) return;
+        if (access.medicationAccess) {
           this.setKind('MEDICAMENT');
+        } else {
+          this.load();
         }
+        if (this.showDining()) return;
+        this.refreshTeam();
+        this.api.planning().subscribe({
+          next: (planning) => {
+            this.planning = planning;
+            this.checkPlanning();
+          },
+          error: () => undefined,
+        });
+        const alertTimer = setInterval(() => this.checkPlanning(), 20_000);
+        const teamTimer = setInterval(() => this.refreshTeam(), 60_000);
+        destroy.onDestroy(() => {
+          clearInterval(alertTimer);
+          clearInterval(teamTimer);
+        });
       },
-      error: () => undefined,
+      error: () => this.load(),
     });
-    if (this.showDining()) return;
-    this.refreshTeam();
-    this.api.planning().subscribe({
-      next: (planning) => {
-        this.planning = planning;
-        this.checkPlanning();
-      },
-      error: () => undefined,
-    });
-    // Alerte quand l'heure d'une tâche du planning arrive : on vérifie toutes les 20 secondes.
-    const alertTimer = setInterval(() => this.checkPlanning(), 20_000);
-    inject(DestroyRef).onDestroy(() => clearInterval(alertTimer));
-    // L'équipe change au fil de la journée : on la relit chaque minute.
-    const timer = setInterval(() => this.refreshTeam(), 60_000);
-    inject(DestroyRef).onDestroy(() => clearInterval(timer));
   }
 
-  protected setKind(kind: ServiceKind): void {
-    if (kind === this.kind() || (kind === 'MEDICAMENT' && !this.medicationAccess())) {
+  protected setKind(kind: ServiceKind, afterLoad?: () => void): void {
+    if (kind === this.kind()) {
+      afterLoad?.();
+      return;
+    }
+    if (kind === 'MEDICAMENT' && !this.medicationAccess()) {
       return;
     }
     this.kind.set(kind);
     this.chosenSlot.set(null);
     this.items.set([]);
-    this.load();
+    this.load(afterLoad);
   }
 
   protected setSlot(slot: string): void {
@@ -304,6 +365,18 @@ export class PersonnelDashboard {
   protected openPointage(): void {
     this.dialog.open(RfidPointage, { width: '520px', maxWidth: '96vw' })
       .afterClosed().subscribe(() => this.refreshTeam());
+  }
+
+  protected openLabel(): void {
+    this.dialog.open<LabelCheckDialog, undefined, IdentifyResult>(LabelCheckDialog, {
+      width: '560px',
+      maxWidth: '100vw',
+      autoFocus: false,
+    }).afterClosed().subscribe((result) => {
+      if (result) {
+        this.setKind('MEDICAMENT', () => this.openResident(result.residentId));
+      }
+    });
   }
 
   protected openScan(): void {

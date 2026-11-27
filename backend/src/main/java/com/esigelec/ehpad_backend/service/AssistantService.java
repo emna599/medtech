@@ -432,6 +432,7 @@ public class AssistantService {
 
     private String slotText(String slot) {
         return switch (slot) {
+            case "PETIT_DEJEUNER" -> "petit-déjeuner";
             case "DEJEUNER" -> "déjeuner";
             case "DINER" -> "dîner";
             case "MATIN" -> "matin";

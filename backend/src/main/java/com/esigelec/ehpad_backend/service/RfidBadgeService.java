@@ -91,6 +91,22 @@ public class RfidBadgeService {
         audit.record(currentUser.require(actor), "RFID_RESIDENT_ATTRIBUE", "Resident", id);
     }
 
+    /** Association de démonstration. Une carte déjà distribuée ne peut pas être remplacée ici. */
+    @Transactional
+    public void linkDemoResident(long id, String code, String actor, java.util.function.Consumer<Resident> authorize) {
+        Resident resident = residents.findByIdForUpdate(id).filter(Resident::isActive)
+                .filter(candidate -> candidate.getIdentityCode() != null && candidate.getIdentityCode().startsWith("DEMO-"))
+                .orElseThrow(() -> new ResourceNotFoundException("Résident de démonstration introuvable"));
+        authorize.accept(resident);
+        String fixture = "NFC-" + resident.getIdentityCode();
+        if (code.trim().startsWith("NFC-DEMO-") || Boolean.TRUE.equals(jdbc.queryForObject(
+                "select exists (select 1 from resident_nfc_tag where resident_id = ? and active and token <> ?)",
+                Boolean.class, id, fixture))) {
+            throw new ConflictException("Ce résident a déjà un bracelet actif ou ce code est réservé à la démonstration");
+        }
+        assignResident(id, code, actor);
+    }
+
     @Transactional
     public void revokeResident(long id, String actor) {
         residents.findByIdForUpdate(id).orElseThrow(() -> new ResourceNotFoundException("Résident introuvable"));

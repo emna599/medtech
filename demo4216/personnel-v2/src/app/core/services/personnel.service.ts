@@ -8,6 +8,8 @@ import {
   Chevalet,
   CompleteRequest,
   Dining,
+  DiningSeat,
+  Breakfast,
   DiningSlot,
   Reading,
   Doubt,
@@ -121,8 +123,25 @@ export class PersonnelService {
   }
 
   /** Lecture d'un bracelet par le lecteur d'une table (ici simulée à partir de l'identifiant du résident). */
-  sendReading(readerCode: string, residentId: number, leaving = false): Observable<Reading> {
-    return this.http.post<Reading>(`${this.base}/dining/readings`, { readerCode, residentId, leaving });
+  sendReading(readerCode: string, residentId: number | null, leaving = false, token?: string): Observable<Reading> {
+    return this.http.post<Reading>(`${this.base}/dining/readings`, { readerCode, residentId, token, leaving });
+  }
+
+  /** Associe une carte NFC (numéro de série lu par le téléphone) à un résident. */
+  breakfast(): Observable<Breakfast[]> {
+    return this.http.get<Breakfast[]>(`${this.base}/dining/breakfast`);
+  }
+
+  serveBreakfast(id: number, version: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/dining/breakfast/${id}`, { version });
+  }
+
+  demoNfcResidents(): Observable<DiningSeat['resident'][]> {
+    return this.http.get<DiningSeat['resident'][]>(`${this.base}/dining/demo-nfc/residents`);
+  }
+
+  linkNfc(residentId: number, token: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/dining/demo-nfc/residents/${residentId}`, { token });
   }
 
   /** Menu de la semaine qui contient la date (AAAA-MM-JJ), par défaut cette semaine. */

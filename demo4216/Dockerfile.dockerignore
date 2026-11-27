@@ -17,3 +17,6 @@ frontend/ios/
 **/.env
 **/.env.*
 **/.git
+demo4216/personnel-v2/node_modules
+demo4216/personnel-v2/dist/
+demo4216/personnel-v2/.angular/

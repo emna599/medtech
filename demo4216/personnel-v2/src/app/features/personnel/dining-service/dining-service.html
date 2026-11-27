@@ -33,12 +33,40 @@
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ active() ? 'contactless' : 'sensors_off' }}</mat-icon>
       <span>{{ active() ? 'Actualiser' : 'Afficher les présences' }}</span>
     </button>
+    @if (nfcOk) {
+      <label class="pick">
+        Table du lecteur NFC
+        <select [ngModel]="phoneReaderCode()" (ngModelChange)="phoneReader.set($event)">
+          @for (table of dining()?.tables ?? []; track table.id) {
+            @if (table.readerCode) {
+              <option [value]="table.readerCode">{{ table.label }}</option>
+            }
+          }
+        </select>
+      </label>
+    }
     @if (active()) {
       <button mat-icon-button type="button" aria-label="Masquer les présences" title="Masquer les présences" (click)="stop()">
         <mat-icon fontSet="material-symbols-outlined">power_settings_new</mat-icon>
       </button>
     }
   </section>
+
+  @if (nfcHint) { <p class="nfc-hint" role="status">{{ nfcHint }}</p> }
+  @if (scanning()) { <p class="nfc-banner" role="status">Approchez le bracelet du téléphone · {{ phoneTableLabel() }}</p> }
+  @if (unknownCard()) {
+    <section class="link-card" aria-label="Bracelet inconnu">
+      <label for="link-resident">Résident à associer au bracelet</label>
+      <input id="link-resident" class="link-input" list="link-residents" autocomplete="off"
+        [ngModel]="linkQuery()" (ngModelChange)="linkQuery.set($event)" />
+      <datalist id="link-residents">
+        @for (resident of linkResidents(); track resident.id) {
+          <option [value]="residentLabel(resident)"></option>
+        }
+      </datalist>
+      <button mat-flat-button type="button" [disabled]="busy()" (click)="linkAndSeat()">Associer</button>
+    </section>
+  }
 
   @if (arrivalResident()) {
     <form class="sim" (ngSubmit)="installResident()">
@@ -77,6 +105,33 @@
         <mat-progress-bar mode="determinate" [value]="progress()" aria-label="Avancement du service" />
       </div>
     </section>
+
+    @if (dishAlerts().length > 0) {
+      <section class="dish-alerts" aria-label="Résidents qui ne peuvent pas manger certains plats">
+        @for (alert of dishAlerts(); track alert.dish) {
+          <details class="dish-alert" [open]="alert.stops > 0">
+            <summary>
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">no_meals</mat-icon>
+              <strong>{{ alert.dish }}</strong>
+              <span class="count">{{ alert.count }}</span>
+            </summary>
+            @for (group of alert.groups; track group.reason) {
+              <div class="group" [class.stop]="group.stop">
+                <span class="reason">
+                  <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ group.stop ? 'block' : 'warning' }}</mat-icon>
+                  {{ group.reason }}
+                </span>
+                <span class="names">
+                  @for (person of group.people; track person.name + person.table) {
+                    <span class="name">{{ person.name }} <small>{{ person.table }}</small></span>
+                  }
+                </span>
+              </div>
+            }
+          </details>
+        }
+      </section>
+    }
 
     <mat-form-field appearance="outline" class="search" subscriptSizing="dynamic">
       <mat-label>Rechercher</mat-label>
@@ -134,6 +189,9 @@
                       <span class="text">
                         <span class="name">{{ seat.resident.lastName }} {{ seat.resident.firstName }}</span>
                         <span class="meta">
+                          @if (seat.warnings?.length) {
+                            <span class="chip allergy" title="Consignes à vérifier">{{ seat.warnings.length }} alerte(s)</span>
+                          }
                           @if (seat.chevalet) { <span class="chip"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">tag</mat-icon>{{ seat.chevalet }}</span> }
                         </span>
                       </span>

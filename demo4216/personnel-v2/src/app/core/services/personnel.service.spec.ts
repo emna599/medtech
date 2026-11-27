@@ -50,7 +50,7 @@ describe('PersonnelService', () => {
 
   it('identifies a resident by code and asks the assistant', () => {
     service.identify('DEMO-001').subscribe();
-    http.expectOne(`${BASE}/identify`).flush({});
+    http.expectOne('/api/identification/bracelet').flush({});
 
     service.ask('Résumé du service').subscribe();
     const ask = http.expectOne(`${BASE}/assistant`);

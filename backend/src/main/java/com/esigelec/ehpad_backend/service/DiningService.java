@@ -53,6 +53,11 @@ public class DiningService {
     private final JdbcTemplate jdbc;
     private final ChevaletService chevaletService;
     private final KitchenService kitchen;
+    private final ResidentCardAssembler assembler;
+    private final RfidBadgeService badges;
+    private final StaffService staff;
+    private final StaffAssignmentService assignments;
+    private final boolean demoNfcLink;
 
     public DiningService(DiningTableRepository tableRepository,
                          MealRepository mealRepository,
@@ -61,7 +66,10 @@ public class DiningService {
                          TablePresenceRepository presenceRepository,
                          ResidentRepository residentRepository,
                          CurrentUserService currentUserService,
-                         AuditService auditService, JdbcTemplate jdbc, ChevaletService chevaletService, KitchenService kitchen) {
+                         AuditService auditService, JdbcTemplate jdbc, ChevaletService chevaletService, KitchenService kitchen,
+                         ResidentCardAssembler assembler, RfidBadgeService badges, StaffService staff,
+                         StaffAssignmentService assignments,
+                         @org.springframework.beans.factory.annotation.Value("${medtech.demo.nfc-link:false}") boolean demoNfcLink) {
         this.tableRepository = tableRepository;
         this.mealRepository = mealRepository;
         this.menuRepository = menuRepository;
@@ -73,6 +81,42 @@ public class DiningService {
         this.jdbc = jdbc;
         this.chevaletService = chevaletService;
         this.kitchen = kitchen;
+        this.assembler = assembler;
+        this.badges = badges;
+        this.staff = staff;
+        this.assignments = assignments;
+        this.demoNfcLink = demoNfcLink;
+    }
+
+    @Transactional(readOnly = true)
+    public List<DiningDto.Identity> demoNfcResidents(String username) {
+        requireDemoLink();
+        User user = currentUserService.require(username);
+        boolean diningUser = staff.jobOf(user) == com.esigelec.ehpad_backend.entity.Job.SERVICE;
+        var floors = diningUser ? java.util.Set.<Integer>of() : assignments.activeFloors(username);
+        return residentRepository.findAll().stream().filter(Resident::isActive)
+                .filter(resident -> diningUser || resident.getRoom() != null && floors.contains(resident.getRoom().getFloor()))
+                .filter(resident -> resident.getIdentityCode() != null && resident.getIdentityCode().startsWith("DEMO-"))
+                .sorted(java.util.Comparator.comparing(Resident::getLastName).thenComparing(Resident::getFirstName))
+                .map(resident -> new DiningDto.Identity(resident.getId(), resident.getFirstName(), resident.getLastName(),
+                        resident.getRoom() == null ? null : resident.getRoom().getNumber()))
+                .toList();
+    }
+
+    @Transactional
+    public void linkDemoNfc(long id, String token, String username) {
+        requireDemoLink();
+        User user = currentUserService.require(username);
+        badges.linkDemoResident(id, token, username, resident -> {
+            if (staff.jobOf(user) != com.esigelec.ehpad_backend.entity.Job.SERVICE) {
+                assignments.requireFloor(user, resident.getRoom() == null ? null : resident.getRoom().getFloor());
+            }
+        });
+    }
+
+    private void requireDemoLink() {
+        if (!demoNfcLink) throw new org.springframework.security.access.AccessDeniedException(
+                "Les bracelets sont attribués depuis l’administration");
     }
 
     /** Repas affiché par défaut : le déjeuner jusqu'à 15 h, le dîner ensuite. */
@@ -117,6 +161,8 @@ public class DiningService {
         });
 
         var preparation = kitchen.statuses(meal);
+        var todayMenu = menuEntry(today, meal);
+        var cards = assembler.assemble(residents.values());
         Map<Long, List<DiningDto.Seat>> byTable = new HashMap<>();
         for (TablePresence presence : presences) {
             Resident resident = residents.get(presence.getResidentId());
@@ -131,7 +177,8 @@ public class DiningService {
                             resident.getRoom() == null ? null : resident.getRoom().getNumber()),
                     chevalets.get(resident.getId()),
                     planned == null ? null : new DiningDto.Meal(planned.getId(), planned.getStatus(),
-                            preparation.getOrDefault(planned.getId(), KitchenService.PlateStatus.A_PREPARER).name())));
+                            preparation.getOrDefault(planned.getId(), KitchenService.PlateStatus.A_PREPARER).name()),
+                    MenuCompatibility.check(todayMenu, cards.get(resident.getId()))));
         }
 
         List<DiningDto.Table> tables = new ArrayList<>();
@@ -145,7 +192,7 @@ public class DiningService {
             seated += tableSeats.size();
             served += done;
         }
-        return new DiningDto(meal, today, menuEntry(today, meal), seated, served, tables);
+        return new DiningDto(meal, today, todayMenu, seated, served, tables);
     }
 
     /**

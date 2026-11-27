@@ -1,7 +1,55 @@
 <app-toolbar [job]="diningOnly() ? 'SERVICE' : (team()?.myJob ?? null)" />
 
-@if (diningView()) {
-  @if (!diningOnly()) {
+@if (diningOnly() && breakfastOpen()) {
+  <main class="page">
+    <div class="top">
+      <button mat-stroked-button type="button" (click)="breakfastOpen.set(false); breakfastConfirmation.set(null)">
+        <mat-icon>table_restaurant</mat-icon> Tables
+      </button>
+      <h1>Petit-déjeuner en chambre</h1>
+    </div>
+    @if (breakfastError()) { <p role="alert">{{ breakfastError() }}</p> }
+    @if (breakfastLoading()) {
+      <p role="status">Chargement des petits-déjeuners…</p>
+    } @else if (breakfast().length === 0 && !breakfastError()) {
+      <p>Aucun petit-déjeuner prévu aujourd’hui.</p>
+    } @else {
+      <ul class="breakfast-list">
+        @for (item of breakfast(); track item.id) {
+          <li>
+            <div>
+              <strong>{{ item.name }}</strong>
+              <p>Chambre {{ item.room }} · {{ floorTitle(item.floor) }}</p>
+              <p>{{ item.regime }} · {{ item.texture }}</p>
+              @if (item.restrictions) { <p>{{ item.restrictions }}</p> }
+              @if (item.allergies.length) { <p><strong>Allergies</strong> · {{ item.allergies.join(', ') }}</p> }
+            </div>
+            @if (item.status === 'A_FAIRE' || item.status === 'PLUS_TARD') {
+              @if (breakfastConfirmation() === item.id) {
+                <div>
+                  <p>Vérifiez le résident et les consignes du plateau.</p>
+                  <button mat-button type="button" [disabled]="breakfastSaving()" (click)="breakfastConfirmation.set(null)">Annuler</button>
+                  <button mat-flat-button type="button" [disabled]="breakfastSaving()" (click)="serveBreakfast(item)">Confirmer le service</button>
+                </div>
+              } @else {
+                <button mat-stroked-button type="button" [disabled]="breakfastSaving()" (click)="breakfastConfirmation.set(item.id)">Marquer servi</button>
+              }
+            } @else {
+              <span>{{ item.status === 'FAIT' ? 'Servi' : item.status === 'REFUSE' ? 'Refusé' : 'Absent' }}</span>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </main>
+} @else if (diningView()) {
+  @if (diningOnly()) {
+    <div class="back">
+      <button mat-stroked-button type="button" class="releve" (click)="openBreakfast()">
+        <mat-icon>bed</mat-icon> Chambres
+      </button>
+    </div>
+  } @else {
     <div class="back">
       <button mat-stroked-button type="button" class="releve" (click)="showDining.set(false)">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">arrow_back</mat-icon>
@@ -86,6 +134,13 @@
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">badge</mat-icon>
       <span>Pointage RFID</span>
     </button>
+
+    @if (medicationAccess()) {
+      <button mat-stroked-button type="button" class="releve" (click)="openLabel()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">label</mat-icon>
+        <span>Étiquette</span>
+      </button>
+    }
 
     <button mat-flat-button type="button" class="scan" (click)="openScan()">
       <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">{{ kind() === 'REPAS' ? 'qr_code_scanner' : 'nfc' }}</mat-icon>
@@ -278,7 +333,13 @@
     </ul>
   } @else {
     <ul class="rows">
-      @for (item of visible(); track item.id) {
+      @for (item of visible(); track item.id; let i = $index) {
+        @if (i === 0 || visible()[i - 1].resident.floor !== item.resident.floor) {
+          <li class="floor-title">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">stairs</mat-icon>
+            {{ floorTitle(item.resident.floor) }}
+          </li>
+        }
         <li>
           <button type="button" [class]="'row ' + statusClass(item)" (click)="open(item)">
             <span class="room">{{ item.resident.room ?? '—' }}</span>

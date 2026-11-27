@@ -2,7 +2,7 @@ import { DiningSeat, DiningTable, isMealFinished, seatSlots } from '../../../sha
 import { isoDate } from '../menu-dialog/menu-dialog';
 
 function seat(position: number): DiningSeat {
-  return { position, resident: { id: position } as DiningSeat['resident'], chevalet: null, meal: null };
+  return { position, resident: { id: position } as DiningSeat['resident'], chevalet: null, meal: null, warnings: [] };
 }
 
 describe('salle à manger', () => {

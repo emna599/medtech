@@ -280,3 +280,9 @@ cd backend
 - La dictée vocale n'est pas encore dans les commentaires de refus (uniquement dans l'assistant).
 - La lecture des pochettes dépend du prototype Flask : elle n'est pas fiable sur une photo floue ou mal éclairée.
 - Les tests Java (assistant, appétit, pochette) sont écrits mais n'ont pas été exécutés par l'auteur de ce document : à lancer avec `mvnw.cmd test`.
+
+## Nouveautés dans la démo 4216
+
+- **Service → Chambres** affiche le petit-déjeuner du jour avec les consignes et la confirmation du service. **Tables** revient à la salle et affiche les alertes de menu des résidents présents.
+- **Infirmier → Étiquette** lit une photo ou l’un des PNG de `database/etiquettes_demo/`. Vérifiez le résident proposé, puis scannez son bracelet ou saisissez le code affiché sur le support de test. La photo est traitée sur l’appareil.
+- **Service en salle** permet de choisir la table associée au téléphone et de lire un bracelet NFC. L’association d’une carte inconnue depuis ce parcours est activée sur la démo 4216 pour les résidents fictifs.

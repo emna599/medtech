@@ -1,0 +1,128 @@
+<div class="dialog">
+  <header class="head">
+    <h2 class="title"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">label</mat-icon> Étiquette</h2>
+    <button mat-icon-button type="button" aria-label="Fermer" (click)="close()">
+      <mat-icon fontSet="material-symbols-outlined">close</mat-icon>
+    </button>
+  </header>
+
+  @switch (step()) {
+    @case ('photo') {
+      <section class="step">
+        <label class="big-action">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">photo_camera</mat-icon>
+          <span>Photographier l'étiquette</span>
+          <input type="file" accept="image/*" capture="environment" (change)="onPhoto($event)" />
+        </label>
+        @if (error(); as message) {
+          <p class="error" role="alert"><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">error</mat-icon> {{ message }}</p>
+        }
+      </section>
+    }
+
+    @case ('reading') {
+      <section class="step" aria-live="polite">
+        <mat-icon fontSet="material-symbols-outlined" class="spin" aria-hidden="true">text_fields</mat-icon>
+        <p>Lecture de l'étiquette…</p>
+        <mat-progress-bar mode="determinate" [value]="progress() * 100" aria-label="Lecture en cours" />
+      </section>
+    }
+
+    @case ('found') {
+      <section class="step found">
+        @if (found(); as resident) {
+          <app-resident-avatar [photoUrl]="resident.photoUrl" [firstName]="resident.firstName" [lastName]="resident.lastName" [size]="168" />
+          <p class="name">{{ fullName(resident) }}</p>
+          <p class="meta">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">bed</mat-icon> {{ resident.room ?? '—' }}
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">cake</mat-icon> {{ resident.age }} ans
+          </p>
+          @if (info(); as label) {
+            @if (label.medications.length > 0) {
+              <p class="meds">
+                <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">medication</mat-icon>
+                {{ label.medications.join(' · ') }}
+              </p>
+            }
+          }
+          @if (resident.allergies.length > 0) {
+            <p class="allergy">
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">warning</mat-icon>
+              @for (allergy of resident.allergies; track allergy.name) { {{ allergy.name }} }
+            </p>
+          }
+        }
+
+        @if (nfcHint) {
+          <p class="error" role="alert">{{ nfcHint }}</p>
+        }
+
+        @if (scanning()) {
+          <p class="nfc-banner" role="status">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">nfc</mat-icon>
+            Approchez le bracelet…
+          </p>
+        }
+
+        @if (wrongPerson(); as other) {
+          <p class="error strong" role="alert">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">cancel</mat-icon>
+            Ce n'est pas la bonne personne : ce bracelet est celui de {{ fullName(other) }}.
+          </p>
+        }
+
+        @if (unknownCard()) {
+          <div class="unknown" role="alert">
+            <p><mat-icon fontSet="material-symbols-outlined" aria-hidden="true">help</mat-icon> Bracelet inconnu.</p>
+            <button mat-stroked-button type="button" [disabled]="busy()" (click)="linkCard()">
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">link</mat-icon>
+              <span>C'est son bracelet (associer)</span>
+            </button>
+          </div>
+        }
+
+        @if (braceletError(); as message) {
+          <p class="error" role="alert">{{ message }}</p>
+        }
+
+        <div class="actions">
+          @if (nfcOk) {
+            <button mat-flat-button type="button" [disabled]="busy() || scanning()" (click)="scanBracelet()">
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">nfc</mat-icon>
+              <span>Scanner son bracelet</span>
+            </button>
+          } @else {
+            <label class="code">
+              <input placeholder="Code du bracelet" autocomplete="off" [ngModel]="code()" (ngModelChange)="code.set($event)" (keyup.enter)="checkCode()" />
+            </label>
+            <button mat-flat-button type="button" [disabled]="busy() || !code().trim()" (click)="checkCode()">
+              <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">verified_user</mat-icon>
+              <span>Vérifier</span>
+            </button>
+          }
+          <button mat-stroked-button type="button" (click)="restart()">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">undo</mat-icon>
+            <span>Autre étiquette</span>
+          </button>
+        </div>
+      </section>
+    }
+
+    @case ('verified') {
+      <section class="step found ok">
+        @if (found(); as resident) {
+          <app-resident-avatar [photoUrl]="resident.photoUrl" [firstName]="resident.firstName" [lastName]="resident.lastName" [size]="120" />
+          <p class="verified">
+            <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">verified</mat-icon>
+            Identité confirmée
+          </p>
+          <p class="name">{{ fullName(resident) }}</p>
+        }
+        <button mat-flat-button type="button" (click)="confirm()">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">medication</mat-icon>
+          <span>Donner les médicaments</span>
+        </button>
+      </section>
+    }
+  }
+</div>

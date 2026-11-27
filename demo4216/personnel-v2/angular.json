@@ -27,6 +27,21 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "worker.min.js*",
+                "input": "node_modules/tesseract.js/dist",
+                "output": "ocr"
+              },
+              {
+                "glob": "tesseract-core*-lstm.wasm.js",
+                "input": "node_modules/tesseract.js-core",
+                "output": "ocr/core"
+              },
+              {
+                "glob": "fra.traineddata.gz",
+                "input": "node_modules/@tesseract.js-data/fra/4.0.0_best_int",
+                "output": "ocr/lang"
               }
             ],
             "styles": [

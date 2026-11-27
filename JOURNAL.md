@@ -700,3 +700,11 @@ Il n'y a pas de mémoire commune entre outils IA : **le dépôt Git est la mémo
 3. **Mettre à jour `JOURNAL.md`**, puis `git commit` + `git push`.
 
 C'est ça, le « temps réel » : non pas une mémoire partagée entre IA, mais une **synchronisation Git disciplinée** (pull au début, push + journal à jour à la fin).
+
+### Démo 4216 — intégration de Personnel V2
+
+- Source `feature/personnel-v2` au commit `3cf7be7`. La démo sert l’interface Personnel mise à jour sous `/v2/`, avec la même API et le même volume PostgreSQL.
+- Le profil Service démarre aux tables. **Chambres** ouvre les petits-déjeuners du jour et la confirmation vérifie la version des consignes. Les tournées soignantes indiquent les étages et la salle affiche les alertes de menu issues des libellés des plats.
+- Le bouton **Étiquette** est réservé aux infirmiers. Le moteur OCR français est servi localement. Un bracelet discordant ne confirme pas l’identité.
+- Le téléphone peut servir de lecteur pour une table. La démo permet d’associer une carte à un résident fictif sans déplacer un bracelet déjà attribué ailleurs. Le portail d’administration gère les associations ordinaires.
+- Vérification locale sur le port 4216 avec les comptes existants. Le lecteur NFC physique nécessite une application mobile reconstruite ou un navigateur et une carte compatibles.

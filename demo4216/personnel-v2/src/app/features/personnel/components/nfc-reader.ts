@@ -51,6 +51,63 @@ export function tagValue(event: NdefReadingEventLike): string | null {
   return event.serialNumber?.trim() || null;
 }
 
+export function nfcProblem(): string | null {
+  if (nfcSupported() || typeof navigator === 'undefined' || !/Android|iPhone/i.test(navigator.userAgent)) {
+    return null;
+  }
+  return 'La lecture NFC est indisponible ici. Utilisez l’application MedTech ou saisissez le code.';
+}
+
+export function scanNfcOnce(
+  handlers: { tag: (value: string) => void; error: (message: string) => void },
+): () => void {
+  const abort = new AbortController();
+  const native = Capacitor.isNativePlatform() && nfcSupported();
+  const reader = native ? null : readerCtor();
+  let nativePending = native;
+  const cancel = () => {
+    if (abort.signal.aborted) return;
+    abort.abort();
+    clearTimeout(timer);
+    if (nativePending) void nativeNfc.cancel().catch(() => {});
+  };
+  const timer = setTimeout(() => fail('Aucun bracelet détecté. Réessayez.'), 30_000);
+  const fail = (message: string) => {
+    if (abort.signal.aborted) return;
+    cancel();
+    handlers.error(message);
+  };
+  const accept = (value: string) => {
+    if (abort.signal.aborted) return;
+    cancel();
+    handlers.tag(value);
+  };
+  const unavailable = 'Lecture NFC indisponible. Utilisez un lecteur compatible ou saisissez le code.';
+  if (native) {
+    void nativeNfc.scan().then(({ code }) => {
+      nativePending = false;
+      accept(code);
+    }, () => {
+      nativePending = false;
+      fail(unavailable);
+    });
+  } else if (reader) {
+    try {
+      const instance = new reader();
+      instance.addEventListener('reading', (event) => {
+        const value = tagValue(event as NdefReadingEventLike);
+        if (value) accept(value);
+      });
+      void instance.scan({ signal: abort.signal }).catch(() => fail(unavailable));
+    } catch {
+      fail(unavailable);
+    }
+  } else {
+    fail(unavailable);
+  }
+  return cancel;
+}
+
 /** Lecteur de puce NFC : le soignant approche la tablette du bracelet, la lecture est automatique. */
 @Component({
   selector: 'app-nfc-reader',

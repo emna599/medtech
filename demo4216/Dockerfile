@@ -8,7 +8,7 @@ COPY frontend/public/ ./integration/public/
 COPY demo4216/integration/ ./integration/
 COPY demo4216/personnel-v2/ ./personnel-v2/
 RUN cd integration && ../node_modules/.bin/ng build --configuration development
-RUN cd personnel-v2 && ../node_modules/.bin/ng build --configuration development --base-href /v2/
+RUN ln -s /app/node_modules /app/personnel-v2/node_modules && cd personnel-v2 && ../node_modules/.bin/ng build --configuration development --base-href /v2/
 
 FROM nginx:alpine
 COPY --from=build /app/integration/dist/frontend/browser/ /usr/share/nginx/html/

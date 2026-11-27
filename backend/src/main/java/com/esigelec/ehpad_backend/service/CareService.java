@@ -41,6 +41,7 @@ public class CareService {
 
     private static final Comparator<ServiceItemDto> ORDER = Comparator
             .comparing(ServiceItemDto::scheduledAt)
+            .thenComparing(item -> item.resident().floor() == null ? Integer.MAX_VALUE : item.resident().floor())
             .thenComparing(item -> roomOrder(item.resident().room()))
             .thenComparing(item -> item.resident().lastName());
 
@@ -118,13 +119,29 @@ public class CareService {
 
     @Transactional
     public ServiceItemDto completeMeal(Long mealId, CompleteRequest request, String username) {
+        return completeMeal(mealId, request, username, false);
+    }
+
+    @Transactional
+    public void serveBreakfast(Long mealId, String version, String username) {
+        completeMeal(mealId, new CompleteRequest(ServiceStatus.FAIT, null, true, version), username, true);
+    }
+
+    private ServiceItemDto completeMeal(Long mealId, CompleteRequest request, String username, boolean roomBreakfast) {
         User user = currentUserService.require(username);
         Long residentId = mealRepository.findResidentId(mealId)
                 .orElseThrow(() -> new ResourceNotFoundException("Repas introuvable"));
         Resident resident = lockActiveResident(residentId);
         Meal meal = mealRepository.findByIdForUpdate(mealId)
                 .orElseThrow(() -> new ResourceNotFoundException("Repas introuvable"));
-        requireAssignment(user, resident);
+        if (roomBreakfast) {
+            if (!"PETIT_DEJEUNER".equals(meal.getType()) || !meal.getScheduledAt().toLocalDate().equals(LocalDate.now())
+                    || resident.getRoom() == null) {
+                throw new ResourceNotFoundException("Petit-déjeuner en chambre introuvable");
+            }
+        } else {
+            requireAssignment(user, resident);
+        }
         ResidentCardDto card = assembler.assemble(List.of(resident)).get(resident.getId());
         validate(request, meal.getStatus(), resident.getId());
         requireMealRiskAck(request, card);
