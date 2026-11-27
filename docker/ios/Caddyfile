@@ -1,0 +1,25 @@
+{
+	skip_install_trust
+	default_sni {$MEDTECH_LAN_IP}
+	auto_https disable_redirects
+	servers {
+		protocols h1 h2
+	}
+	pki {
+		ca local {
+			name "MedTech EHPAD Demo"
+		}
+	}
+}
+
+https://{$MEDTECH_LAN_IP}:8443 {
+	tls internal
+
+	handle /api/* {
+		reverse_proxy backend:8080
+	}
+
+	handle {
+		respond 404
+	}
+}

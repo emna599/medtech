@@ -5,6 +5,14 @@
 
 ---
 
+## Relais Codex du 2026-11-27 — API iOS HTTPS sur le Mac
+
+- Aucun Raspberry Pi disponible. Le Mac héberge la démo iOS sur son Wi-Fi via Caddy, avec une base et un secret JWT dédiés, une autorité TLS locale et une origine CORS limitée à Capacitor.
+- API démarrée sur `https://192.168.1.57:8443`. Certificat vérifié depuis le Mac, prérequêtes CORS acceptées pour Capacitor, origine tierce refusée, huit connexions fictives et flux des tournées vérifiés. Bundle iOS synchronisé avec cette adresse.
+- Installation du certificat sur l’iPhone et installation USB de l’application encore à vérifier. Xcode complet est requis sur le Mac. Le [guide mobile](docs/mobile.md#héberger-lapi-ios-de-démonstration-sur-le-mac) documente le démarrage et la préparation du certificat.
+
+---
+
 ## Relais Codex du 2026-11-27 — projet iOS pour installation USB
 
 - Ajout du projet Xcode iOS avec Capacitor 8 et Swift Package Manager. La cible embarque Angular et le build reçoit l’origine HTTPS de l’API de démo. Les étapes de signature et de branchement sont dans le [guide mobile](docs/mobile.md#installer-lapplication-ios-par-usb).

@@ -1,0 +1,24 @@
+# API sur un réseau privé avec une base exclusivement fictive.
+services:
+  backend:
+    ports: !reset []
+    environment:
+      CORS_ALLOWED_ORIGINS: "capacitor://localhost"
+      JWT_SECRET: "${MEDTECH_IOS_JWT_SECRET:?Définissez un secret JWT de démo}"
+  frontend:
+    profiles: [web]
+  ios-api:
+    image: caddy:2-alpine
+    depends_on:
+      - backend
+    environment:
+      MEDTECH_LAN_IP: "${MEDTECH_LAN_IP:?Indiquez l’adresse Wi-Fi du serveur}"
+    ports:
+      - "${MEDTECH_LAN_IP}:8443:8443"
+    volumes:
+      - ./docker/ios/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ios_caddy_data:/data
+    restart: unless-stopped
+
+volumes:
+  ios_caddy_data:

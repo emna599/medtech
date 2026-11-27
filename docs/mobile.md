@@ -29,12 +29,35 @@ Sur l’iPhone connecté au même Wi-Fi, ouvrez `http://192.168.1.57:4201` dans 
 
 Cette instance utilise HTTP et des données fictives. Arrêtez-la après la recette avec la même commande Compose en remplaçant `up -d --build` par `down`. Le volume fictif est conservé.
 
+### Héberger l’API iOS de démonstration sur le Mac
+
+Utilisez un réseau Wi-Fi privé et l’IP Wi-Fi du Mac. Depuis la racine du dépôt, créez une fois le fichier de configuration à l’extérieur du dépôt. Remplacez l’adresse d’exemple par celle du Mac. Conservez ce fichier pour redémarrer le même projet.
+
+```sh
+(umask 077
+  printf 'MEDTECH_LAN_IP=192.168.1.57\nMEDTECH_IOS_JWT_SECRET='
+  openssl rand -hex 32
+) > ../medtech-ios-api.env
+
+docker compose --env-file ../medtech-ios-api.env -p medtech-ios-api \
+  -f docker-compose.yml -f compose.ios-api.yml up -d --build
+
+docker compose --env-file ../medtech-ios-api.env -p medtech-ios-api \
+  -f docker-compose.yml -f compose.ios-api.yml exec -T ios-api \
+  cat /data/caddy/pki/authorities/local/root.crt > /tmp/medtech-ios-root.pem
+openssl x509 -in /tmp/medtech-ios-root.pem -outform DER -out /tmp/MedTech-Demo.cer
+```
+
+Le projet dédié héberge uniquement l’API sur le port 8443 et garde la base fictive dans un volume isolé. Caddy conserve son autorité dans un volume dédié. Envoyez uniquement `MedTech-Demo.cer` à l’iPhone, par exemple avec AirDrop. Installez le certificat reçu dans **Réglages**, puis activez sa confiance dans **Général → Informations → Réglages des certificats**. Retirez ce certificat de l’iPhone après la recette. [Confiance des certificats sur iPhone](https://support.apple.com/fr-fr/102390)
+
+Utilisez `https://192.168.1.57:8443`, avec l’IP du Mac, comme `MEDTECH_IOS_API_ORIGIN` dans les étapes USB. L’iPhone doit rester sur le même Wi-Fi. Si l’IP du Mac change, adaptez le fichier d’environnement, relancez le projet et recompilez le bundle iOS avec la nouvelle origine.
+
 ### Installer l’application iOS par USB
 
 Le projet Xcode est dans `frontend/ios/App/App.xcodeproj`. Capacitor embarque le build Angular dans l’application et Swift Package Manager résout ses dépendances iOS. La connexion à Spring Boot nécessite une API de démonstration HTTPS joignable depuis l’iPhone et un certificat reconnu par iOS. Le câble sert à installer et déboguer l’application. Les requêtes passent par le réseau.
 
 1. Installez Xcode 26 ou une version ultérieure compatible avec votre iPhone. Ouvrez Xcode et connectez votre compte Apple dans **Settings → Accounts**.
-2. Configurez l’API fictive pour accepter l’origine `capacitor://localhost`. Sous Docker Compose, utilisez `CORS_ALLOWED_ORIGINS='http://localhost:4200,capacitor://localhost'` lors du démarrage de l’API. Conservez les autres origines explicitement autorisées pour cet environnement si nécessaire.
+2. Si vous hébergez l’API ailleurs que sur le Mac selon la procédure ci-dessus, configurez-la pour accepter l’origine `capacitor://localhost`. Sous Docker Compose, utilisez `CORS_ALLOWED_ORIGINS='http://localhost:4200,capacitor://localhost'` lors du démarrage de l’API. Conservez les autres origines explicitement autorisées pour cet environnement si nécessaire.
 3. Depuis `frontend/`, compilez et synchronisez en remplaçant l’adresse d’exemple par l’origine réelle de l’API.
 
    ```sh
