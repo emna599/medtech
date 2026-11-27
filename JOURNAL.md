@@ -5,6 +5,11 @@
 
 ---
 
+## Version iPhone de la démo 4216
+
+- Le script iOS assemble la connexion et les écrans Admin/Médecin avec Personnel V2 et la salle, puis synchronise les deux interfaces dans Capacitor. Les appels HTTPS privés utilisent le préfixe `/demo4216`.
+- Build et synchronisation réussis. Vérifié via Tailscale que l’API démo sert ses 80 résidents, 160 repas et 136 prises et que l’API d’intégration sert toujours ses 24 résidents. Installation et navigation sur l’iPhone à vérifier depuis Xcode.
+
 ## Relance de la démo avant la refonte
 
 - Reconstruit la démo locale sur `feature/demo-4216` et conservé son volume dédié. Les deux points d’entrée Angular répondent et les cinq comptes fictifs se connectent.

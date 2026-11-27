@@ -1,3 +1,4 @@
+import { environment } from '../environments/environment';
 import { inject } from '@angular/core';
 import { Router, Routes } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
@@ -62,7 +63,11 @@ export const routes: Routes = [
         map(access => {
           if (access.kitchenOnly) return unavailable;
           if (identifiedResident) return true;
-          window.location.replace(access.diningOnly ? '/v2/personnel?tables=1' : '/v2/personnel');
+          const tables = access.diningOnly ? '?tables=1' : '';
+          const destination = environment.apiUrl
+            ? `/v2/index.html${tables}#/personnel`
+            : `/v2/personnel${tables}`;
+          window.location.replace(destination);
           return false;
         }),
         catchError(() => of(unavailable)),

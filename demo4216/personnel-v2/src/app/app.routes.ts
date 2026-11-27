@@ -1,3 +1,4 @@
+import { environment } from '../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, map, of } from 'rxjs';
@@ -25,7 +26,7 @@ export const routes: Routes = [
         window.location.replace('/profil-indisponible');
         return false;
       };
-      return inject(HttpClient).get<{ kitchenOnly: boolean }>('/api/personnel/access').pipe(
+      return inject(HttpClient).get<{ kitchenOnly: boolean }>(`${environment.apiUrl}/api/personnel/access`).pipe(
         map(access => access.kitchenOnly ? unavailable() : true),
         catchError(() => of(unavailable())),
       );

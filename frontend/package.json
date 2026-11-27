@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "ios:sync": "node scripts/build-ios.mjs"
+    "ios:sync": "node scripts/build-ios.mjs",
+    "ios:demo4216": "node scripts/build-ios-demo4216.mjs"
   },
   "private": true,
   "packageManager": "npm@11.20.0",

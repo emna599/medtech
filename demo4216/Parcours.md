@@ -28,3 +28,13 @@ Ouvrez [la démo](http://localhost:4216/login). Le premier démarrage charge le 
 Les cinq comptes fictifs utilisent `Demo1234!`. Dans **Scanner**, essayez `NFC-DEMO-002`. Dans **Pointage RFID**, saisissez le code du badge du compte connecté.
 
 Deux personnes qui ouvrent la même instance travaillent sur la même base. Chaque installation Docker indépendante possède son propre volume PostgreSQL et un jeu initial identique. Après le passage de l’ancienne démo à ce volume dédié, reconnectez-vous pour ouvrir une session sur cette base.
+
+## Installer la démo 4216 sur iPhone
+
+Sur le réseau privé Tailscale, le relais transmet `/demo4216/api/` vers le backend du projet Compose `medtech-demo-4216` en retirant le préfixe `/demo4216`. Le backend accepte l’origine Capacitor et utilise le volume de la démo 4216. Pour synchroniser les deux interfaces dans Xcode, lancez depuis `frontend/` la commande suivante en remplaçant l’adresse d’exemple.
+
+```sh
+MEDTECH_DEMO_IOS_API_URL=https://mac.tailnet.ts.net/demo4216 npm run ios:demo4216
+```
+
+Branchez l’iPhone, sélectionnez-le dans Xcode et lancez **Run**. Le projet utilise le même identifiant iOS que l’application de démo précédente. Cette installation remplace donc sa version sur l’iPhone. Pour vérifier la démo, connectez-vous avec `personnel2` pour la tournée Personnel V2 ou `service1` pour les tables.
