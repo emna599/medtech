@@ -63,11 +63,11 @@ Dans **Administration → Comptes → Badge RFID**, attribuez, remplacez ou rév
 
 ### Service en salle
 
-Avec le compte de démonstration **service1**, les tables constituent la page d’accueil après la connexion. Sofia peut consulter le menu, enregistrer les arrivées et départs et gérer les chevalets. Le statut du repas reste visible sur la table. La validation du service se fait depuis la tournée de l’équipe qui y est habilitée.
+Avec le compte de démonstration **service1**, les tables constituent la page d’accueil après la connexion. Choisissez **Déjeuner** ou **Dîner** au-dessus des tables. Sofia peut consulter le menu, enregistrer les arrivées et départs et gérer les chevalets. Le statut du repas reste visible sur la table. La validation du service se fait depuis la tournée de l’équipe qui y est habilitée.
 
 ### Espace Cuisine
 
-Le compte de démonstration **cuisine1** ouvre les plateaux et la publication du menu. La préparation enregistre la version des consignes et du menu du créneau. Une modification remet le plateau **À revérifier**. Après correction, actualisez les tables dans Service en salle pour voir l’état **Corrigé**.
+Le compte de démonstration **cuisine1** ouvre les plateaux du jour. Choisissez **Déjeuner** ou **Dîner**. Dépliez **Publier un menu** pour saisir la date et les plats. La préparation enregistre la version des consignes et du menu du créneau. Une modification remet le plateau **À revérifier**. Après correction, actualisez les tables dans Service en salle pour voir l’état **Corrigé**.
 
 ### Préparation cuisine
 

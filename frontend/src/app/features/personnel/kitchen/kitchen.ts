@@ -1,3 +1,5 @@
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatIconModule } from '@angular/material/icon';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -23,7 +25,7 @@ interface Plate {
 
 @Component({
   selector: 'app-kitchen',
-  imports: [FormsModule, MatButtonModule],
+  imports: [FormsModule, MatButtonModule, MatButtonToggleModule, MatIconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <main class="work-page kitchen">
@@ -32,11 +34,17 @@ interface Plate {
         <button mat-button type="button" (click)="pointage.emit()">Pointage RFID</button>
         <button mat-stroked-button (click)="load()" [disabled]="busy()">Actualiser</button>
       </header>
-      <label class="slot">Créneau de préparation
-        <select [ngModel]="slot()" (ngModelChange)="slot.set($event); load()" [disabled]="busy()">
-          <option value="DEJEUNER">Déjeuner</option><option value="DINER">Dîner</option>
-        </select>
-      </label>
+      <mat-button-toggle-group class="slot" aria-label="Repas à préparer" [hideSingleSelectionIndicator]="true"
+        [value]="slot()" (change)="slot.set($event.value); load()">
+        <mat-button-toggle value="DEJEUNER" [disabled]="busy()">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">wb_sunny</mat-icon>
+          Déjeuner
+        </mat-button-toggle>
+        <mat-button-toggle value="DINER" [disabled]="busy()">
+          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">dark_mode</mat-icon>
+          Dîner
+        </mat-button-toggle>
+      </mat-button-toggle-group>
       @if (error()) { <p role="alert">{{ error() }}</p> }
       @if (notice()) { <p role="status">{{ notice() }}</p> }
       <section aria-labelledby="plates-heading">
@@ -65,8 +73,8 @@ interface Plate {
           }
         </ul>
       </section>
-      <section aria-labelledby="menu-heading">
-        <h2 id="menu-heading">Publier un menu</h2>
+      <details>
+        <summary>Publier un menu</summary>
         <form #form="ngForm" (ngSubmit)="publish()">
           <label>Date <input type="date" name="date" [(ngModel)]="menu.date" required></label>
           <label>Repas <select name="slot" [(ngModel)]="menu.slot"><option value="DEJEUNER">Déjeuner</option><option value="DINER">Dîner</option></select></label>
@@ -76,13 +84,15 @@ interface Plate {
           <label>Dessert <input name="dessert" [(ngModel)]="menu.dessert" maxlength="150"></label>
           <button mat-flat-button [disabled]="form.invalid || busy()">Publier le menu</button>
         </form>
-      </section>
+      </details>
     </main>
   `,
   styles: `
     .kitchen { display: grid; gap: 16px; }
     h2 { margin-block: 0 12px; }
-    .kitchen section { border: 1px solid var(--app-line); background: var(--app-surface); padding: 16px; border-radius: var(--control-radius); }
+    .kitchen :is(section, details) { border: 1px solid var(--app-line); background: var(--app-surface); padding: 16px; border-radius: var(--control-radius); }
+    summary { cursor: pointer; font-weight: 700; padding-block: 6px; }
+    details form { margin-block-start: 12px; }
     label, li { display: grid; gap: 6px; min-width: 0; }
     .slot { justify-self: start; }
     input, select { min-height: 44px; padding-inline: 8px; background: var(--app-surface); color: var(--app-ink); border: 1px solid var(--control-outline); border-radius: var(--control-radius); font: inherit; min-width: 0; }

@@ -1,3 +1,5 @@
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { ResidentAvatar } from '../components/resident-avatar';
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, output, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -15,7 +17,7 @@ interface DiningSelection { residentId: number; mealId: number }
 
 @Component({
   selector: 'app-dining-dialog',
-  imports: [NgTemplateOutlet, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule],
+  imports: [ResidentAvatar, MatButtonToggleModule, NgTemplateOutlet, MatButtonModule, MatDialogModule, MatFormFieldModule, MatIconModule, MatInputModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dining-dialog.html',
   styles: `
@@ -23,6 +25,11 @@ interface DiningSelection { residentId: number; mealId: number }
     article { padding: 12px; border: 1px solid var(--mat-sys-outline-variant); border-radius: var(--app-radius); }
     ul { list-style: none; margin: 8px 0; padding: 0; }
     li { display: grid; gap: 4px; padding: 8px 0; border-top: 1px solid var(--mat-sys-outline-variant); }
+    .summary, .seat-identity { display: flex; align-items: center; gap: 10px; }
+    .summary { padding: 10px 12px; background: var(--app-teal-tint); border-radius: var(--control-radius); }
+    .seat-identity app-resident-avatar { flex: none; }
+    .seat-room { display: block; color: var(--mat-sys-on-surface-variant); }
+    .meal-switch { max-width: 100%; }
     .error { color: var(--app-danger); }
   `,
 })

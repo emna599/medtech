@@ -21,8 +21,17 @@
 
 <ng-template #tables>
   <div class="tools">
-    <button mat-stroked-button [attr.aria-pressed]="slot() === 'DEJEUNER'" [disabled]="busy()" (click)="load('DEJEUNER')">Déjeuner</button>
-    <button mat-stroked-button [attr.aria-pressed]="slot() === 'DINER'" [disabled]="busy()" (click)="load('DINER')">Dîner</button>
+    <mat-button-toggle-group aria-label="Repas" class="meal-switch" [hideSingleSelectionIndicator]="true"
+      [value]="slot()" (change)="load($event.value)">
+      <mat-button-toggle value="DEJEUNER" [disabled]="busy()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">wb_sunny</mat-icon>
+        Déjeuner
+      </mat-button-toggle>
+      <mat-button-toggle value="DINER" [disabled]="busy()">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">dark_mode</mat-icon>
+        Dîner
+      </mat-button-toggle>
+    </mat-button-toggle-group>
     <button mat-stroked-button (click)="openMenu()">
                   <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant_menu</mat-icon>
                   Menu de la semaine
@@ -34,7 +43,10 @@
   @if (busy()) { <p role="status">Actualisation des tables…</p> }
   @if (dining(); as board) {
     @if (board.slot === slot()) {
-      <p>{{ board.seated }} à table · {{ board.served }} servi(s)</p>
+      <p class="summary">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">groups</mat-icon>
+        <span><strong>{{ board.seated }}</strong> à table · <strong>{{ board.served }}</strong> servis</span>
+      </p>
       <div class="work-card-grid">
         @for (table of board.tables; track table.id) {
           <article class="work-card">
@@ -47,7 +59,7 @@
             </header>
             @if (table.readerCode; as reader) {
               <div class="arrival">
-                <button mat-button [disabled]="busy()" (click)="confirmArrival(table)">
+                <button mat-flat-button [disabled]="busy()" (click)="confirmArrival(table)">
                   <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">person_add</mat-icon>
                   Installer un résident
                 </button>
@@ -70,8 +82,14 @@
               <ul>
                 @for (seat of table.seats; track seat.resident.id) {
                   <li>
-                    <strong class="work-card-name">{{ seat.resident.firstName }} {{ seat.resident.lastName }}</strong>
-                    <span>{{ seat.resident.room ? 'Chambre ' + seat.resident.room : 'Sans chambre' }}</span>
+                    <div class="seat-identity">
+                      <app-resident-avatar [firstName]="seat.resident.firstName"
+                        [lastName]="seat.resident.lastName" [size]="44" [showPersonIcon]="true" />
+                      <span>
+                        <strong class="work-card-name">{{ seat.resident.firstName }} {{ seat.resident.lastName }}</strong>
+                        <span class="seat-room">{{ seat.resident.room ? 'Chambre ' + seat.resident.room : 'Sans chambre' }}</span>
+                      </span>
+                    </div>
                     @if (seat.chevalet; as number) {
                       <span class="work-status">
                         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">confirmation_number</mat-icon>

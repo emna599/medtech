@@ -17,6 +17,24 @@
       </span>
       <h1>{{ kind() === 'REPAS' ? 'Tournée des repas' : 'Tournée des médicaments' }}</h1>
     </div>
+    <mat-button-toggle-group
+      class="kind"
+      aria-label="Type de service"
+      [hideSingleSelectionIndicator]="true"
+      [value]="kind()"
+      (change)="setKind($event.value)"
+    >
+      <mat-button-toggle value="REPAS">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
+        Repas
+      </mat-button-toggle>
+      @if (medicationAccess()) {
+      <mat-button-toggle value="MEDICAMENT">
+        <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">medication</mat-icon>
+        Médicaments
+      </mat-button-toggle>
+      }
+    </mat-button-toggle-group>
     <div class="heading-actions">
       <button mat-flat-button type="button" (click)="openIdentify()">
         <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">qr_code_scanner</mat-icon>
@@ -87,24 +105,6 @@
 
   <div class="tour-controls">
     <div class="tour-context">
-      <mat-button-toggle-group
-        class="kind"
-        aria-label="Type de service"
-        [hideSingleSelectionIndicator]="true"
-        [value]="kind()"
-        (change)="setKind($event.value)"
-      >
-        <mat-button-toggle value="REPAS">
-          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">restaurant</mat-icon>
-          Repas
-        </mat-button-toggle>
-        @if (medicationAccess()) {
-        <mat-button-toggle value="MEDICAMENT">
-          <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">medication</mat-icon>
-          Médicaments
-        </mat-button-toggle>
-        }
-      </mat-button-toggle-group>
       @if (total() > 0) {
         <div class="progress">
           @if (lastRefresh(); as refreshed) {

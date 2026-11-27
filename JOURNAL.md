@@ -5,6 +5,10 @@
 
 ---
 
+## Repères de Personnel V2 sur les trois espaces métier
+
+- Rapproché l’en-tête de tournée et les commandes du service en salle de `feature/personnel-v2`. Adapté les mêmes repères à Cuisine, dont la branche de référence ne dispose pas. Le formulaire de publication s’ouvre à la demande sous les plateaux.
+
 ## Accès directs aux tâches courantes
 
 - Placé les actions Résidents, Chambres et Comptes en haut de l’accueil Administration. Clarifié l’ouverture du dossier et l’identification côté médecin. Réorganisé les commandes de la tournée Personnel autour du lieu, du créneau et de la recherche.
